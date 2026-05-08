@@ -1,12 +1,11 @@
 import React, { useState, useRef } from "react";
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Device } from '@capacitor/device';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
@@ -48,8 +47,6 @@ export default function Finances() {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExportPDF = async () => {
-    if (!reportRef.current) return;
-    
     try {
       setIsExporting(true);
       toast.info("Generating PDF report...");
@@ -57,47 +54,137 @@ export default function Finances() {
       const info = await Device.getInfo();
       const isMobile = info.platform === 'android' || info.platform === 'ios';
 
-      const element = reportRef.current;
+      const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      // --- HEADER ---
+      pdf.setFillColor(18, 18, 18);
+      pdf.rect(0, 0, pageWidth, 40, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('FINANCE REPORT', margin, 26);
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, pageWidth - margin, 26, { align: 'right' });
+      pdf.text('Personal Hub', pageWidth - margin, 32, { align: 'right' });
+      y = 50;
+
+      // --- SUMMARY CARDS ---
+      const cardWidth = (contentWidth - 10) / 3;
+      const drawCard = (x: number, label: string, value: string, color: [number, number, number]) => {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setFillColor(248, 248, 248);
+        pdf.roundedRect(x, y, cardWidth, 28, 3, 3, 'FD');
+        pdf.setFontSize(8);
+        pdf.setTextColor(120, 120, 120);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(label, x + 5, y + 10);
+        pdf.setFontSize(16);
+        pdf.setTextColor(...color);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(value, x + 5, y + 23);
+      };
+
+      drawCard(margin, 'TOTAL BALANCE', `$${balance.toFixed(2)}`, [0, 0, 0]);
+      drawCard(margin + cardWidth + 5, 'INCOME', `$${totalIncome.toFixed(2)}`, [34, 197, 94]);
+      drawCard(margin + (cardWidth + 5) * 2, 'EXPENSES', `$${totalExpense.toFixed(2)}`, [239, 68, 68]);
+      y += 36;
+
+      // --- TRANSACTIONS TABLE ---
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('TRANSACTIONS', margin, y);
+      y += 6;
+
+      // Table header
+      pdf.setFillColor(18, 18, 18);
+      pdf.rect(margin, y, contentWidth, 8, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica', 'bold');
+      const colX = [margin + 3, margin + 20, margin + 55, margin + 100, margin + 140];
+      pdf.text('TYPE', colX[0], y + 5.5);
+      pdf.text('CATEGORY', colX[1], y + 5.5);
+      pdf.text('DESCRIPTION', colX[2], y + 5.5);
+      pdf.text('PERSON', colX[3], y + 5.5);
+      pdf.text('AMOUNT', colX[4], y + 5.5);
+      y += 8;
+
+      // Table rows
+      const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
-      const canvas = await html2canvas(element, {
-        scale: isMobile ? 1 : 1.5,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        onclone: (clonedDoc) => {
-          // HEAVY DUTY FIX: Convert all oklch colors to rgb in the cloned document
-          const allElements = clonedDoc.getElementsByTagName("*");
-          for (let i = 0; i < allElements.length; i++) {
-            const el = allElements[i] as HTMLElement;
-            const style = window.getComputedStyle(el);
-            
-            // Check common color properties
-            ['color', 'backgroundColor', 'borderColor', 'fill', 'stroke'].forEach(prop => {
-              const val = (el.style as any)[prop] || style.getPropertyValue(prop);
-              if (val && val.includes('oklch')) {
-                // If the browser can't compute it to RGB, we force a safe fallback
-                (el.style as any)[prop] = prop.includes('bg') || prop.includes('fill') ? '#ffffff' : '#000000';
-              }
-            });
-          }
+      sortedExpenses.forEach((exp, index) => {
+        // Check page overflow
+        if (y + 9 > pageHeight - 20) {
+          pdf.addPage();
+          y = margin;
         }
+
+        // Alternating row colors
+        if (index % 2 === 0) {
+          pdf.setFillColor(245, 245, 245);
+          pdf.rect(margin, y, contentWidth, 8, 'F');
+        }
+
+        pdf.setFontSize(7);
+        pdf.setFont('helvetica', 'normal');
+
+        // Type badge
+        if (exp.type === 'income') {
+          pdf.setTextColor(34, 197, 94);
+          pdf.text('INCOME', colX[0], y + 5.5);
+        } else {
+          pdf.setTextColor(239, 68, 68);
+          pdf.text('EXPENSE', colX[0], y + 5.5);
+        }
+
+        pdf.setTextColor(30, 30, 30);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(exp.category.substring(0, 20), colX[1], y + 5.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text((exp.description || '-').substring(0, 25), colX[2], y + 5.5);
+        pdf.text((exp.person || '-').substring(0, 20), colX[3], y + 5.5);
+
+        const amtStr = `${exp.type === 'income' ? '+' : '-'}$${exp.amount.toFixed(2)}`;
+        if (exp.type === 'income') pdf.setTextColor(34, 197, 94);
+        else pdf.setTextColor(30, 30, 30);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(amtStr, colX[4], y + 5.5);
+
+        // Date on the right
+        pdf.setTextColor(150, 150, 150);
+        pdf.setFontSize(6);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(new Date(exp.date).toLocaleDateString(), pageWidth - margin, y + 5.5, { align: 'right' });
+
+        y += 8;
       });
-      
-      const imgData = canvas.toDataURL('image/jpeg', 0.7);
-      const pdf = new jsPDF({
-        orientation: 'p',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
-      
-      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+
+      if (sortedExpenses.length === 0) {
+        pdf.setTextColor(150, 150, 150);
+        pdf.setFontSize(9);
+        pdf.text('No transactions recorded.', margin, y + 10);
+      }
+
+      // --- FOOTER ---
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(7);
+        pdf.setTextColor(180, 180, 180);
+        pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+        pdf.text('Personal Hub — Finance Report', margin, pageHeight - 8);
+      }
+
       const fileName = `FinanceReport_${new Date().toISOString().split('T')[0]}.pdf`;
 
       if (isMobile) {
-        // Mobile Save Logic
         const pdfBase64 = pdf.output('datauristring').split(',')[1];
         const savedFile = await Filesystem.writeFile({
           path: fileName,
@@ -113,7 +200,6 @@ export default function Finances() {
         });
         toast.success("PDF generated and shared!");
       } else {
-        // Desktop/Web Save Logic
         pdf.save(fileName);
         toast.success("PDF Report downloaded!");
       }
@@ -146,12 +232,19 @@ export default function Finances() {
 
   return (
     <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8" ref={reportRef}>
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6 print:hidden">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
           <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">FINANCES</h1>
           <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Track your monthly expenses and income.</p>
         </div>
-        <div className="flex flex-wrap gap-2 md:gap-3">
+        <div className="flex flex-wrap gap-2 md:gap-3 print:hidden">
+          <button 
+            onClick={() => window.print()}
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-bold uppercase tracking-widest text-[9px] md:text-[11px] transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 hover:-translate-x-1 flex-1 md:flex-none justify-center"
+          >
+            <Printer className="w-4 h-4" />
+            PRINT / SAVE
+          </button>
           <button 
             onClick={handleExportPDF}
             disabled={isExporting}

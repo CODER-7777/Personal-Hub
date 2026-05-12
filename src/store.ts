@@ -46,15 +46,53 @@ export interface Reminder {
   triggered: boolean;
 }
 
+// ─── NEW FEATURE TYPES ─────────────────────────
+
+export interface PomodoroSession {
+  id: string;
+  date: string; // ISO date
+  duration: number; // minutes
+  type: 'focus' | 'break';
+  completedAt: string; // ISO datetime
+}
+
+export interface Habit {
+  id: string;
+  name: string;
+  icon: string; // emoji
+  color: string; // hex color
+  createdAt: string;
+  completions: string[]; // array of ISO date strings (YYYY-MM-DD)
+}
+
+export interface QuickNote {
+  id: string;
+  title: string;
+  content: string;
+  color: string; // note color identifier
+  pinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface AppState {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  
+  syncStatus: 'connected' | 'disconnected' | 'syncing';
+  setSyncStatus: (s: 'connected' | 'disconnected' | 'syncing') => void;
+  lastSyncTime: string | null;
   
   classes: ClassSession[];
   tasks: Task[];
   resources: Resource[];
   expenses: Expense[];
   reminders: Reminder[];
+  
+  // New feature state
+  pomodoroSessions: PomodoroSession[];
+  habits: Habit[];
+  notes: QuickNote[];
   
   addClasses: (classes: ClassSession[]) => void;
   removeClass: (id: string) => void;
@@ -72,6 +110,23 @@ interface AppState {
   addReminder: (rem: Reminder) => void;
   markReminderTriggered: (id: string) => void;
   removeReminder: (id: string) => void;
+  
+  // Pomodoro actions
+  addPomodoroSession: (session: PomodoroSession) => void;
+  
+  // Habit actions
+  addHabit: (habit: Habit) => void;
+  removeHabit: (id: string) => void;
+  toggleHabitDay: (habitId: string, date: string) => void;
+  
+  // Notes actions
+  addNote: (note: QuickNote) => void;
+  updateNote: (id: string, updates: Partial<QuickNote>) => void;
+  removeNote: (id: string) => void;
+  togglePinNote: (id: string) => void;
+  
+  // Force sync
+  forceSync: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -80,11 +135,18 @@ export const useAppStore = create<AppState>()(
       theme: 'light',
       toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
       
+      syncStatus: 'disconnected',
+      setSyncStatus: (s) => set({ syncStatus: s }),
+      lastSyncTime: null,
+      
       classes: [],
       tasks: [],
       resources: [],
       expenses: [],
       reminders: [],
+      pomodoroSessions: [],
+      habits: [],
+      notes: [],
       
       addClasses: (newClasses) => {
         const classes = [...get().classes, ...newClasses];
@@ -150,6 +212,72 @@ export const useAppStore = create<AppState>()(
         set({ reminders });
         syncToFirebase('reminders', reminders);
       },
+      
+      // ─── POMODORO ─────────────────────
+      addPomodoroSession: (session) => {
+        const pomodoroSessions = [...get().pomodoroSessions, session];
+        set({ pomodoroSessions });
+        syncToFirebase('pomodoroSessions', pomodoroSessions);
+      },
+      
+      // ─── HABITS ─────────────────────
+      addHabit: (habit) => {
+        const habits = [...get().habits, habit];
+        set({ habits });
+        syncToFirebase('habits', habits);
+      },
+      removeHabit: (id) => {
+        const habits = get().habits.filter(h => h.id !== id);
+        set({ habits });
+        syncToFirebase('habits', habits);
+      },
+      toggleHabitDay: (habitId, date) => {
+        const habits = get().habits.map(h => {
+          if (h.id !== habitId) return h;
+          const completions = h.completions.includes(date)
+            ? h.completions.filter(d => d !== date)
+            : [...h.completions, date];
+          return { ...h, completions };
+        });
+        set({ habits });
+        syncToFirebase('habits', habits);
+      },
+      
+      // ─── NOTES ─────────────────────
+      addNote: (note) => {
+        const notes = [...get().notes, note];
+        set({ notes });
+        syncToFirebase('notes', notes);
+      },
+      updateNote: (id, updates) => {
+        const notes = get().notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: new Date().toISOString() } : n);
+        set({ notes });
+        syncToFirebase('notes', notes);
+      },
+      removeNote: (id) => {
+        const notes = get().notes.filter(n => n.id !== id);
+        set({ notes });
+        syncToFirebase('notes', notes);
+      },
+      togglePinNote: (id) => {
+        const notes = get().notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n);
+        set({ notes });
+        syncToFirebase('notes', notes);
+      },
+      
+      // ─── FORCE SYNC ─────────────────────
+      forceSync: () => {
+        const state = get();
+        syncToFirebase('classes', state.classes);
+        syncToFirebase('tasks', state.tasks);
+        syncToFirebase('resources', state.resources);
+        syncToFirebase('expenses', state.expenses);
+        syncToFirebase('reminders', state.reminders);
+        syncToFirebase('pomodoroSessions', state.pomodoroSessions);
+        syncToFirebase('habits', state.habits);
+        syncToFirebase('notes', state.notes);
+        set({ lastSyncTime: new Date().toISOString() });
+      },
     }),
     {
       name: 'personal-hub-storage',
@@ -178,6 +306,11 @@ export function initFirebaseSync() {
         resources: data.resources || [],
         expenses: data.expenses || [],
         reminders: data.reminders || [],
+        pomodoroSessions: data.pomodoroSessions || [],
+        habits: data.habits || [],
+        notes: data.notes || [],
+        syncStatus: 'connected',
+        lastSyncTime: new Date().toISOString(),
       });
     }
   });

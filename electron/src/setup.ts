@@ -218,14 +218,32 @@ export class ElectronCapacitorApp {
 
 // Set a CSP up for our application based on the custom scheme
 export function setupContentSecurityPolicy(customScheme: string): void {
+  // Firebase domains required for Realtime Database sync
+  const firebaseDomains = [
+    'https://*.firebaseio.com',
+    'https://*.googleapis.com',
+    'https://*.firebaseapp.com',
+    'https://*.cloudfunctions.net',
+    'wss://*.firebaseio.com',       // WebSocket for realtime sync
+    'https://firebaseinstallations.googleapis.com',
+    'https://www.googleapis.com',
+    'https://securetoken.googleapis.com',
+  ].join(' ');
+
+  // Codeforces API + CORS proxy for contest fetching
+  const apiDomains = [
+    'https://codeforces.com',
+    'https://api.allorigins.win',
+  ].join(' ');
+
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
           electronIsDev
-            ? `default-src ${customScheme}://* 'unsafe-inline' devtools://* 'unsafe-eval' data:`
-            : `default-src ${customScheme}://* 'unsafe-inline' data:`,
+            ? `default-src ${customScheme}://* 'unsafe-inline' devtools://* 'unsafe-eval' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} ws: wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`
+            : `default-src ${customScheme}://* 'unsafe-inline' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`,
         ],
       },
     });

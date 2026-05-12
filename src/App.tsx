@@ -13,6 +13,9 @@ import Schedule from "./pages/Schedule";
 import Resources from "./pages/Resources";
 import Finances from "./pages/Finances";
 import Contests from "./pages/Contests";
+import Focus from "./pages/Focus";
+import Habits from "./pages/Habits";
+import Notes from "./pages/Notes";
 
 function AlarmSystem() {
   const { reminders, markReminderTriggered } = useAppStore();
@@ -71,6 +74,9 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/schedule" element={<Schedule />} />
+                <Route path="/focus" element={<Focus />} />
+                <Route path="/habits" element={<Habits />} />
+                <Route path="/notes" element={<Notes />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/finances" element={<Finances />} />
                 <Route path="/contests" element={<Contests />} />

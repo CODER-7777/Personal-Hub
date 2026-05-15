@@ -234,9 +234,10 @@ export const useAppStore = create<AppState>()(
       toggleHabitDay: (habitId, date) => {
         const habits = get().habits.map(h => {
           if (h.id !== habitId) return h;
-          const completions = h.completions.includes(date)
-            ? h.completions.filter(d => d !== date)
-            : [...h.completions, date];
+          const currentCompletions = h.completions || [];
+          const completions = currentCompletions.includes(date)
+            ? currentCompletions.filter(d => d !== date)
+            : [...currentCompletions, date];
           return { ...h, completions };
         });
         set({ habits });
@@ -293,6 +294,15 @@ function syncToFirebase(key: string, data: any) {
   }
 }
 
+// Sanitize habit data from Firebase (Firebase converts [] to null)
+function sanitizeHabits(rawHabits: any[]): Habit[] {
+  if (!Array.isArray(rawHabits)) return [];
+  return rawHabits.map(h => ({
+    ...h,
+    completions: Array.isArray(h.completions) ? h.completions : [],
+  }));
+}
+
 // Initialize Firebase listener
 export function initFirebaseSync() {
   if (!isFirebaseConfigured) return;
@@ -301,14 +311,14 @@ export function initFirebaseSync() {
     const data = snapshot.val();
     if (data) {
       useAppStore.setState({
-        classes: data.classes || [],
-        tasks: data.tasks || [],
-        resources: data.resources || [],
-        expenses: data.expenses || [],
-        reminders: data.reminders || [],
-        pomodoroSessions: data.pomodoroSessions || [],
-        habits: data.habits || [],
-        notes: data.notes || [],
+        classes: Array.isArray(data.classes) ? data.classes : [],
+        tasks: Array.isArray(data.tasks) ? data.tasks : [],
+        resources: Array.isArray(data.resources) ? data.resources : [],
+        expenses: Array.isArray(data.expenses) ? data.expenses : [],
+        reminders: Array.isArray(data.reminders) ? data.reminders : [],
+        pomodoroSessions: Array.isArray(data.pomodoroSessions) ? data.pomodoroSessions : [],
+        habits: sanitizeHabits(data.habits),
+        notes: Array.isArray(data.notes) ? data.notes : [],
         syncStatus: 'connected',
         lastSyncTime: new Date().toISOString(),
       });

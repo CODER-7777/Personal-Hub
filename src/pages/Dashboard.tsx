@@ -21,7 +21,7 @@ export default function Dashboard() {
     .reduce((sum, s) => sum + s.duration, 0);
 
   // Habits completed today
-  const habitsCompletedToday = habits.filter(h => h.completions.includes(todayStr)).length;
+  const habitsCompletedToday = habits.filter(h => (h.completions || []).includes(todayStr)).length;
 
   // Greeting based on time
   const hour = new Date().getHours();
@@ -116,7 +116,7 @@ export default function Dashboard() {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                 {habits.map(h => {
-                  const completedToday = h.completions.includes(todayStr);
+                  const completedToday = (h.completions || []).includes(todayStr);
                   return (
                     <div
                       key={h.id}

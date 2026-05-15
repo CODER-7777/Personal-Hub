@@ -41,7 +41,8 @@ export default function Habits() {
   };
 
   const getStreak = (habit: Habit): number => {
-    const sorted = [...habit.completions].sort().reverse();
+    const completions = habit.completions || [];
+    const sorted = [...completions].sort().reverse();
     let streak = 0;
     const checkDate = new Date();
     for (let i = 0; i < 365; i++) {
@@ -57,7 +58,8 @@ export default function Habits() {
   };
 
   const getLongestStreak = (habit: Habit): number => {
-    const sorted = [...habit.completions].sort();
+    const completions = habit.completions || [];
+    const sorted = [...completions].sort();
     let longest = 0;
     let current = 0;
     for (let i = 0; i < sorted.length; i++) {
@@ -183,11 +185,12 @@ export default function Habits() {
       {habits.length > 0 ? (
         <div className="space-y-6">
           {habits.map((habit, i) => {
+            const completions = habit.completions || [];
             const streak = getStreak(habit);
             const longestStreak = getLongestStreak(habit);
-            const completedToday = habit.completions.includes(today);
+            const completedToday = completions.includes(today);
             const completionRate = heatmapDays.length > 0 
-              ? Math.round((heatmapDays.filter(d => habit.completions.includes(d)).length / heatmapDays.length) * 100)
+              ? Math.round((heatmapDays.filter(d => completions.includes(d)).length / heatmapDays.length) * 100)
               : 0;
 
             return (
@@ -251,7 +254,7 @@ export default function Habits() {
                     {weeks.map((week, wi) => (
                       <div key={wi} className="flex flex-col gap-[3px]">
                         {week.map((day) => {
-                          const isCompleted = habit.completions.includes(day);
+                          const isCompleted = (habit.completions || []).includes(day);
                           const isToday = day === today;
                           return (
                             <button

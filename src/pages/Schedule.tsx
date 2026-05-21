@@ -24,6 +24,7 @@ export default function Schedule() {
   const [cEnd, setCEnd] = useState("");
   const [cRoom, setCRoom] = useState("");
   const [cShowAdd, setCShowAdd] = useState(false);
+  const [showTemplateGuide, setShowTemplateGuide] = useState(false);
 
   // New Task State
   const [tName, setTName] = useState("");
@@ -76,7 +77,13 @@ export default function Schedule() {
       reader.onloadend = async () => {
         const base64Data = (reader.result as string).split(',')[1];
         
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+        if (!apiKey) {
+          toast.error("Gemini API Key missing in environment variables.");
+          setIsUploading(false);
+          return;
+        }
+        const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
           contents: {
@@ -142,6 +149,13 @@ export default function Schedule() {
         </div>
         
         <div className="flex gap-2 md:gap-3 w-full md:w-auto">
+          <button 
+            type="button"
+            onClick={() => setShowTemplateGuide(true)}
+            className="w-full md:w-auto bg-bg text-ink hover:bg-line px-4 md:px-6 py-3 font-bold uppercase tracking-widest text-[9px] md:text-[11px] transition-all flex items-center justify-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1"
+          >
+            <AlertCircle className="w-4 h-4" /> Template Guide
+          </button>
           <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
           <button 
             type="button"
@@ -229,7 +243,7 @@ export default function Schedule() {
                             <div className="text-ink font-bold text-[10px] uppercase tracking-widest border-2 border-ink bg-bg px-2 py-1 inline-block mb-3 rounded-lg">
                               {c.startTime} — {c.endTime}
                             </div>
-                            <h4 className="font-bold text-ink pr-4 text-xl tracking-tight leading-none mb-2">{c.className}</h4>
+                            <h4 className="font-bold text-ink pr-4 text-xl tracking-tight leading-tight mb-2 break-words">{c.className}</h4>
                             {c.room && <div className="text-[10px] font-bold uppercase text-sub group-hover:text-ink">Room: {c.room}</div>}
                           </div>
                         ))}
@@ -328,6 +342,65 @@ export default function Schedule() {
           </div>
         )}
       </div>
+
+      {/* Template Guide Modal */}
+      {showTemplateGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm">
+          <div className="bg-bg border-4 border-ink rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-[8px_8px_0px_var(--theme-ink)] relative">
+            <h2 className="text-2xl font-extrabold uppercase tracking-tighter mb-4 text-ink">Timetable Image Template</h2>
+            <p className="text-sm font-bold text-sub mb-6">
+              For the best OCR results, upload a clear PNG or JPG image of your timetable formatted like a spreadsheet.
+            </p>
+            
+            <div className="bg-line border-2 border-ink rounded-xl p-4 mb-6 overflow-x-auto">
+              <table className="w-full text-left text-xs font-bold uppercase border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-ink">
+                    <th className="p-2 border-r-2 border-ink">Time</th>
+                    <th className="p-2 border-r-2 border-ink">Monday</th>
+                    <th className="p-2 border-r-2 border-ink">Tuesday</th>
+                    <th className="p-2 border-r-2 border-ink">Wednesday</th>
+                    <th className="p-2 border-r-2 border-ink">Thursday</th>
+                    <th className="p-2">Friday</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b-2 border-ink">
+                    <td className="p-2 border-r-2 border-ink">09:00 - 10:00</td>
+                    <td className="p-2 border-r-2 border-ink">Math 101</td>
+                    <td className="p-2 border-r-2 border-ink">Physics</td>
+                    <td className="p-2 border-r-2 border-ink">Math 101</td>
+                    <td className="p-2 border-r-2 border-ink">-</td>
+                    <td className="p-2">Chemistry</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 border-r-2 border-ink">10:00 - 11:00</td>
+                    <td className="p-2 border-r-2 border-ink">History</td>
+                    <td className="p-2 border-r-2 border-ink">-</td>
+                    <td className="p-2 border-r-2 border-ink">Biology</td>
+                    <td className="p-2 border-r-2 border-ink">History</td>
+                    <td className="p-2">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <ul className="list-disc pl-5 text-sm font-bold text-sub mb-8 space-y-2">
+              <li>Ensure times are clearly readable (24hr or AM/PM).</li>
+              <li>Ensure days of the week are columns or rows.</li>
+              <li>Avoid cursive fonts or blurry screenshots.</li>
+              <li>A digital screenshot of an Excel/Google Sheet is perfect!</li>
+            </ul>
+
+            <button 
+              onClick={() => setShowTemplateGuide(false)}
+              className="w-full py-3 bg-ink text-bg font-bold uppercase tracking-widest rounded-xl hover:bg-sub transition-colors"
+            >
+              GOT IT
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

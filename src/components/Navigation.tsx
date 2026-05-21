@@ -7,8 +7,6 @@ import { motion } from "motion/react";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Calendar, label: "Schedule", path: "/schedule" },
-  { icon: Brain, label: "Focus", path: "/focus" },
-  { icon: Target, label: "Habits", path: "/habits" },
   { icon: StickyNote, label: "Notes", path: "/notes" },
   { icon: FileText, label: "Resources", path: "/resources" },
   { icon: PieChart, label: "Finances", path: "/finances" },

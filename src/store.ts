@@ -307,6 +307,16 @@ function sanitizeHabits(rawHabits: any[]): Habit[] {
 export function initFirebaseSync() {
   if (!isFirebaseConfigured) return;
 
+  // Listen to Firebase connection state
+  onValue(ref(db, '.info/connected'), (snapshot) => {
+    if (snapshot.val() === true) {
+      useAppStore.setState({ syncStatus: 'connected' });
+    } else {
+      useAppStore.setState({ syncStatus: 'disconnected' });
+    }
+  });
+
+  // Listen to data changes
   onValue(ref(db, 'user_data'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -319,7 +329,6 @@ export function initFirebaseSync() {
         pomodoroSessions: Array.isArray(data.pomodoroSessions) ? data.pomodoroSessions : [],
         habits: sanitizeHabits(data.habits),
         notes: Array.isArray(data.notes) ? data.notes : [],
-        syncStatus: 'connected',
         lastSyncTime: new Date().toISOString(),
       });
     }

@@ -68,7 +68,7 @@ export default function Contests() {
   return (
     <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-4 md:space-y-8">
       <div className="mb-4 md:mb-8">
-        <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">
+        <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">
           <Trophy className="w-8 h-8 md:w-10 md:h-10 text-ink flex-shrink-0" /> CODEFORCES CONTESTS
         </h1>
         <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub mt-1 md:mt-2">Track upcoming contests right from your hub.</p>
@@ -95,7 +95,7 @@ export default function Contests() {
                     <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-ink text-bg rounded-lg whitespace-nowrap">
                       CF {c.id}
                     </span>
-                    <h3 className="font-bold text-ink text-base md:text-xl tracking-tight leading-none line-clamp-1">{c.name}</h3>
+                    <h3 className="font-bold text-ink text-sm md:text-lg tracking-tight leading-none line-clamp-1">{c.name}</h3>
                   </div>
                   <div className="flex items-center gap-3 md:gap-4 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-sub group-hover:text-ink">
                     <span className="flex items-center gap-1.5 whitespace-nowrap"><Clock className="w-3 h-3" /> {new Date(c.startTimeSeconds * 1000).toLocaleString()}</span>

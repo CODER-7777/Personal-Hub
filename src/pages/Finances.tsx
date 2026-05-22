@@ -5,10 +5,12 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { isSameDay, isSameMonth, isSameYear, parseISO } from "date-fns";
+import { GoogleGenAI, Type } from "@google/genai";
+import imageCompression from "browser-image-compression";
 
 const COLORS = ['#4f46e5', '#ec4899', '#f59e0b', '#06b6d4', '#10b981', '#8b5cf6'];
 
@@ -48,7 +50,85 @@ export default function Finances() {
   };
 
   const reportRef = useRef<HTMLDivElement>(null);
+  const scanInputRef = useRef<HTMLInputElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
+  const handleReceiptScan = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsScanning(true);
+      toast.info("Analyzing receipt...");
+
+      const compressedFile = await imageCompression(file, { maxSizeMB: 2, maxWidthOrHeight: 2048 });
+      const reader = new FileReader();
+
+      reader.onloadend = async () => {
+        const base64Data = (reader.result as string).split(',')[1];
+        const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+        
+        if (!apiKey) {
+          toast.error("Gemini API Key missing in environment variables.");
+          setIsScanning(false);
+          return;
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+        const response = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: {
+            parts: [
+              { text: "Extract the expense details from this receipt image. Use logical categories like Food, Utilities, Transport, Shopping." },
+              { inlineData: { mimeType: file.type, data: base64Data } }
+            ]
+          },
+          config: {
+            safetySettings: [],
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                amount: { type: Type.NUMBER, description: "Total amount on the receipt" },
+                category: { type: Type.STRING, description: "Logical category of the expense" },
+                description: { type: Type.STRING, description: "Brief summary or merchant name" },
+                person: { type: Type.STRING, description: "Person name if visible, otherwise empty" },
+              },
+              required: ["amount", "category", "description"]
+            }
+          }
+        });
+
+        if (response.text) {
+          try {
+            const parsed = JSON.parse(response.text);
+            addExpense({
+              id: crypto.randomUUID(),
+              amount: parsed.amount,
+              category: parsed.category,
+              description: parsed.description || "Scanned Receipt",
+              person: parsed.person || "",
+              type: 'expense',
+              date: new Date().toISOString(),
+            });
+            toast.success("Receipt scanned and added successfully!");
+          } catch(e) {
+            toast.error("Failed to parse the receipt correctly.");
+            console.error(e);
+          }
+        }
+        setIsScanning(false);
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      toast.error("Error processing receipt image.");
+      console.error(error);
+      setIsScanning(false);
+    } finally {
+      if (scanInputRef.current) scanInputRef.current.value = "";
+    }
+  };
 
   // Filter by time
   const now = new Date();
@@ -228,7 +308,7 @@ export default function Finances() {
       {/* HEADER & TIME FILTER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
-          <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">FINANCES</h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">FINANCES</h1>
           <div className="flex gap-2 mt-2 md:mt-4 overflow-x-auto pb-2">
             {(['all', 'daily', 'monthly', 'yearly'] as const).map(filter => (
               <button 
@@ -242,6 +322,15 @@ export default function Finances() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 md:gap-3 print:hidden">
+          <input type="file" accept="image/*" className="hidden" ref={scanInputRef} onChange={handleReceiptScan} />
+          <button 
+            onClick={() => scanInputRef.current?.click()}
+            disabled={isScanning}
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-[10px] md:text-[12px] transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
+          >
+            {isScanning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+            {isScanning ? "SCANNING..." : "SCAN RECEIPT"}
+          </button>
           <button 
             onClick={handleExportPDF}
             disabled={isExporting}
@@ -294,7 +383,7 @@ export default function Finances() {
               <div className="p-3 border-2 border-ink bg-bg rounded-xl"><DollarSign className="w-6 h-6 md:w-8 md:h-8 text-ink" /></div>
               <p className="text-[12px] md:text-[14px] font-extrabold uppercase tracking-widest text-sub">TOTAL BALANCE</p>
             </div>
-            <h3 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-ink">${balance.toFixed(2)}</h3>
+            <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-ink">${balance.toFixed(2)}</h3>
           </div>
           
           <div className="bg-bg p-5 md:p-6 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
@@ -302,7 +391,7 @@ export default function Finances() {
               <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowUpRight className="w-5 h-5 text-green-500" /></div>
               <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub">INCOME</p>
             </div>
-            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-ink">${totalIncome.toFixed(2)}</h3>
+            <h3 className="text-2xl md:text-3xl font-extrabold tracking-tighter text-ink">${totalIncome.toFixed(2)}</h3>
           </div>
           
           <div className="bg-bg p-5 md:p-6 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
@@ -310,7 +399,7 @@ export default function Finances() {
               <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowDownRight className="w-5 h-5 text-red-500" /></div>
               <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub">EXPENSES</p>
             </div>
-            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-ink">${totalExpense.toFixed(2)}</h3>
+            <h3 className="text-2xl md:text-3xl font-extrabold tracking-tighter text-ink">${totalExpense.toFixed(2)}</h3>
           </div>
         </div>
 
@@ -394,7 +483,7 @@ export default function Finances() {
                     <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2 py-1 rounded-md border-2 ${exp.type === 'income' ? 'border-[var(--color-safe-green)] text-[var(--color-safe-green)] bg-[var(--color-safe-green-bg)]' : 'border-[var(--color-safe-red)] text-[var(--color-safe-red)] bg-[var(--color-safe-red-bg)]'}`}>
                       {exp.type}
                     </span>
-                    <h4 className="font-extrabold tracking-tight text-ink text-xl md:text-2xl leading-none">{exp.category}</h4>
+                    <h4 className="font-extrabold tracking-tight text-ink text-lg md:text-xl leading-none">{exp.category}</h4>
                   </div>
                   <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub leading-snug">
                       <Calendar className="w-3 h-3 inline mr-1 -mt-0.5" />
@@ -405,7 +494,7 @@ export default function Finances() {
                 </div>
               </div>
               <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 mt-2 md:mt-0">
-                <span className={`font-extrabold tracking-tighter text-3xl md:text-4xl ${exp.type === 'income' ? 'text-[var(--color-safe-green)]' : 'text-ink'}`}>
+                <span className={`font-extrabold tracking-tighter text-2xl md:text-3xl ${exp.type === 'income' ? 'text-[var(--color-safe-green)]' : 'text-ink'}`}>
                   {exp.type === 'income' ? '+' : '-'}${exp.amount.toFixed(2)}
                 </span>
                 <button onClick={() => removeExpense(exp.id)} className="text-sub hover:text-red-500 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl print:hidden bg-line md:bg-transparent border-2 border-transparent hover:border-red-500">

@@ -35,7 +35,7 @@ export default function Resources() {
     <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-4 md:space-y-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
-          <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">RESOURCES</h1>
+          <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">RESOURCES</h1>
           <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Stash your useful links and notes here.</p>
         </div>
         <button 
@@ -100,7 +100,7 @@ export default function Resources() {
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
-            <h3 className="font-bold text-ink text-xl tracking-tight leading-none mb-4 line-clamp-1">{res.title}</h3>
+            <h3 className="font-bold text-ink text-lg tracking-tight leading-none mb-4 line-clamp-1">{res.title}</h3>
             <div className="mt-auto">
                 <a href={res.url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-ink flex items-center gap-1 line-clamp-1 w-fit bg-line px-3 py-2 border-2 border-transparent rounded-lg hover:border-ink transition-colors">
                 VISIT LINK <ExternalLink className="w-3 h-3" />

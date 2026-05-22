@@ -26,7 +26,7 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter leading-none text-ink mb-1 md:mb-2">{greeting}</h1>
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter leading-none text-ink mb-1 md:mb-2">{greeting}</h1>
         <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Here's your overview for today.</p>
       </motion.div>
 
@@ -49,7 +49,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-sub group-hover:text-ink">{stat.title}</p>
-                <h3 className="text-2xl md:text-4xl font-extrabold tracking-tighter mt-1 text-ink">{stat.value}</h3>
+                <h3 className="text-xl md:text-3xl font-extrabold tracking-tighter mt-1 text-ink">{stat.value}</h3>
               </div>
             </motion.div>
           </NavLink>
@@ -63,7 +63,7 @@ export default function Dashboard() {
             <div className="bg-[var(--color-safe-red-bg)] border-2 border-[var(--color-safe-red)] rounded-2xl p-4 md:p-6 flex items-center gap-4 hover:shadow-[4px_4px_0px_var(--color-safe-red)] transition-all cursor-pointer">
               <AlertTriangle className="w-6 h-6 md:w-8 md:h-8 text-[var(--color-safe-red)] flex-shrink-0" />
               <div>
-                <h3 className="text-lg md:text-xl font-extrabold text-[var(--color-safe-red)] tracking-tight">
+                <h3 className="text-base md:text-lg font-extrabold text-[var(--color-safe-red)] tracking-tight">
                   {overdueTasks} OVERDUE TASK{overdueTasks > 1 ? 'S' : ''}
                 </h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-safe-red)] opacity-80">
@@ -87,7 +87,7 @@ export default function Dashboard() {
                   <div className="text-[10px] md:text-[11px] font-extrabold border-2 border-ink px-2 py-1 inline-block mb-2 md:mb-3 bg-bg rounded-lg">
                     {c.startTime} — {c.endTime}
                   </div>
-                  <h4 className="text-xl md:text-2xl font-bold tracking-tight text-ink leading-tight break-words">{c.className}</h4>
+                  <h4 className="text-lg md:text-xl font-bold tracking-tight text-ink leading-tight break-words">{c.className}</h4>
                   <p className="text-[10px] md:text-xs font-bold uppercase mt-1 md:mt-2 text-ink">{c.type} {c.room && `• ${c.room}`}</p>
                 </div>
               ))}
@@ -110,7 +110,7 @@ export default function Dashboard() {
                   <div key={t.id} className={`flex justify-between items-start p-3 md:p-4 border-2 rounded-xl md:rounded-2xl group hover:bg-highlight transition-colors relative ${isOverdue ? 'border-[var(--color-safe-red)] bg-[var(--color-safe-red-bg)]' : 'border-ink'}`}>
                     <div className="flex items-start gap-2 md:gap-3 flex-1 min-w-0">
                       <div className={`w-2 h-2 md:w-3 md:h-3 border-2 border-ink mt-1 flex-shrink-0 rounded-full ${t.priority === 'high' ? 'bg-red-500' : t.priority === 'medium' ? 'bg-highlight' : 'bg-green-400'}`} />
-                      <h4 className="text-base md:text-lg font-bold tracking-tight text-ink leading-tight break-words">{t.title}</h4>
+                      <h4 className="text-sm md:text-base font-bold tracking-tight text-ink leading-tight break-words">{t.title}</h4>
                     </div>
                     <div className={`text-[9px] md:text-[10px] font-bold uppercase tracking-widest whitespace-nowrap ml-2 md:ml-4 ${isOverdue ? 'text-[var(--color-safe-red)]' : 'text-sub group-hover:text-ink'}`}>
                       {isOverdue ? `${Math.abs(daysUntilDue)}d overdue` : daysUntilDue === 0 ? 'Today' : `${daysUntilDue}d left`}

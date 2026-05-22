@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { isAfter, isBefore, addMinutes, addHours, parseISO, differenceInHours } from "date-fns";
+import { LocalNotifications } from "@capacitor/local-notifications";
 import { Sidebar, MobileNav, MobileHeader } from "./components/Navigation";
 import { useAppStore, initFirebaseSync } from "./store";
 
@@ -14,6 +15,7 @@ import Resources from "./pages/Resources";
 import Finances from "./pages/Finances";
 import Contests from "./pages/Contests";
 import Notes from "./pages/Notes";
+import Goals from "./pages/Goals";
 
 // ─── NOTIFICATION HELPERS ─────────────────────────────────
 
@@ -73,7 +75,39 @@ function AlarmSystem() {
   // Request notification permission on mount
   useEffect(() => {
     requestNotificationPermission();
+    LocalNotifications.requestPermissions();
   }, []);
+
+  // ─── Sync Reminders to LocalNotifications ───
+  useEffect(() => {
+    async function syncNativeAlarms() {
+      if (!("Notification" in window)) return; // Skip for pure web if native unavailable
+      
+      try {
+        const pending = await LocalNotifications.getPending();
+        if (pending.notifications.length > 0) {
+          await LocalNotifications.cancel(pending);
+        }
+
+        const toSchedule = reminders
+          .filter(r => !r.triggered && isAfter(parseISO(r.time), new Date()))
+          .map((r, idx) => ({
+            id: idx + 1000, // numerical ID
+            title: "⏰ Alarm — Personal Hub",
+            body: r.title,
+            schedule: { at: parseISO(r.time) },
+            sound: "beep.wav" // if available, or default
+          }));
+
+        if (toSchedule.length > 0) {
+          await LocalNotifications.schedule({ notifications: toSchedule });
+        }
+      } catch (e) {
+        console.warn("LocalNotifications sync failed:", e);
+      }
+    }
+    syncNativeAlarms();
+  }, [reminders]);
 
   // ─── Reminder Alarm Check ───
   useEffect(() => {
@@ -187,6 +221,7 @@ export default function App() {
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/finances" element={<Finances />} />
                 <Route path="/contests" element={<Contests />} />
+                <Route path="/goals" element={<Goals />} />
               </Routes>
             </div>
           </div>

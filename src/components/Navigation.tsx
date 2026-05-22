@@ -11,6 +11,7 @@ const navItems = [
   { icon: FileText, label: "Resources", path: "/resources" },
   { icon: PieChart, label: "Finances", path: "/finances" },
   { icon: Code, label: "Contests", path: "/contests" },
+  { icon: Target, label: "Goals", path: "/goals" },
 ];
 
 function SyncIndicator({ compact = false }: { compact?: boolean }) {
@@ -52,7 +53,7 @@ export function Sidebar() {
   return (
     <div className="w-64 flex-shrink-0 bg-bg h-screen flex flex-col hidden md:flex sticky top-0 print:hidden transition-colors">
       <div className="px-8 py-10 border-b-2 border-ink">
-        <h1 className="text-4xl font-extrabold uppercase tracking-tighter leading-none">
+        <h1 className="text-3xl font-extrabold uppercase tracking-tighter leading-none">
           Personal<br />Hub
         </h1>
       </div>

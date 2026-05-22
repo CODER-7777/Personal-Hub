@@ -93,6 +93,7 @@ export default function Schedule() {
             ]
           },
           config: {
+            safetySettings: [],
             responseMimeType: "application/json",
             responseSchema: {
               type: Type.ARRAY,
@@ -144,7 +145,7 @@ export default function Schedule() {
     <div className="p-4 md:p-10 max-w-6xl mx-auto space-y-4 md:space-y-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
-          <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">Schedule & Reminders</h1>
+          <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">Schedule & Reminders</h1>
           <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Manage your time, tasks, and custom alarms.</p>
         </div>
         
@@ -243,7 +244,7 @@ export default function Schedule() {
                             <div className="text-ink font-bold text-[10px] uppercase tracking-widest border-2 border-ink bg-bg px-2 py-1 inline-block mb-3 rounded-lg">
                               {c.startTime} — {c.endTime}
                             </div>
-                            <h4 className="font-bold text-ink pr-4 text-xl tracking-tight leading-tight mb-2 break-words">{c.className}</h4>
+                            <h4 className="font-bold text-ink pr-4 text-lg tracking-tight leading-tight mb-2 break-words">{c.className}</h4>
                             {c.room && <div className="text-[10px] font-bold uppercase text-sub group-hover:text-ink">Room: {c.room}</div>}
                           </div>
                         ))}
@@ -288,7 +289,7 @@ export default function Schedule() {
                   <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto flex-1">
                     <input type="checkbox" checked={t.completed} onChange={() => toggleTask(t.id)} className="w-5 h-5 md:w-6 md:h-6 shrink-0 border-2 border-ink accent-ink rounded-md cursor-pointer" />
                     <div className="flex-1">
-                      <h4 className={`text-lg md:text-xl font-bold tracking-tight ${t.completed ? 'line-through text-ink' : 'text-ink'}`}>{t.title}</h4>
+                      <h4 className={`text-base md:text-lg font-bold tracking-tight ${t.completed ? 'line-through text-ink' : 'text-ink'}`}>{t.title}</h4>
                       <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-sub mt-1 md:mt-2">Due: {new Date(t.dueDate).toLocaleDateString()}</p>
                     </div>
                   </div>
@@ -331,7 +332,7 @@ export default function Schedule() {
                   {!r.triggered && <div className="absolute top-0 left-0 w-2 md:w-3 h-full bg-ink border-r-2 border-ink" />}
                   
                   <div className="pl-4 md:pl-6 flex-1">
-                    <h4 className={`text-lg md:text-xl font-bold tracking-tight mb-1 md:mb-2 pr-4 ${r.triggered ? 'text-sub line-through' : 'text-ink'}`}>{r.title}</h4>
+                    <h4 className={`text-base md:text-lg font-bold tracking-tight mb-1 md:mb-2 pr-4 ${r.triggered ? 'text-sub line-through' : 'text-ink'}`}>{r.title}</h4>
                     <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-ink flex items-center gap-1.5 md:gap-2"><Clock className="w-3 h-3"/> {new Date(r.time).toLocaleString()}</p>
                   </div>
                   <button onClick={() => removeReminder(r.id)} className="text-ink opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-2 shrink-0"><Trash2 className="w-5 h-5" /></button>

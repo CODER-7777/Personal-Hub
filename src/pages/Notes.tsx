@@ -69,7 +69,7 @@ export default function Notes() {
     <div className="p-4 md:p-10 max-w-6xl mx-auto space-y-6 md:space-y-8 relative">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
-          <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">
+          <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">
             <FileText className="w-8 h-8 md:w-10 md:h-10 text-ink flex-shrink-0" /> DOCUMENTS
           </h1>
           <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub mt-1 md:mt-2">Formal notes and documents. Synced securely.</p>
@@ -153,7 +153,7 @@ export default function Notes() {
               )}
 
               <div className="p-6 flex-1 flex flex-col">
-                <h3 className="font-bold text-xl tracking-tight leading-tight mb-3 pr-6 font-serif border-b-2 border-line pb-2">{note.title}</h3>
+                <h3 className="font-bold text-lg tracking-tight leading-tight mb-3 pr-6 font-serif border-b-2 border-line pb-2">{note.title}</h3>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap opacity-80 line-clamp-5 font-serif flex-1">
                   {note.content || "Empty document."}
                 </p>
@@ -224,7 +224,7 @@ export default function Notes() {
                 <input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full text-3xl md:text-5xl font-extrabold tracking-tighter text-ink bg-transparent focus:outline-none border-b-2 border-transparent focus:border-line pb-2 font-serif"
+                  className="w-full text-2xl md:text-4xl font-extrabold tracking-tighter text-ink bg-transparent focus:outline-none border-b-2 border-transparent focus:border-line pb-2 font-serif"
                   placeholder="Document Title"
                 />
                 <textarea

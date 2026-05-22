@@ -75,6 +75,16 @@ export interface QuickNote {
   updatedAt: string;
 }
 
+export interface Goal {
+  id: string;
+  title: string;
+  targetCount: number;
+  currentCount: number;
+  deadline: string; // ISO date
+  category?: string;
+}
+
+
 interface AppState {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
@@ -93,6 +103,7 @@ interface AppState {
   pomodoroSessions: PomodoroSession[];
   habits: Habit[];
   notes: QuickNote[];
+  goals: Goal[];
   
   addClasses: (classes: ClassSession[]) => void;
   removeClass: (id: string) => void;
@@ -125,6 +136,11 @@ interface AppState {
   removeNote: (id: string) => void;
   togglePinNote: (id: string) => void;
   
+  // Goals actions
+  addGoal: (goal: Goal) => void;
+  updateGoalProgress: (id: string, newCount: number) => void;
+  removeGoal: (id: string) => void;
+  
   // Force sync
   forceSync: () => void;
 }
@@ -147,6 +163,7 @@ export const useAppStore = create<AppState>()(
       pomodoroSessions: [],
       habits: [],
       notes: [],
+      goals: [],
       
       addClasses: (newClasses) => {
         const classes = [...get().classes, ...newClasses];
@@ -266,6 +283,23 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('notes', notes);
       },
       
+      // ─── GOALS ─────────────────────
+      addGoal: (goal) => {
+        const goals = [...get().goals, goal];
+        set({ goals });
+        syncToFirebase('goals', goals);
+      },
+      updateGoalProgress: (id, newCount) => {
+        const goals = get().goals.map(g => g.id === id ? { ...g, currentCount: newCount } : g);
+        set({ goals });
+        syncToFirebase('goals', goals);
+      },
+      removeGoal: (id) => {
+        const goals = get().goals.filter(g => g.id !== id);
+        set({ goals });
+        syncToFirebase('goals', goals);
+      },
+      
       // ─── FORCE SYNC ─────────────────────
       forceSync: () => {
         const state = get();
@@ -277,6 +311,7 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('pomodoroSessions', state.pomodoroSessions);
         syncToFirebase('habits', state.habits);
         syncToFirebase('notes', state.notes);
+        syncToFirebase('goals', state.goals);
         set({ lastSyncTime: new Date().toISOString() });
       },
     }),
@@ -329,6 +364,7 @@ export function initFirebaseSync() {
         pomodoroSessions: Array.isArray(data.pomodoroSessions) ? data.pomodoroSessions : [],
         habits: sanitizeHabits(data.habits),
         notes: Array.isArray(data.notes) ? data.notes : [],
+        goals: Array.isArray(data.goals) ? data.goals : [],
         lastSyncTime: new Date().toISOString(),
       });
     }

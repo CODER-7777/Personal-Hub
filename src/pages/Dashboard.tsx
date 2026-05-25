@@ -26,7 +26,7 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter leading-none text-ink mb-1 md:mb-2">{greeting}</h1>
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tighter leading-none text-ink mb-1 md:mb-2">{greeting}</h1>
         <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Here's your overview for today.</p>
       </motion.div>
 
@@ -49,7 +49,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-sub group-hover:text-ink">{stat.title}</p>
-                <h3 className="text-xl md:text-3xl font-extrabold tracking-tighter mt-1 text-ink">{stat.value}</h3>
+                <h3 className="text-lg md:text-2xl font-extrabold tracking-tighter mt-1 text-ink">{stat.value}</h3>
               </div>
             </motion.div>
           </NavLink>

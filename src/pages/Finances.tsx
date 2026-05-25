@@ -360,7 +360,7 @@ export default function Finances() {
                 <PieChart>
                   <Pie 
                     data={chartData} 
-                    cx="50%" cy="50%" innerRadius={60} outerRadius={80} 
+                    cx="50%" cy="50%" innerRadius="50%" outerRadius="80%" 
                     paddingAngle={5} dataKey="value" stroke="#000" strokeWidth={2}
                     isAnimationActive={false}
                   >
@@ -383,7 +383,7 @@ export default function Finances() {
               <div className="p-3 border-2 border-ink bg-bg rounded-xl"><DollarSign className="w-6 h-6 md:w-8 md:h-8 text-ink" /></div>
               <p className="text-[12px] md:text-[14px] font-extrabold uppercase tracking-widest text-sub">TOTAL BALANCE</p>
             </div>
-            <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-ink">${balance.toFixed(2)}</h3>
+            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-ink">${balance.toFixed(2)}</h3>
           </div>
           
           <div className="bg-bg p-5 md:p-6 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
@@ -391,7 +391,7 @@ export default function Finances() {
               <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowUpRight className="w-5 h-5 text-green-500" /></div>
               <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub">INCOME</p>
             </div>
-            <h3 className="text-2xl md:text-3xl font-extrabold tracking-tighter text-ink">${totalIncome.toFixed(2)}</h3>
+            <h3 className="text-xl md:text-2xl font-extrabold tracking-tighter text-ink">${totalIncome.toFixed(2)}</h3>
           </div>
           
           <div className="bg-bg p-5 md:p-6 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
@@ -399,7 +399,7 @@ export default function Finances() {
               <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowDownRight className="w-5 h-5 text-red-500" /></div>
               <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub">EXPENSES</p>
             </div>
-            <h3 className="text-2xl md:text-3xl font-extrabold tracking-tighter text-ink">${totalExpense.toFixed(2)}</h3>
+            <h3 className="text-xl md:text-2xl font-extrabold tracking-tighter text-ink">${totalExpense.toFixed(2)}</h3>
           </div>
         </div>
 
@@ -494,7 +494,7 @@ export default function Finances() {
                 </div>
               </div>
               <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 mt-2 md:mt-0">
-                <span className={`font-extrabold tracking-tighter text-2xl md:text-3xl ${exp.type === 'income' ? 'text-[var(--color-safe-green)]' : 'text-ink'}`}>
+                <span className={`font-extrabold tracking-tighter text-xl md:text-2xl ${exp.type === 'income' ? 'text-[var(--color-safe-green)]' : 'text-ink'}`}>
                   {exp.type === 'income' ? '+' : '-'}${exp.amount.toFixed(2)}
                 </span>
                 <button onClick={() => removeExpense(exp.id)} className="text-sub hover:text-red-500 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl print:hidden bg-line md:bg-transparent border-2 border-transparent hover:border-red-500">

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Trophy, Clock, Target, ExternalLink } from "lucide-react";
+import { Trophy, Clock, Target, ExternalLink, Activity, Flame, CheckCircle, TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 interface CFContest {
   id: number;
@@ -11,14 +12,38 @@ interface CFContest {
   startTimeSeconds: number;
 }
 
+interface CFUser {
+  handle: string;
+  rating: number;
+  maxRating: number;
+  rank: string;
+}
+
+// Simple in-memory tracker for this session
+let globalApiUsage = 0;
+
 export default function Contests() {
   const [contests, setContests] = useState<CFContest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingContests, setLoadingContests] = useState(true);
+  
+  const [userStats, setUserStats] = useState<CFUser | null>(null);
+  const [problemsSolved, setProblemsSolved] = useState<number>(0);
+  const [streak, setStreak] = useState<number>(0);
+  const [ratingHistory, setRatingHistory] = useState<any[]>([]);
+  const [loadingStats, setLoadingStats] = useState(true);
+  
+  const [apiUsage, setApiUsage] = useState(globalApiUsage);
+  const handle = "MadCoder_777_18"; // Hardcoded handle from user
+
+  const trackApiCall = () => {
+    globalApiUsage += 1;
+    setApiUsage(globalApiUsage);
+  };
 
   useEffect(() => {
     async function fetchContests() {
       try {
-        //const res = await fetch("https://codeforces.com/api/contest.list");
+        trackApiCall();
         let res;
         try {
           res = await fetch("https://codeforces.com/api/contest.list");
@@ -27,7 +52,6 @@ export default function Contests() {
           console.log("CORS block or network error detected, using proxy fallback...");
           res = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://codeforces.com/api/contest.list"));
           const proxyData = await res.json();
-          // allorigins returns the actual response in a 'contents' field as a string
           return handleData(JSON.parse(proxyData.contents));
         }
         const data = await res.json();
@@ -44,11 +68,89 @@ export default function Contests() {
       } catch (err) {
         console.error("Failed to fetch contests", err);
       } finally {
-        setLoading(false);
+        setLoadingContests(false);
       }
     }
     fetchContests();
   }, []);
+
+  useEffect(() => {
+    async function fetchUserStats() {
+      try {
+        setLoadingStats(true);
+        
+        // 1. Fetch User Info
+        trackApiCall();
+        const infoRes = await fetch(`https://codeforces.com/api/user.info?handles=${handle}`);
+        const infoData = await infoRes.json();
+        if (infoData.status === "OK") {
+          setUserStats(infoData.result[0]);
+        }
+
+        // 2. Fetch User Status (Submissions)
+        trackApiCall();
+        const statusRes = await fetch(`https://codeforces.com/api/user.status?handle=${handle}`);
+        const statusData = await statusRes.json();
+        
+        if (statusData.status === "OK") {
+          const subs = statusData.result;
+          
+          // Calculate Unique Problems Solved
+          const solvedSet = new Set<string>();
+          const okDays = new Set<number>();
+          
+          subs.forEach((s: any) => {
+            if (s.verdict === "OK") {
+              solvedSet.add(`${s.problem.contestId}-${s.problem.index}`);
+              // Calculate day index (UTC)
+              const dayIndex = Math.floor(s.creationTimeSeconds / 86400);
+              okDays.add(dayIndex);
+            }
+          });
+          
+          setProblemsSolved(solvedSet.size);
+
+          // Calculate Streak
+          const todayIndex = Math.floor(Date.now() / 1000 / 86400);
+          let currentStreak = 0;
+          let checkDay = todayIndex;
+          
+          // If they haven't solved today, check if the streak was alive yesterday
+          if (!okDays.has(checkDay)) {
+            checkDay -= 1;
+          }
+          
+          while (okDays.has(checkDay)) {
+            currentStreak++;
+            checkDay--;
+          }
+          setStreak(currentStreak);
+        }
+
+        // 3. Fetch Rating History
+        trackApiCall();
+        const ratingRes = await fetch(`https://codeforces.com/api/user.rating?handle=${handle}`);
+        const ratingData = await ratingRes.json();
+        if (ratingData.status === "OK") {
+          const formattedHistory = ratingData.result.map((r: any) => ({
+            name: new Date(r.ratingUpdateTimeSeconds * 1000).toLocaleDateString(),
+            rating: r.newRating,
+            oldRating: r.oldRating
+          }));
+          setRatingHistory(formattedHistory.slice(-20)); // Last 20 contests
+        }
+
+      } catch (err) {
+        console.error("Failed to fetch user stats", err);
+      } finally {
+        setLoadingStats(false);
+      }
+    }
+    
+    if (handle) {
+      fetchUserStats();
+    }
+  }, [handle]);
 
   const formatDuration = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -66,19 +168,103 @@ export default function Contests() {
   };
 
   return (
-    <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-4 md:space-y-8">
-      <div className="mb-4 md:mb-8">
-        <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">
-          <Trophy className="w-8 h-8 md:w-10 md:h-10 text-ink flex-shrink-0" /> CODEFORCES CONTESTS
-        </h1>
-        <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub mt-1 md:mt-2">Track upcoming contests right from your hub.</p>
+    <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-6 md:space-y-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3 mb-1">
+            <Trophy className="w-8 h-8 md:w-10 md:h-10 text-ink flex-shrink-0" /> CONTESTS
+          </h1>
+          <p className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-sub">Your competitive programming hub.</p>
+        </div>
+        
+        {/* API Usage Tracker */}
+        <div className="bg-bg border-2 border-ink px-4 py-2 rounded-xl flex items-center gap-2 shadow-[2px_2px_0px_var(--theme-ink)]">
+          <Activity className="w-4 h-4 text-ink" />
+          <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">
+            API Usage: {apiUsage} calls
+          </span>
+        </div>
       </div>
 
-      <div className="bg-bg border-2 border-ink rounded-2xl md:rounded-3xl overflow-hidden shadow-[3px_3px_0px_var(--theme-ink)] md:shadow-[4px_4px_0px_var(--theme-ink)]">
-        {loading ? (
+      {/* Stats Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {/* Profile Card */}
+        <div className="bg-bg border-2 border-ink rounded-3xl p-6 shadow-[4px_4px_0px_var(--theme-ink)] md:col-span-1 flex flex-col justify-center">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-sub mb-4 border-b-2 border-line pb-2 flex justify-between items-center">
+            User Profile
+            {loadingStats && <div className="w-3 h-3 border-2 border-sub border-t-ink rounded-full animate-spin" />}
+          </h2>
+          
+          {userStats ? (
+            <div className="space-y-4">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-sub">Handle</div>
+                <div className="text-xl font-extrabold text-ink">{userStats.handle}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-sub">Rating</div>
+                  <div className="text-2xl font-extrabold text-ink">{userStats.rating || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-sub">Max</div>
+                  <div className="text-2xl font-extrabold text-ink">{userStats.maxRating || 'N/A'}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-sub">Rank</div>
+                <div className="text-sm font-bold capitalize bg-line inline-block px-2 py-1 rounded-md border-2 border-ink mt-1">{userStats.rank || 'Unrated'}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm font-bold text-sub">Loading stats...</div>
+          )}
+        </div>
+
+        {/* Activity & Streak */}
+        <div className="bg-bg border-2 border-ink rounded-3xl p-6 shadow-[4px_4px_0px_var(--theme-ink)] md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="bg-highlight rounded-2xl p-6 border-2 border-ink flex flex-col justify-center items-center text-center">
+            <CheckCircle className="w-8 h-8 text-ink mb-3" />
+            <div className="text-[10px] font-bold uppercase tracking-widest text-sub mb-1">Problems Solved</div>
+            <div className="text-4xl font-extrabold text-ink">{loadingStats ? '-' : problemsSolved}</div>
+          </div>
+          
+          <div className="bg-highlight rounded-2xl p-6 border-2 border-ink flex flex-col justify-center items-center text-center">
+            <Flame className="w-8 h-8 text-orange-500 mb-3" />
+            <div className="text-[10px] font-bold uppercase tracking-widest text-sub mb-1">Current Streak</div>
+            <div className="text-4xl font-extrabold text-ink">{loadingStats ? '-' : `${streak} Days`}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Rating Chart */}
+      {!loadingStats && ratingHistory.length > 0 && (
+        <div className="bg-bg border-2 border-ink rounded-3xl p-6 shadow-[4px_4px_0px_var(--theme-ink)]">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-ink mb-6 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" /> Recent Rating History
+          </h2>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={ratingHistory} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <Line type="monotone" dataKey="rating" stroke="var(--theme-ink)" strokeWidth={3} dot={{ stroke: 'var(--theme-ink)', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+                <XAxis dataKey="name" stroke="var(--theme-sub)" tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                <YAxis stroke="var(--theme-sub)" tick={{ fontSize: 10, fontWeight: 'bold' }} domain={['dataMin - 100', 'dataMax + 100']} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--theme-bg)', border: '2px solid var(--theme-ink)', borderRadius: '12px', fontWeight: 'bold' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Contests */}
+      <div className="bg-bg border-2 border-ink rounded-2xl md:rounded-3xl overflow-hidden shadow-[4px_4px_0px_var(--theme-ink)]">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-bg bg-ink p-4 border-b-2 border-ink">Upcoming Contests</h2>
+        {loadingContests ? (
           <div className="p-8 md:p-12 text-center text-ink flex flex-col items-center">
             <div className="w-6 h-6 md:w-8 md:h-8 border-4 border-sub border-t-ink rounded-full animate-spin mb-3 md:mb-4" />
-            <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">Loading upcoming contests...</span>
+            <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest">Loading contests...</span>
           </div>
         ) : contests.length > 0 ? (
           <div className="divide-y-2 divide-ink">

@@ -84,6 +84,17 @@ export interface Goal {
   category?: string;
 }
 
+export interface MonthlyGoal {
+  id: string;
+  title: string;
+  month: number; // 0-11
+  year: number;
+  type: 'progress' | 'custom';
+  targetCount?: number;
+  currentCount?: number;
+  completed?: boolean;
+}
+
 
 interface AppState {
   theme: 'light' | 'dark';
@@ -104,6 +115,7 @@ interface AppState {
   habits: Habit[];
   notes: QuickNote[];
   goals: Goal[];
+  monthlyGoals: MonthlyGoal[];
   
   addClasses: (classes: ClassSession[]) => void;
   removeClass: (id: string) => void;
@@ -141,6 +153,12 @@ interface AppState {
   updateGoalProgress: (id: string, newCount: number) => void;
   removeGoal: (id: string) => void;
   
+  // Monthly Goals actions
+  addMonthlyGoal: (goal: MonthlyGoal) => void;
+  updateMonthlyGoalProgress: (id: string, newCount: number) => void;
+  toggleMonthlyGoalComplete: (id: string) => void;
+  removeMonthlyGoal: (id: string) => void;
+
   // Force sync
   forceSync: () => void;
 }
@@ -164,6 +182,7 @@ export const useAppStore = create<AppState>()(
       habits: [],
       notes: [],
       goals: [],
+      monthlyGoals: [],
       
       addClasses: (newClasses) => {
         const classes = [...get().classes, ...newClasses];
@@ -300,6 +319,28 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('goals', goals);
       },
       
+      // ─── MONTHLY GOALS ─────────────────────
+      addMonthlyGoal: (goal) => {
+        const monthlyGoals = [...get().monthlyGoals, goal];
+        set({ monthlyGoals });
+        syncToFirebase('monthlyGoals', monthlyGoals);
+      },
+      updateMonthlyGoalProgress: (id, newCount) => {
+        const monthlyGoals = get().monthlyGoals.map(g => g.id === id ? { ...g, currentCount: newCount } : g);
+        set({ monthlyGoals });
+        syncToFirebase('monthlyGoals', monthlyGoals);
+      },
+      toggleMonthlyGoalComplete: (id) => {
+        const monthlyGoals = get().monthlyGoals.map(g => g.id === id ? { ...g, completed: !g.completed } : g);
+        set({ monthlyGoals });
+        syncToFirebase('monthlyGoals', monthlyGoals);
+      },
+      removeMonthlyGoal: (id) => {
+        const monthlyGoals = get().monthlyGoals.filter(g => g.id !== id);
+        set({ monthlyGoals });
+        syncToFirebase('monthlyGoals', monthlyGoals);
+      },
+      
       // ─── FORCE SYNC ─────────────────────
       forceSync: () => {
         const state = get();
@@ -312,6 +353,7 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('habits', state.habits);
         syncToFirebase('notes', state.notes);
         syncToFirebase('goals', state.goals);
+        syncToFirebase('monthlyGoals', state.monthlyGoals);
         set({ lastSyncTime: new Date().toISOString() });
       },
     }),
@@ -365,6 +407,7 @@ export function initFirebaseSync() {
         habits: sanitizeHabits(data.habits),
         notes: Array.isArray(data.notes) ? data.notes : [],
         goals: Array.isArray(data.goals) ? data.goals : [],
+        monthlyGoals: Array.isArray(data.monthlyGoals) ? data.monthlyGoals : [],
         lastSyncTime: new Date().toISOString(),
       });
     }

@@ -8,11 +8,12 @@ import { motion } from "motion/react";
 import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { isSameDay, isSameMonth, isSameYear, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { GoogleGenAI, Type } from "@google/genai";
 import imageCompression from "browser-image-compression";
 
 const COLORS = ['#4f46e5', '#ec4899', '#f59e0b', '#06b6d4', '#10b981', '#8b5cf6'];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default function Finances() {
   const { expenses, addExpense, removeExpense } = useAppStore();
@@ -28,7 +29,7 @@ export default function Finances() {
   const [filterPerson, setFilterPerson] = useState("");
   
   // Time filter sublevels
-  const [timeFilter, setTimeFilter] = useState<'daily' | 'monthly' | 'yearly' | 'all'>('all');
+  const [timeFilter, setTimeFilter] = useState<string>('ALL');
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,11 +134,11 @@ export default function Finances() {
   // Filter by time
   const now = new Date();
   const timeFilteredExpenses = expenses.filter(e => {
-    if (timeFilter === 'all') return true;
+    if (timeFilter === 'ALL') return true;
     const date = parseISO(e.date);
-    if (timeFilter === 'daily') return isSameDay(date, now);
-    if (timeFilter === 'monthly') return isSameMonth(date, now);
-    if (timeFilter === 'yearly') return isSameYear(date, now);
+    if (MONTHS.includes(timeFilter)) {
+      return date.getMonth() === MONTHS.indexOf(timeFilter) && date.getFullYear() === now.getFullYear();
+    }
     return true;
   });
 
@@ -182,7 +183,7 @@ export default function Finances() {
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
       pdf.text(`FINANCE REPORT (${timeFilter.toUpperCase()})`, margin, 26);
-      pdf.setFontSize(9);
+      pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       pdf.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, pageWidth - margin, 26, { align: 'right' });
       y = 50;
@@ -192,7 +193,7 @@ export default function Finances() {
         pdf.setDrawColor(200, 200, 200);
         pdf.setFillColor(248, 248, 248);
         pdf.roundedRect(x, y, cardWidth, 28, 3, 3, 'FD');
-        pdf.setFontSize(8);
+        pdf.setFontSize(10);
         pdf.setTextColor(120, 120, 120);
         pdf.setFont('helvetica', 'bold');
         pdf.text(label, x + 5, y + 10);
@@ -208,7 +209,7 @@ export default function Finances() {
       y += 36;
 
       pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(11);
+      pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
       pdf.text('TRANSACTIONS', margin, y);
       y += 6;
@@ -216,7 +217,7 @@ export default function Finances() {
       pdf.setFillColor(18, 18, 18);
       pdf.rect(margin, y, contentWidth, 8, 'F');
       pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(7);
+      pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
       const colX = [margin + 3, margin + 20, margin + 55, margin + 100, margin + 140];
       pdf.text('TYPE', colX[0], y + 5.5);
@@ -237,7 +238,7 @@ export default function Finances() {
           pdf.rect(margin, y, contentWidth, 8, 'F');
         }
 
-        pdf.setFontSize(7);
+        pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
 
         if (exp.type === 'income') {
@@ -262,14 +263,14 @@ export default function Finances() {
         pdf.text(amtStr, colX[4], y + 5.5);
 
         pdf.setTextColor(150, 150, 150);
-        pdf.setFontSize(6);
+        pdf.setFontSize(7);
         pdf.text(new Date(exp.date).toLocaleDateString(), pageWidth - margin, y + 5.5, { align: 'right' });
         y += 8;
       });
 
       if (filteredExpenses.length === 0) {
         pdf.setTextColor(150, 150, 150);
-        pdf.setFontSize(9);
+        pdf.setFontSize(10);
         pdf.text('No transactions recorded.', margin, y + 10);
       }
 
@@ -307,43 +308,44 @@ export default function Finances() {
       
       {/* HEADER & TIME FILTER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">FINANCES</h1>
-          <div className="flex gap-2 mt-2 md:mt-4 overflow-x-auto pb-2">
-            {(['all', 'daily', 'monthly', 'yearly'] as const).map(filter => (
+        <div className="flex-1 w-full overflow-hidden">
+          <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-2">FINANCES</h1>
+          <div className="flex gap-2 md:gap-3 mt-4 overflow-x-auto pb-4 scrollbar-hide w-full [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {['ALL', ...MONTHS].map(filter => (
               <button 
                 key={filter}
                 onClick={() => setTimeFilter(filter)}
-                className={`px-4 py-2 text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest rounded-xl transition-all border-2 whitespace-nowrap ${timeFilter === filter ? 'bg-ink text-bg border-ink shadow-[3px_3px_0px_var(--theme-ink)]' : 'bg-bg text-ink border-ink hover:bg-highlight hover:shadow-[3px_3px_0px_var(--theme-ink)]'}`}
+                className={`px-4 md:px-5 py-2 md:py-3 text-xs md:text-sm font-extrabold uppercase tracking-widest rounded-xl transition-all border-2 whitespace-nowrap ${timeFilter === filter ? 'bg-ink text-bg border-ink shadow-[4px_4px_0px_var(--theme-ink)]' : 'bg-bg text-ink border-ink hover:bg-highlight hover:shadow-[4px_4px_0px_var(--theme-ink)] -translate-y-0.5'}`}
               >
-                {filter === 'all' ? 'LIFETIME' : filter}
+                {filter}
               </button>
             ))}
           </div>
         </div>
+        
         <div className="flex flex-wrap gap-2 md:gap-3 print:hidden">
           <input type="file" accept="image/*" className="hidden" ref={scanInputRef} onChange={handleReceiptScan} />
           <button 
             onClick={() => scanInputRef.current?.click()}
             disabled={isScanning}
-            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-[10px] md:text-[12px] transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
           >
-            {isScanning ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+            {isScanning ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
             {isScanning ? "SCANNING..." : "SCAN RECEIPT"}
           </button>
           <button 
             onClick={handleExportPDF}
             disabled={isExporting}
-            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-[10px] md:text-[12px] transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
           >
-            {isExporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {isExporting ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
             EXPORT PDF
           </button>
           <button 
             onClick={() => { setShowAdd(!showAdd); setType('expense'); }}
-            className="bg-ink hover:bg-sub text-bg px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-[10px] md:text-[12px] transition-all flex items-center gap-2 border-2 border-transparent rounded-xl hover:shadow-[4px_4px_0px_var(--theme-sub)] hover:-translate-y-1 flex-1 md:flex-none justify-center"
+            className="bg-ink hover:bg-sub text-bg px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-transparent rounded-xl hover:shadow-[4px_4px_0px_var(--theme-sub)] hover:-translate-y-1 flex-1 md:flex-none justify-center"
           >
-            <Plus className="w-4 h-4" /> ADD RECORD
+            <Plus className="w-5 h-5" /> ADD RECORD
           </button>
         </div>
       </div>
@@ -351,11 +353,38 @@ export default function Finances() {
       {/* TOP CHARTS & STATS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* PIE CHART MOVED TO TOP */}
-        <div className="bg-bg p-6 flex flex-col border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)] min-h-[300px] lg:col-span-1 print:break-inside-avoid print:shadow-none print:border-none">
-          <h2 className="text-[12px] md:text-[14px] font-extrabold uppercase tracking-widest text-ink mb-2 pb-2 border-b-2 border-ink inline-block">EXPENSES BREAKDOWN</h2>
+        {/* SUMMARY CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:col-span-2 gap-4 md:gap-6">
+          <div className="bg-bg p-6 md:p-8 flex flex-col justify-center items-start gap-4 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)] sm:col-span-2">
+            <div className="flex items-center gap-3">
+              <div className="p-3 border-2 border-ink bg-bg rounded-xl"><DollarSign className="w-6 h-6 md:w-8 md:h-8 text-ink" /></div>
+              <p className="text-sm md:text-base font-extrabold uppercase tracking-widest text-sub">TOTAL BALANCE</p>
+            </div>
+            <h3 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-ink">${balance.toFixed(2)}</h3>
+          </div>
+          
+          <div className="bg-bg p-6 md:p-8 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
+            <div className="flex items-center gap-2">
+              <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowUpRight className="w-6 h-6 text-green-500" /></div>
+              <p className="text-xs md:text-sm font-extrabold uppercase tracking-widest text-sub">INCOME</p>
+            </div>
+            <h3 className="text-2xl md:text-4xl font-extrabold tracking-tighter text-ink">${totalIncome.toFixed(2)}</h3>
+          </div>
+          
+          <div className="bg-bg p-6 md:p-8 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
+            <div className="flex items-center gap-2">
+              <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowDownRight className="w-6 h-6 text-red-500" /></div>
+              <p className="text-xs md:text-sm font-extrabold uppercase tracking-widest text-sub">EXPENSES</p>
+            </div>
+            <h3 className="text-2xl md:text-4xl font-extrabold tracking-tighter text-ink">${totalExpense.toFixed(2)}</h3>
+          </div>
+        </div>
+
+        {/* PIE CHART */}
+        <div className="bg-bg p-6 md:p-8 flex flex-col border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)] min-h-[350px] lg:col-span-1 print:break-inside-avoid print:shadow-none print:border-none">
+          <h2 className="text-sm md:text-base font-extrabold uppercase tracking-widest text-ink mb-2 pb-2 border-b-2 border-ink inline-block">EXPENSES BREAKDOWN</h2>
           {chartData.length > 0 ? (
-            <div className="h-48 md:h-64 w-full mt-auto">
+            <div className="h-64 md:h-72 w-full mt-auto">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 
@@ -367,143 +396,115 @@ export default function Finances() {
                     {chartData.map((_entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                   </Pie>
                   <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} contentStyle={{ borderRadius: '8px', border: '2px solid #000', fontWeight: 'bold' }} />
-                  <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', paddingTop: '10px' }} />
+                  <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', paddingTop: '10px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-[12px] font-extrabold uppercase tracking-widest text-sub">No expenses to chart</div>
+            <div className="flex-1 flex items-center justify-center text-sm font-extrabold uppercase tracking-widest text-sub">No expenses to chart</div>
           )}
         </div>
-
-        {/* SUMMARY CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:col-span-2 gap-4 md:gap-6">
-          <div className="bg-bg p-6 flex flex-col justify-center items-start gap-4 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)] sm:col-span-2">
-            <div className="flex items-center gap-3">
-              <div className="p-3 border-2 border-ink bg-bg rounded-xl"><DollarSign className="w-6 h-6 md:w-8 md:h-8 text-ink" /></div>
-              <p className="text-[12px] md:text-[14px] font-extrabold uppercase tracking-widest text-sub">TOTAL BALANCE</p>
-            </div>
-            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-ink">${balance.toFixed(2)}</h3>
-          </div>
-          
-          <div className="bg-bg p-5 md:p-6 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
-            <div className="flex items-center gap-2">
-              <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowUpRight className="w-5 h-5 text-green-500" /></div>
-              <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub">INCOME</p>
-            </div>
-            <h3 className="text-xl md:text-2xl font-extrabold tracking-tighter text-ink">${totalIncome.toFixed(2)}</h3>
-          </div>
-          
-          <div className="bg-bg p-5 md:p-6 flex flex-col justify-center items-start gap-3 hover:bg-highlight transition-all border-2 border-ink rounded-3xl shadow-[4px_4px_0px_var(--theme-ink)]">
-            <div className="flex items-center gap-2">
-              <div className="p-2 border-2 border-ink bg-bg rounded-lg"><ArrowDownRight className="w-5 h-5 text-red-500" /></div>
-              <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub">EXPENSES</p>
-            </div>
-            <h3 className="text-xl md:text-2xl font-extrabold tracking-tighter text-ink">${totalExpense.toFixed(2)}</h3>
-          </div>
-        </div>
-
       </div>
 
       {showAdd && (
         <motion.form 
           initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-          className="bg-highlight border-2 border-ink rounded-3xl p-6 md:p-8 overflow-hidden print:hidden" onSubmit={handleAdd}
+          className="bg-highlight border-2 border-ink rounded-3xl p-6 md:p-10 overflow-hidden print:hidden" onSubmit={handleAdd}
         >
-          <div className="flex gap-4 mb-6">
-            <button type="button" onClick={() => setType('expense')} className={`flex-1 py-4 font-extrabold text-[12px] uppercase rounded-xl tracking-widest transition-colors border-2 ${type === 'expense' ? 'bg-[var(--color-safe-red)] text-bg border-[var(--color-safe-red)]' : 'bg-bg text-ink border-ink hover:bg-sub hover:text-bg hover:border-sub'}`}>EXPENSE</button>
-            <button type="button" onClick={() => setType('income')} className={`flex-1 py-4 font-extrabold text-[12px] uppercase rounded-xl tracking-widest transition-colors border-2 ${type === 'income' ? 'bg-[var(--color-safe-green)] text-bg border-[var(--color-safe-green)]' : 'bg-bg text-ink border-ink hover:bg-sub hover:text-bg hover:border-sub'}`}>INCOME</button>
+          <div className="flex gap-4 mb-8">
+            <button type="button" onClick={() => setType('expense')} className={`flex-1 py-5 font-extrabold text-sm md:text-base uppercase rounded-2xl tracking-widest transition-colors border-2 ${type === 'expense' ? 'bg-[var(--color-safe-red)] text-bg border-[var(--color-safe-red)]' : 'bg-bg text-ink border-ink hover:bg-sub hover:text-bg hover:border-sub'}`}>EXPENSE</button>
+            <button type="button" onClick={() => setType('income')} className={`flex-1 py-5 font-extrabold text-sm md:text-base uppercase rounded-2xl tracking-widest transition-colors border-2 ${type === 'income' ? 'bg-[var(--color-safe-green)] text-bg border-[var(--color-safe-green)]' : 'bg-bg text-ink border-ink hover:bg-sub hover:text-bg hover:border-sub'}`}>INCOME</button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-ink mb-2">Amount</label>
-              <input required value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-base font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="0.00" />
+              <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Amount</label>
+              <input required value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="0.00" />
             </div>
             <div>
-              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-ink mb-2">Category</label>
-              <input required value={category} onChange={e => setCategory(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-base font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder={type === 'expense' ? 'Food, Rent...' : 'Salary, Freelance...'} />
+              <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Category</label>
+              <input required value={category} onChange={e => setCategory(e.target.value)} type="text" className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder={type === 'expense' ? 'Food, Rent...' : 'Salary, Freelance...'} />
             </div>
             <div>
-              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-ink mb-2">Description</label>
-              <input value={description} onChange={e => setDescription(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-base font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Optional notes" />
+              <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Description</label>
+              <input value={description} onChange={e => setDescription(e.target.value)} type="text" className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Optional notes" />
             </div>
              <div>
-              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-ink mb-2">Person (Optional)</label>
-              <input value={person} onChange={e => setPerson(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-base font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Who?" />
+              <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Person (Optional)</label>
+              <input value={person} onChange={e => setPerson(e.target.value)} type="text" className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Who?" />
             </div>
           </div>
-          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
-            <button type="button" onClick={() => setShowAdd(false)} className="px-6 py-3 text-ink hover:bg-bg border-2 border-transparent rounded-xl hover:border-ink font-extrabold uppercase tracking-widest text-[11px] transition-colors text-center">CANCEL</button>
-            <button type="submit" className="px-6 py-3 bg-ink hover:bg-bg hover:text-ink text-bg rounded-xl border-2 border-ink font-extrabold uppercase tracking-widest text-[11px] transition-colors text-center">SAVE RECORD</button>
+          <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4">
+            <button type="button" onClick={() => setShowAdd(false)} className="px-8 py-4 text-ink hover:bg-bg border-2 border-transparent rounded-xl hover:border-ink font-extrabold uppercase tracking-widest text-sm transition-colors text-center">CANCEL</button>
+            <button type="submit" className="px-8 py-4 bg-ink hover:bg-bg hover:text-ink text-bg rounded-xl border-2 border-ink font-extrabold uppercase tracking-widest text-sm transition-colors text-center">SAVE RECORD</button>
           </div>
         </motion.form>
       )}
 
       {/* FILTER SECTION */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 print:hidden">
         <div className="relative">
-          <Search className="w-5 h-5 text-ink absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-6 h-6 text-ink absolute left-5 top-1/2 -translate-y-1/2" />
           <input 
             value={filterItem} onChange={e => setFilterItem(e.target.value)}
             placeholder="FILTER BY ITEM..." 
-            className="w-full pl-12 pr-4 py-3 bg-bg border-2 border-ink rounded-xl text-[11px] font-extrabold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-ink"
+            className="w-full pl-14 pr-5 py-4 bg-bg border-2 border-ink rounded-2xl text-xs md:text-sm font-extrabold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-ink"
           />
         </div>
         <div className="relative">
-          <Filter className="w-5 h-5 text-ink absolute left-4 top-1/2 -translate-y-1/2" />
+          <Filter className="w-6 h-6 text-ink absolute left-5 top-1/2 -translate-y-1/2" />
           <input 
             value={filterCategory} onChange={e => setFilterCategory(e.target.value)}
             placeholder="FILTER BY CATEGORY..." 
-            className="w-full pl-12 pr-4 py-3 bg-bg border-2 border-ink rounded-xl text-[11px] font-extrabold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-ink"
+            className="w-full pl-14 pr-5 py-4 bg-bg border-2 border-ink rounded-2xl text-xs md:text-sm font-extrabold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-ink"
           />
         </div>
         <div className="relative">
-          <User className="w-5 h-5 text-ink absolute left-4 top-1/2 -translate-y-1/2" />
+          <User className="w-6 h-6 text-ink absolute left-5 top-1/2 -translate-y-1/2" />
           <input 
             value={filterPerson} onChange={e => setFilterPerson(e.target.value)}
             placeholder="FILTER BY PERSON..." 
-            className="w-full pl-12 pr-4 py-3 bg-bg border-2 border-ink rounded-xl text-[11px] font-extrabold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-ink"
+            className="w-full pl-14 pr-5 py-4 bg-bg border-2 border-ink rounded-2xl text-xs md:text-sm font-extrabold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-ink"
           />
         </div>
       </div>
 
       <div className="bg-bg flex flex-col border-2 border-ink rounded-3xl overflow-hidden shadow-[4px_4px_0px_var(--theme-ink)] print:border-none print:shadow-none print:rounded-none">
-        <div className="p-6 border-b-2 border-ink bg-line pb-4 print:bg-bg print:border-b-2">
-          <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-ink">TRANSACTIONS {filteredExpenses.length !== timeFilteredExpenses.length && '(FILTERED)'}</h2>
+        <div className="p-6 md:p-8 border-b-2 border-ink bg-line pb-4 print:bg-bg print:border-b-2">
+          <h2 className="text-sm md:text-base font-extrabold uppercase tracking-widest text-ink">TRANSACTIONS {filteredExpenses.length !== timeFilteredExpenses.length && '(FILTERED)'}</h2>
         </div>
         <div className="divide-y-2 divide-ink flex-1">
           {filteredExpenses.map(exp => (
-            <div key={exp.id} className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between group transition-colors bg-bg gap-4 hover:bg-highlight relative">
-              <div className="flex items-start md:items-center gap-4 w-full md:w-auto">
-                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex-shrink-0 border-2 items-center justify-center flex bg-bg ${exp.type === 'income' ? 'border-[var(--color-safe-green)] text-[var(--color-safe-green)] shadow-[3px_3px_0px_transparent] group-hover:shadow-[3px_3px_0px_var(--color-safe-green)]' : 'border-[var(--color-safe-red)] text-[var(--color-safe-red)] shadow-[3px_3px_0px_transparent] group-hover:shadow-[3px_3px_0px_var(--color-safe-red)]'} transition-all`}>
-                  {exp.type === 'income' ? <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8" /> : <ArrowDownRight className="w-6 h-6 md:w-8 md:h-8" />}
+            <div key={exp.id} className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between group transition-colors bg-bg gap-6 hover:bg-highlight relative">
+              <div className="flex items-start md:items-center gap-6 w-full md:w-auto">
+                <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex-shrink-0 border-2 items-center justify-center flex bg-bg ${exp.type === 'income' ? 'border-[var(--color-safe-green)] text-[var(--color-safe-green)] shadow-[4px_4px_0px_transparent] group-hover:shadow-[4px_4px_0px_var(--color-safe-green)]' : 'border-[var(--color-safe-red)] text-[var(--color-safe-red)] shadow-[4px_4px_0px_transparent] group-hover:shadow-[4px_4px_0px_var(--color-safe-red)]'} transition-all`}>
+                  {exp.type === 'income' ? <ArrowUpRight className="w-8 h-8 md:w-10 md:h-10" /> : <ArrowDownRight className="w-8 h-8 md:w-10 md:h-10" />}
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2 py-1 rounded-md border-2 ${exp.type === 'income' ? 'border-[var(--color-safe-green)] text-[var(--color-safe-green)] bg-[var(--color-safe-green-bg)]' : 'border-[var(--color-safe-red)] text-[var(--color-safe-red)] bg-[var(--color-safe-red-bg)]'}`}>
+                  <div className="flex items-center gap-4 mb-3">
+                    <span className={`text-xs md:text-sm font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-lg border-2 ${exp.type === 'income' ? 'border-[var(--color-safe-green)] text-[var(--color-safe-green)] bg-[var(--color-safe-green-bg)]' : 'border-[var(--color-safe-red)] text-[var(--color-safe-red)] bg-[var(--color-safe-red-bg)]'}`}>
                       {exp.type}
                     </span>
-                    <h4 className="font-extrabold tracking-tight text-ink text-lg md:text-xl leading-none">{exp.category}</h4>
+                    <h4 className="font-extrabold tracking-tight text-ink text-xl md:text-2xl leading-none">{exp.category}</h4>
                   </div>
-                  <p className="text-[10px] md:text-[12px] font-extrabold uppercase tracking-widest text-sub leading-snug">
-                      <Calendar className="w-3 h-3 inline mr-1 -mt-0.5" />
+                  <p className="text-xs md:text-sm font-extrabold uppercase tracking-widest text-sub leading-snug">
+                      <Calendar className="w-4 h-4 inline mr-1.5 -mt-0.5" />
                       {new Date(exp.date).toLocaleDateString()} 
                       {exp.description && ` • ${exp.description}`} 
                       {exp.person && ` • @${exp.person}`}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 mt-2 md:mt-0">
-                <span className={`font-extrabold tracking-tighter text-xl md:text-2xl ${exp.type === 'income' ? 'text-[var(--color-safe-green)]' : 'text-ink'}`}>
+              <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-6 mt-4 md:mt-0">
+                <span className={`font-extrabold tracking-tighter text-3xl md:text-4xl ${exp.type === 'income' ? 'text-[var(--color-safe-green)]' : 'text-ink'}`}>
                   {exp.type === 'income' ? '+' : '-'}${exp.amount.toFixed(2)}
                 </span>
-                <button onClick={() => removeExpense(exp.id)} className="text-sub hover:text-red-500 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl print:hidden bg-line md:bg-transparent border-2 border-transparent hover:border-red-500">
-                  <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
+                <button onClick={() => removeExpense(exp.id)} className="text-sub hover:text-red-500 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity p-3 rounded-xl print:hidden bg-line md:bg-transparent border-2 border-transparent hover:border-red-500">
+                  <Trash2 className="w-6 h-6 md:w-8 md:h-8" />
                 </button>
               </div>
             </div>
           ))}
-          {filteredExpenses.length === 0 && <div className="p-16 text-center text-[12px] font-extrabold uppercase tracking-widest text-sub">No transactions matched.</div>}
+          {filteredExpenses.length === 0 && <div className="p-20 text-center text-sm md:text-base font-extrabold uppercase tracking-widest text-sub">No transactions matched.</div>}
         </div>
       </div>
     </div>

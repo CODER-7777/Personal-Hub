@@ -22,5 +22,12 @@
   "mac": {
     "category": "your.app.category.type",
     "target": "dmg"
+  },
+  "linux": {
+    "target": [
+      "AppImage",
+      "deb"
+    ],
+    "category": "Utility"
   }
 }

@@ -103,6 +103,14 @@ interface AppState {
   syncStatus: 'connected' | 'disconnected' | 'syncing';
   setSyncStatus: (s: 'connected' | 'disconnected' | 'syncing') => void;
   lastSyncTime: string | null;
+
+  geminiApiKey: string;
+  profileName: string;
+  animationsEnabled: boolean;
+  setGeminiApiKey: (key: string) => void;
+  setProfileName: (name: string) => void;
+  setAnimationsEnabled: (enabled: boolean) => void;
+
   
   classes: ClassSession[];
   tasks: Task[];
@@ -172,6 +180,13 @@ export const useAppStore = create<AppState>()(
       syncStatus: 'disconnected',
       setSyncStatus: (s) => set({ syncStatus: s }),
       lastSyncTime: null,
+      
+      geminiApiKey: '',
+      profileName: 'User',
+      animationsEnabled: true,
+      setGeminiApiKey: (key) => set({ geminiApiKey: key }),
+      setProfileName: (name) => set({ profileName: name }),
+      setAnimationsEnabled: (enabled) => set({ animationsEnabled: enabled }),
       
       classes: [],
       tasks: [],

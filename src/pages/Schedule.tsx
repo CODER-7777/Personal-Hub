@@ -12,7 +12,7 @@ import { TemplateGuideModal } from "../components/schedule/TemplateGuideModal";
 import { GeminiAssistant } from "../components/schedule/GeminiAssistant";
 
 export default function Schedule() {
-  const { addClasses } = useAppStore();
+  const { addClasses, geminiApiKey } = useAppStore();
   
   const [activeTab, setActiveTab] = useState<'classes' | 'tasks' | 'reminders' | 'ai'>('classes');
   
@@ -38,9 +38,9 @@ export default function Schedule() {
       reader.onloadend = async () => {
         const base64Data = (reader.result as string).split(',')[1];
         
-        const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+        const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
         if (!apiKey) {
-          toast.error("Gemini API Key missing in environment variables.");
+          toast.error("Gemini API Key missing. Please configure it in Settings.");
           setIsUploading(false);
           return;
         }

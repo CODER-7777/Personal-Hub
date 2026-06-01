@@ -6,16 +6,16 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
 export function GeminiAssistant() {
-  const { classes, tasks, goals } = useAppStore();
+  const { classes, tasks, goals, geminiApiKey } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<string | null>(null);
 
   const generatePlan = async () => {
     try {
       setLoading(true);
-      const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
       if (!apiKey) {
-        toast.error("Gemini API Key missing in environment variables.");
+        toast.error("Gemini API Key missing. Please configure it in Settings.");
         setLoading(false);
         return;
       }

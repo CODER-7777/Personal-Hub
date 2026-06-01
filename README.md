@@ -1,35 +1,90 @@
-# Personal Hub
+# ✦ Personal Hub
 
-Personal Hub is a "vibe-coded" productivity suite developed in 2026. It's designed to be a central command center for tracking expenses, income, and budgets, while also managing daily tasks and fetching upcoming Codeforces contests. 
+![Personal Hub Logo](public/vite.svg)
 
-Built with a focus on cross-platform performance, it runs seamlessly on Mobile (Android), Tablet, and Desktop, with real-time data synchronization powered by Firebase.
+> A modern, premium, "vibe-coded" command center for your digital life. 
 
-## Tech Stack & Implementation
+**Personal Hub** is a cross-platform, AI-powered productivity suite designed for individuals who demand a fast, beautiful, and fully-featured digital workspace. Built in 2026, it merges aesthetics and functionality to offer an unparalleled user experience, running seamlessly on Android, Desktop (Linux/Windows/macOS), and the Web.
 
-| Technology | Purpose in Personal Hub |
-| :--- | :--- |
-| **React 19** | Core frontend library for building a responsive and interactive user interface. |
-| **TypeScript** | Provides static typing to ensure code reliability and a better developer experience. |
-| **Vite** | Fast build tool and dev server that powers the modern development workflow. |
-| **Tailwind CSS 4** | Used for rapid, modern styling and creating a "vibe-coded" premium aesthetic. |
-| **Firebase** | Handles **Realtime Database** for instant data sync across devices and **Hosting**. |
-| **Capacitor** | Enables the web app to run as a native **Android** application on mobile and tablets. |
-| **Electron** | Used to package the application for **Desktop** (Windows/macOS/Linux) environments. |
-| **Zustand** | Lightweight state management for handling global app data like finances and contests. |
-| **Recharts** | Provides beautiful, interactive data visualizations for tracking expenses and income. |
-| **Framer Motion** | Implements smooth, professional animations and transitions throughout the UI. |
-| **React Router** | Manages seamless navigation between different sections (Finances, Tasks, Contests). |
-| **Lucide React** | A library of clean, consistent icons used for intuitive navigation. |
-| **html2canvas & jspdf** | Facilitates the generation and export of financial reports as PDF documents. |
-| **Sonner** | Handles sleek, non-intrusive toast notifications for user feedback. |
+---
 
-## Run Locally
+## 🔥 Features
 
-**Prerequisites:**  Node.js
+- **🤖 AI Schedule Assistant (Powered by Gemini):** Automatically build an optimized daily schedule around your classes, to-do lists, and weekly goals with one click.
+- **📷 AI Timetable Scanner:** Upload a photo of your schedule and Gemini automatically parses it into your weekly classes.
+- **✨ Vibe-Coded Aesthetics:** Ultra-smooth micro-interactions, dark/light modes, glassmorphism elements, and a custom "crazy" animated splash screen built with Framer Motion.
+- **⚡ Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
+- **💰 Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams and one-click PDF generation.
+- **🏆 Goals & Habits Tracking:** Set, monitor, and crush your daily habits and monthly goals with intuitive progress indicators.
+- **🔒 Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🛠️ Tech Stack
+
+Personal Hub is engineered with cutting-edge tools to maximize performance and cross-platform reach.
+
+- **Frontend:** React 19, TypeScript, Vite
+- **Styling:** Tailwind CSS 4, Framer Motion, Lucide React
+- **State Management:** Zustand (with persist)
+- **Backend & Sync:** Firebase (Auth & Realtime Database)
+- **AI Integration:** Google GenAI (Gemini 3.1 Flash)
+- **Mobile Build:** Capacitor (Android/iOS)
+- **Desktop Build:** Electron & Capacitor-Community Electron (Windows/macOS/Linux)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- Node.js (v18+)
+- A Google AI Studio API Key (You can configure this inside the app's Settings page!)
+- Firebase Project configured (with Realtime Database and Auth enabled).
+
+### 2. Installation
+```bash
+# Clone the repository
+git clone https://github.com/your-username/personal-hub.git
+cd personal-hub
+
+# Install all dependencies
+npm install
+```
+
+### 3. Running Locally (Web)
+```bash
+npm run dev
+```
+
+### 4. Building for Linux / Desktop
+Personal Hub fully supports Linux (AppImage & deb).
+```bash
+# Compile and package for Linux
+npm run build:linux
+```
+Your compiled `.AppImage` will be waiting for you in the `electron/dist` folder!
+
+### 5. Building for Android
+```bash
+npx cap sync android
+npx cap open android
+```
+*(Requires Android Studio).*
+
+---
+
+## ⚙️ Configuration
+
+Say goodbye to messy `.env` files. **Personal Hub features a built-in Settings page!** 
+Simply navigate to the **Settings** tab within the app to:
+- Enter and securely save your **Gemini API Key**.
+- Set your **Profile Name**.
+- Toggle high-performance **Animations** on or off.
+
+---
+
+## 📜 License & Pitch
+
+**Personal Hub** isn't just an app; it's a statement. It proves that productivity tools don't have to be boring, blocky, or slow. If you're an investor or hiring manager checking this out—this is a prime example of blending UX mastery, cross-platform architecture, and AI integration into a single, cohesive product.
+
+*Designed with ❤️ and 🤖 in 2026.*

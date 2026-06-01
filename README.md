@@ -1,8 +1,5 @@
 # Personal Hub
-
-![Personal Hub Logo](public/vite.svg)
-
-> A modern, premium, "vibe-coded" command center for your digital life. 
+> A modern, premium command center for your digital life. 
 
 **Personal Hub** is a cross-platform, AI-powered productivity suite designed for individuals who demand a fast, beautiful, and fully-featured digital workspace. Built in 2026, it merges aesthetics and functionality to offer an unparalleled user experience, running seamlessly on Android, Desktop (Linux/Windows/macOS), and the Web.
 
@@ -87,4 +84,4 @@ Simply navigate to the **Settings** tab within the app to:
 
 **Personal Hub** isn't just an app; it's a statement. It proves that productivity tools don't have to be boring, blocky, or slow. If you're an investor or hiring manager checking this out—this is a prime example of blending UX mastery, cross-platform architecture, and AI integration into a single, cohesive product.
 
-*Developed by CODER-7777*
+*Developed by CODER-7777(Mansoju Vivekananda)*

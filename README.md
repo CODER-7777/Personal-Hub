@@ -5,11 +5,10 @@
 
 ---
 
-## Features
+##  Features
 
 - **AI Schedule Assistant (Powered by Gemini):** Automatically build an optimized daily schedule around your classes, to-do lists, and weekly goals with one click.
 - **AI Timetable Scanner:** Upload a photo of your schedule and Gemini automatically parses it into your weekly classes.
-- **Vibe-Coded Aesthetics:** Ultra-smooth micro-interactions, dark/light modes, glassmorphism elements, and a custom "crazy" animated splash screen built with Framer Motion.
 - **Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
 - **Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams and one-click PDF generation.
 - **Goals & Habits Tracking:** Set, monitor, and crush your daily habits and monthly goals with intuitive progress indicators.
@@ -41,7 +40,7 @@ Personal Hub is engineered with cutting-edge tools to maximize performance and c
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone https://github.com/CODER-7777/Personal_Hub.git
+git clone https://github.com/your-username/personal-hub.git
 cd personal-hub
 
 # Install all dependencies
@@ -84,4 +83,4 @@ Simply navigate to the **Settings** tab within the app to:
 
 **Personal Hub** isn't just an app; it's a statement. It proves that productivity tools don't have to be boring, blocky, or slow. If you're an investor or hiring manager checking this out—this is a prime example of blending UX mastery, cross-platform architecture, and AI integration into a single, cohesive product.
 
-*Developed by CODER-7777(Mansoju Vivekananda)*
+*Developed by Mansoju Vivekananda*

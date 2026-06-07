@@ -1,100 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ref, onValue, set as dbSet } from "firebase/database";
-import { db, isFirebaseConfigured } from "./lib/firebase";
+import { db, isFirebaseConfigured } from "../lib/firebase";
+import { 
+  ClassSession, Task, Resource, Expense, Reminder, 
+  PomodoroSession, Habit, QuickNote, Goal, MonthlyGoal 
+} from './types';
 
-export interface ClassSession {
-  id: string;
-  className: string;
-  dayOfWeek: number; // 0 (Sunday) to 6 (Saturday)
-  startTime: string; // 'HH:mm'
-  endTime: string;
-  room?: string;
-  type?: string;
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  dueDate: string; // ISO date
-  priority: 'low' | 'medium' | 'high';
-}
-
-export interface Resource {
-  id: string;
-  title: string;
-  url: string;
-  category: string;
-  notes?: string;
-}
-
-export interface Expense {
-  id: string;
-  amount: number;
-  category: string;
-  date: string; // ISO date
-  description: string;
-  person?: string;
-  type: 'income' | 'expense';
-}
-
-export interface Reminder {
-  id: string;
-  title: string;
-  time: string; // ISO date
-  triggered: boolean;
-}
-
-// ─── NEW FEATURE TYPES ─────────────────────────
-
-export interface PomodoroSession {
-  id: string;
-  date: string; // ISO date
-  duration: number; // minutes
-  type: 'focus' | 'break';
-  completedAt: string; // ISO datetime
-}
-
-export interface Habit {
-  id: string;
-  name: string;
-  icon: string; // emoji
-  color: string; // hex color
-  createdAt: string;
-  completions: string[]; // array of ISO date strings (YYYY-MM-DD)
-}
-
-export interface QuickNote {
-  id: string;
-  title: string;
-  content: string;
-  color: string; // note color identifier
-  pinned: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Goal {
-  id: string;
-  title: string;
-  targetCount: number;
-  currentCount: number;
-  deadline: string; // ISO date
-  category?: string;
-}
-
-export interface MonthlyGoal {
-  id: string;
-  title: string;
-  month: number; // 0-11
-  year: number;
-  type: 'progress' | 'custom';
-  targetCount?: number;
-  currentCount?: number;
-  completed?: boolean;
-}
-
+export * from './types';
 
 interface AppState {
   theme: 'light' | 'dark';
@@ -110,7 +23,6 @@ interface AppState {
   setGeminiApiKey: (key: string) => void;
   setProfileName: (name: string) => void;
   setAnimationsEnabled: (enabled: boolean) => void;
-
   
   classes: ClassSession[];
   tasks: Task[];
@@ -118,7 +30,6 @@ interface AppState {
   expenses: Expense[];
   reminders: Reminder[];
   
-  // New feature state
   pomodoroSessions: PomodoroSession[];
   habits: Habit[];
   notes: QuickNote[];
@@ -142,32 +53,26 @@ interface AppState {
   markReminderTriggered: (id: string) => void;
   removeReminder: (id: string) => void;
   
-  // Pomodoro actions
   addPomodoroSession: (session: PomodoroSession) => void;
   
-  // Habit actions
   addHabit: (habit: Habit) => void;
   removeHabit: (id: string) => void;
   toggleHabitDay: (habitId: string, date: string) => void;
   
-  // Notes actions
   addNote: (note: QuickNote) => void;
   updateNote: (id: string, updates: Partial<QuickNote>) => void;
   removeNote: (id: string) => void;
   togglePinNote: (id: string) => void;
   
-  // Goals actions
   addGoal: (goal: Goal) => void;
   updateGoalProgress: (id: string, newCount: number) => void;
   removeGoal: (id: string) => void;
   
-  // Monthly Goals actions
   addMonthlyGoal: (goal: MonthlyGoal) => void;
   updateMonthlyGoalProgress: (id: string, newCount: number) => void;
   toggleMonthlyGoalComplete: (id: string) => void;
   removeMonthlyGoal: (id: string) => void;
 
-  // Force sync
   forceSync: () => void;
 }
 
@@ -264,14 +169,12 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('reminders', reminders);
       },
       
-      // ─── POMODORO ─────────────────────
       addPomodoroSession: (session) => {
         const pomodoroSessions = [...get().pomodoroSessions, session];
         set({ pomodoroSessions });
         syncToFirebase('pomodoroSessions', pomodoroSessions);
       },
       
-      // ─── HABITS ─────────────────────
       addHabit: (habit) => {
         const habits = [...get().habits, habit];
         set({ habits });
@@ -295,7 +198,6 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('habits', habits);
       },
       
-      // ─── NOTES ─────────────────────
       addNote: (note) => {
         const notes = [...get().notes, note];
         set({ notes });
@@ -317,7 +219,6 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('notes', notes);
       },
       
-      // ─── GOALS ─────────────────────
       addGoal: (goal) => {
         const goals = [...get().goals, goal];
         set({ goals });
@@ -334,7 +235,6 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('goals', goals);
       },
       
-      // ─── MONTHLY GOALS ─────────────────────
       addMonthlyGoal: (goal) => {
         const monthlyGoals = [...get().monthlyGoals, goal];
         set({ monthlyGoals });
@@ -356,7 +256,6 @@ export const useAppStore = create<AppState>()(
         syncToFirebase('monthlyGoals', monthlyGoals);
       },
       
-      // ─── FORCE SYNC ─────────────────────
       forceSync: () => {
         const state = get();
         syncToFirebase('classes', state.classes);
@@ -378,15 +277,12 @@ export const useAppStore = create<AppState>()(
   )
 );
 
-
-// Helper to sync to Firebase
 function syncToFirebase(key: string, data: any) {
   if (isFirebaseConfigured) {
     dbSet(ref(db, 'user_data/' + key), data);
   }
 }
 
-// Sanitize habit data from Firebase (Firebase converts [] to null)
 function sanitizeHabits(rawHabits: any[]): Habit[] {
   if (!Array.isArray(rawHabits)) return [];
   return rawHabits.map(h => ({
@@ -395,11 +291,9 @@ function sanitizeHabits(rawHabits: any[]): Habit[] {
   }));
 }
 
-// Initialize Firebase listener
 export function initFirebaseSync() {
   if (!isFirebaseConfigured) return;
 
-  // Listen to Firebase connection state
   onValue(ref(db, '.info/connected'), (snapshot) => {
     if (snapshot.val() === true) {
       useAppStore.setState({ syncStatus: 'connected' });
@@ -408,7 +302,6 @@ export function initFirebaseSync() {
     }
   });
 
-  // Listen to data changes
   onValue(ref(db, 'user_data'), (snapshot) => {
     const data = snapshot.val();
     if (data) {

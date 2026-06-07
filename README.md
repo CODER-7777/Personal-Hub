@@ -30,6 +30,57 @@ Personal Hub is engineered with cutting-edge tools to maximize performance and c
 
 ---
 
+## Architecture & Pipeline
+
+### How It Works (Simple Explanation)
+
+Personal Hub is designed to work everywhere you do. Here is a simple breakdown of how the different pieces fit together:
+
+1. **The Apps (Frontend):** You can use the app on the Web, on your Android phone, or as a Desktop app. They are built to share the exact same code and design.
+2. **The Memory (State Management):** When you do something in the app (like adding a task), it gets saved in a local memory bank immediately. This makes the app feel incredibly fast because it doesn't have to wait for the internet.
+3. **The Brain (AI Integration):** When you need a schedule made or a timetable scanned, the app securely sends that request to Google's Gemini AI, which acts as the smart brain to organize your life.
+4. **The Cloud (Backend Services):** To make sure your phone and laptop have the exact same data, the app securely backs up your memory to a real-time Cloud Database. It also talks to Google Calendar to automatically add your classes to your schedule!
+
+```mermaid
+graph TD
+    %% Frontend Apps
+    Web[Web App]
+    Android[Android App]
+    Desktop[Desktop App]
+
+    %% Memory
+    Zustand[Local App Memory]
+
+    %% Backend
+    FirebaseDB[(Cloud Database)]
+    FirebaseAuth{Secure Login}
+    GoogleCalendar[Google Calendar]
+
+    %% AI
+    Gemini((Gemini AI Brain))
+
+    %% Connections
+    Web --> Zustand
+    Android --> Zustand
+    Desktop --> Zustand
+
+    Zustand <--> FirebaseDB
+    
+    Web --> FirebaseAuth
+    Android --> FirebaseAuth
+    Desktop --> FirebaseAuth
+
+    Web --> GoogleCalendar
+    Android --> GoogleCalendar
+    Desktop --> GoogleCalendar
+
+    Web --> Gemini
+    Android --> Gemini
+    Desktop --> Gemini
+```
+
+---
+
 ## Getting Started
 
 ### 1. Prerequisites

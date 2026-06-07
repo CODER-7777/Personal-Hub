@@ -1,6 +1,10 @@
 import React from "react";
 import { useAppStore } from "../store";
-import { Settings as SettingsIcon, Key, User, Zap, ExternalLink } from "lucide-react";
+import { Settings as SettingsIcon, Key, User, Zap, ExternalLink, Trash2, LogOut, FileText } from "lucide-react";
+import { auth } from "../lib/firebase";
+import { signOut, deleteUser } from "firebase/auth";
+import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Settings() {
   const { 
@@ -8,6 +12,29 @@ export default function Settings() {
     profileName, setProfileName,
     animationsEnabled, setAnimationsEnabled
   } = useAppStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error("Failed to log out");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        if (auth.currentUser) {
+          await deleteUser(auth.currentUser);
+          toast.success("Account deleted successfully");
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to delete account. Please log in again to perform this action.");
+      }
+    }
+  };
 
   return (
     <div className="p-4 md:p-10 max-w-4xl mx-auto space-y-8">
@@ -67,6 +94,40 @@ export default function Settings() {
             >
               <div className={`w-4 h-4 md:w-5 md:h-5 rounded-full transition-transform ${animationsEnabled ? 'translate-x-6 md:translate-x-7 bg-bg' : 'translate-x-0 bg-sub'}`} />
             </button>
+          </div>
+        </div>
+
+        {/* ACCOUNT MANAGEMENT */}
+        <div className="bg-bg border-2 border-ink rounded-3xl p-6 md:p-8 shadow-[4px_4px_0px_var(--theme-ink)] space-y-6">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2 mb-4">
+              <User className="w-4 h-4 text-sub" /> Account Management
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button 
+                onClick={handleLogout}
+                className="w-full bg-line border-2 border-ink p-4 rounded-xl font-bold text-ink hover:bg-sub hover:text-bg transition-colors flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-4 h-4" /> Log Out
+              </button>
+              
+              <button 
+                onClick={handleDeleteAccount}
+                className="w-full bg-red-50 text-red-600 border-2 border-red-200 p-4 rounded-xl font-bold hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" /> Delete Account
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t-2 border-ink border-dashed pt-6">
+            <Link 
+              to="/privacy"
+              className="w-full bg-line border-2 border-ink p-4 rounded-xl font-bold text-ink hover:bg-sub hover:text-bg transition-colors flex items-center justify-center gap-2"
+            >
+              <FileText className="w-4 h-4" /> Privacy Policy (Play Store Requirement)
+            </Link>
           </div>
         </div>
       </div>

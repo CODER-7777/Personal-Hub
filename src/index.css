@@ -43,3 +43,7 @@ body {
   background-color: var(--color-bg);
   color: var(--color-ink);
 }
+
+html {
+  font-size: 87.5%; /* Changes base 1rem from 16px to 14px */
+}

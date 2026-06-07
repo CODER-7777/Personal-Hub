@@ -18,6 +18,7 @@ import Notes from "./pages/Notes";
 import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import Privacy from "./pages/Privacy";
 import { SplashIntro } from "./components/SplashIntro";
 import { AlarmSystem } from "./components/AlarmSystem";
 import { ThemeLoader } from "./components/ThemeLoader";
@@ -80,6 +81,7 @@ export default function App() {
                 <Route path="/contests" element={<Contests />} />
                 <Route path="/goals" element={<Goals />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/privacy" element={<Privacy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>

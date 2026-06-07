@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAppStore } from "../../store";
 import { GoogleGenAI, Type } from "@google/genai";
-import { Sparkles, Calendar, Target, Clock, RefreshCw } from "lucide-react";
+import { Sparkles, Calendar, Target, Clock, RefreshCw, Copy } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
@@ -111,7 +111,14 @@ export function GeminiAssistant() {
       )}
 
       {plan && !loading && (
-        <div className="bg-bg border-2 border-ink rounded-3xl p-6 md:p-8 shadow-[4px_4px_0px_var(--theme-ink)] prose prose-sm md:prose-base max-w-none prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:font-medium prose-p:text-sub prose-strong:text-ink prose-strong:font-bold prose-ul:list-disc prose-li:text-ink">
+        <div className="relative bg-bg border-2 border-ink rounded-3xl p-6 md:p-8 shadow-[4px_4px_0px_var(--theme-ink)] prose prose-sm md:prose-base max-w-none prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-widest prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:font-medium prose-p:text-sub prose-strong:text-ink prose-strong:font-bold prose-ul:list-disc prose-li:text-ink">
+          <button 
+            onClick={() => { navigator.clipboard.writeText(plan); toast.success("Plan copied to clipboard!"); }}
+            className="absolute top-4 right-4 p-2 bg-line border-2 border-ink rounded-xl hover:bg-sub hover:text-bg transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-ink not-prose"
+            title="Copy to clipboard"
+          >
+            <Copy className="w-4 h-4" /> Copy
+          </button>
           <ReactMarkdown>{plan}</ReactMarkdown>
         </div>
       )}

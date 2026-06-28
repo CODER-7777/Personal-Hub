@@ -130,8 +130,53 @@ Simply navigate to the **Settings** tab within the app to:
 
 ---
 
-## License & Pitch
+## License
 
-**Personal Hub** isn't just an app; it's a statement. It proves that productivity tools don't have to be boring, blocky, or slow. If you're an investor or hiring manager checking this out—this is a prime example of blending UX mastery, cross-platform architecture, and AI integration into a single, cohesive product.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-*Developed by Mansoju Vivekananda*
+---
+
+## ⭐ Support the Project
+
+If **Personal Hub** makes your life even a little bit more organised, the best way to show support is to **star this repository**! It takes one second and genuinely means a lot.
+
+[![Star this repo](https://img.shields.io/github/stars/CODER-7777/personal-hub?style=social)](https://github.com/CODER-7777/personal-hub)
+
+> ⭐ **[Click here to star Personal Hub on GitHub](https://github.com/CODER-7777/personal-hub)** — it helps the project grow and reach more people!
+
+---
+
+## 🐛 Reporting Issues
+
+Found a bug? Have a feature request? I'd love to hear from you!
+
+**Before opening an issue, please:**
+1. Check if the issue [already exists](https://github.com/CODER-7777/personal-hub/issues) in the issue tracker.
+2. Make sure you are on the **latest release**.
+
+**To report a bug, [open a new issue](https://github.com/CODER-7777/personal-hub/issues/new) and include:**
+- A clear title describing the problem
+- Steps to reproduce it
+- What you expected to happen vs. what actually happened
+- Your platform (Web / Android / Desktop) and OS version
+- Screenshots or screen recordings if possible
+
+**For feature requests**, open an issue with the label `enhancement` and describe what you'd like to see added and why it would be useful.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! If you'd like to fix a bug or add a feature:
+
+1. **Fork** the repository
+2. Create a new branch: `git checkout -b feature/your-feature-name`
+3. Make your changes and commit: `git commit -m "Add: your feature description"`
+4. Push to your fork: `git push origin feature/your-feature-name`
+5. Open a **Pull Request** against the `main` branch
+
+Please keep PRs focused and well-described. Large changes should be discussed in an issue first.
+
+---
+
+*Developed with ❤️ by [Mansoju Vivekananda](https://github.com/CODER-7777)*

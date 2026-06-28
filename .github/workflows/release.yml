@@ -26,8 +26,12 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Root Dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Install Electron Dependencies
+        run: npm install --legacy-peer-deps
+        working-directory: electron
 
       - name: Install Linux Dependencies (Ubuntu Only)
         if: matrix.os == 'ubuntu-latest'

@@ -1,0 +1,56 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger workflow on tags matching v*, e.g., v1.0.0
+
+permissions:
+  contents: write # Needed to create a GitHub Release
+
+jobs:
+  build-and-release:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install Linux Dependencies (Ubuntu Only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot dpkg
+
+      - name: Build Windows App
+        if: matrix.os == 'windows-latest'
+        run: npm run build:windows
+
+      - name: Build Linux App
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run build:linux
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            electron/dist/*.exe
+            electron/dist/*.AppImage
+            electron/dist/*.deb
+          # Automatically generates release notes based on commits
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

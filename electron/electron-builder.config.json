@@ -1,5 +1,6 @@
 {
-  "appId": "com.yourdoamnin.yourapp",
+  "appId": "com.coder7777.personalhub",
+  "productName": "Personal Hub",
   "directories": {
     "buildResources": "resources"
   },
@@ -20,7 +21,7 @@
     "icon": "assets/appIcon.ico"
   },
   "mac": {
-    "category": "your.app.category.type",
+    "category": "public.app-category.productivity",
     "target": "dmg"
   },
   "linux": {
@@ -28,6 +29,7 @@
       "AppImage",
       "deb"
     ],
-    "category": "Utility"
+    "category": "Utility",
+    "maintainer": "Mansoju Vivekananda <coder7777@github.com>"
   }
 }

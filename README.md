@@ -103,20 +103,69 @@ npm install
 npm run dev
 ```
 
-### 4. Building for Linux / Desktop
-Personal Hub fully supports Linux (AppImage & deb).
+### 4. Building for Windows (Desktop)
+
+Personal Hub supports Windows via Electron, packaging into a native `.exe` installer.
+
+**Prerequisites:**
+- Windows 10 or later
+- Node.js v18+
+
 ```bash
-# Compile and package for Linux
+npm run build:windows
+```
+
+Your compiled `.exe` installer will be in the `electron/dist/` folder. You can install it directly — **no need to uninstall a previous version**.
+
+---
+
+### 5. Building for Linux (Desktop)
+
+Personal Hub fully supports Linux, producing both an **AppImage** (portable, no install needed) and a **.deb** package (for Debian/Ubuntu-based systems).
+
+**Prerequisites:**
+- Linux (Ubuntu 20.04+ / Debian 11+ recommended)
+- Node.js v18+
+- `fakeroot` and `dpkg` (for `.deb` builds): `sudo apt install fakeroot dpkg`
+
+```bash
 npm run build:linux
 ```
-Your compiled `.AppImage` will be waiting for you in the `electron/dist` folder!
 
-### 5. Building for Android
+**Output files in `electron/dist/`:**
+
+| Format | File | Use case |
+|---|---|---|
+| `.AppImage` | `Personal-Hub-x.x.x.AppImage` | Portable — runs on any Linux distro, no install |
+| `.deb` | `personal-hub_x.x.x_amd64.deb` | Debian/Ubuntu install via `dpkg -i` |
+
+**Running the AppImage:**
+```bash
+chmod +x Personal-Hub-*.AppImage
+./Personal-Hub-*.AppImage
+```
+
+**Installing the .deb package:**
+```bash
+sudo dpkg -i personal-hub_*.deb
+# If dependencies are missing:
+sudo apt-get install -f
+```
+
+> [!NOTE]
+> The AppImage is the easiest option — just download and run it. No installation required and it works on virtually all modern Linux distributions.
+
+---
+
+### 6. Building for Android
+
 ```bash
 npx cap sync android
 npx cap open android
 ```
-*(Requires Android Studio).*
+
+*(Requires Android Studio. Build the APK or AAB from within Android Studio.)*
+
 
 ---
 
@@ -136,17 +185,17 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ---
 
-## ⭐ Support the Project
+##  Support the Project
 
 If **Personal Hub** makes your life even a little bit more organised, the best way to show support is to **star this repository**! It takes one second and genuinely means a lot.
 
 [![Star this repo](https://img.shields.io/github/stars/CODER-7777/personal-hub?style=social)](https://github.com/CODER-7777/personal-hub)
 
-> ⭐ **[Click here to star Personal Hub on GitHub](https://github.com/CODER-7777/personal-hub)** — it helps the project grow and reach more people!
+>  **[Click here to star Personal Hub on GitHub](https://github.com/CODER-7777/personal-hub)** — it helps the project grow and reach more people!
 
 ---
 
-## 🐛 Reporting Issues
+##  Reporting Issues
 
 Found a bug? Have a feature request? I'd love to hear from you!
 
@@ -165,7 +214,7 @@ Found a bug? Have a feature request? I'd love to hear from you!
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! If you'd like to fix a bug or add a feature:
 
@@ -179,4 +228,4 @@ Please keep PRs focused and well-described. Large changes should be discussed in
 
 ---
 
-*Developed with ❤️ by [Mansoju Vivekananda](https://github.com/CODER-7777)*
+*Developed  by [Mansoju Vivekananda](https://github.com/CODER-7777)*

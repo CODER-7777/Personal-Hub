@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppStore } from "../store";
-import { Settings as SettingsIcon, Key, User, Zap, ExternalLink, Trash2, LogOut, FileText } from "lucide-react";
+import { Settings as SettingsIcon, Key, User, Zap, ExternalLink, Trash2, LogOut, FileText, Code, Image, Mail } from "lucide-react";
 import { auth } from "../lib/firebase";
 import { signOut, deleteUser } from "firebase/auth";
 import { toast } from "sonner";
@@ -10,6 +10,8 @@ export default function Settings() {
   const { 
     geminiApiKey, setGeminiApiKey, 
     profileName, setProfileName,
+    cfHandle, setCfHandle,
+    profilePicture, setProfilePicture,
     animationsEnabled, setAnimationsEnabled
   } = useAppStore();
   const navigate = useNavigate();
@@ -57,6 +59,50 @@ export default function Settings() {
               onChange={(e) => setProfileName(e.target.value)}
               placeholder="Your Name"
               className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
+              <Image className="w-4 h-4 text-sub" /> Profile Picture URL
+            </label>
+            <input 
+              type="text" 
+              value={profilePicture}
+              onChange={(e) => setProfilePicture(e.target.value)}
+              placeholder="https://example.com/avatar.png"
+              className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
+            />
+            {profilePicture && (
+              <div className="mt-2 flex items-center gap-2">
+                <img src={profilePicture} alt="Profile preview" className="w-10 h-10 rounded-full border-2 border-ink object-cover" />
+                <span className="text-[10px] font-bold text-sub uppercase tracking-widest">Preview</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
+              <Code className="w-4 h-4 text-sub" /> Codeforces Handle
+            </label>
+            <input 
+              type="text" 
+              value={cfHandle}
+              onChange={(e) => setCfHandle(e.target.value)}
+              placeholder="e.g. tourist"
+              className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
+              <Mail className="w-4 h-4 text-sub" /> Email Address
+            </label>
+            <input 
+              type="text" 
+              value={auth.currentUser?.email || "Not logged in"}
+              readOnly
+              className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-sub cursor-not-allowed opacity-70 focus:outline-none"
             />
           </div>
 

@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Trophy, Clock, Target, ExternalLink, Activity, Flame, CheckCircle, TrendingUp } from "lucide-react";
+import { Trophy, Clock, Target, ExternalLink, Activity, Flame, CheckCircle, TrendingUp, Settings } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useAppStore } from "../store";
+import { Link } from "react-router-dom";
 
 interface CFContest {
   id: number;
@@ -33,7 +35,7 @@ export default function Contests() {
   const [loadingStats, setLoadingStats] = useState(true);
   
   const [apiUsage, setApiUsage] = useState(globalApiUsage);
-  const handle = "MadCoder_777_18"; // Hardcoded handle from user
+  const { cfHandle: handle } = useAppStore();
 
   const trackApiCall = () => {
     globalApiUsage += 1;
@@ -187,8 +189,18 @@ export default function Contests() {
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {/* Profile Card */}
+      {!handle ? (
+        <div className="bg-bg border-2 border-ink rounded-3xl p-12 shadow-[4px_4px_0px_var(--theme-ink)] text-center flex flex-col items-center justify-center space-y-4">
+          <Trophy className="w-16 h-16 text-sub" />
+          <h2 className="text-xl font-extrabold text-ink uppercase tracking-tight">Codeforces Handle Not Set</h2>
+          <p className="text-sm font-bold text-sub">You need to set your Codeforces handle in Settings to view your stats.</p>
+          <Link to="/settings" className="bg-ink text-bg px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-sub transition-colors">
+            <Settings className="w-4 h-4" /> Go to Settings
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {/* Profile Card */}
         <div className="bg-bg border-2 border-ink rounded-3xl p-6 shadow-[4px_4px_0px_var(--theme-ink)] md:col-span-1 flex flex-col justify-center">
           <h2 className="text-sm font-bold uppercase tracking-widest text-sub mb-4 border-b-2 border-line pb-2 flex justify-between items-center">
             User Profile
@@ -236,6 +248,7 @@ export default function Contests() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Rating Chart */}
       {!loadingStats && ratingHistory.length > 0 && (

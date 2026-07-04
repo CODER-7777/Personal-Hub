@@ -3,76 +3,28 @@ import { useAppStore, Resource } from "../store";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Trash2, ExternalLink, Search, Folder, FolderOpen, File as FileIcon, ChevronRight, ChevronDown } from "lucide-react";
 
-const TreeFolder = ({ 
+const FolderCard: React.FC<{ 
+  category: string;
+  count: number;
+  onClick: () => void; 
+}> = ({ 
   category, 
-  resources, 
-  removeResource, 
-  expanded, 
-  toggleExpand 
-}: { 
-  category: string, 
-  resources: Resource[], 
-  removeResource: (id: string) => void,
-  expanded: boolean,
-  toggleExpand: () => void
+  count, 
+  onClick 
 }) => {
   return (
-    <div className="mb-2">
-      <button 
-        onClick={toggleExpand}
-        className="w-full flex items-center gap-3 p-3 bg-line hover:bg-highlight border-2 border-ink rounded-xl font-bold text-ink transition-colors group"
-      >
-        {expanded ? <FolderOpen className="w-5 h-5 text-ink" /> : <Folder className="w-5 h-5 text-ink" />}
-        <span className="text-sm md:text-base uppercase tracking-widest flex-1 text-left">{category}</span>
-        <span className="text-xs bg-bg border-2 border-ink px-2 py-0.5 rounded-md">{resources.length}</span>
-        {expanded ? <ChevronDown className="w-4 h-4 opacity-50 group-hover:opacity-100" /> : <ChevronRight className="w-4 h-4 opacity-50 group-hover:opacity-100" />}
-      </button>
-
-      <AnimatePresence>
-        {expanded && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="pl-6 md:pl-8 py-2 relative border-l-2 border-ink ml-5 mt-2 space-y-2">
-              {resources.map((res, i) => (
-                <div 
-                  key={res.id} 
-                  className="flex items-center gap-3 bg-bg border-2 border-ink p-3 rounded-xl hover:bg-highlight transition-all group relative ml-4"
-                >
-                  <div className="absolute top-1/2 -left-4 w-4 h-0.5 bg-ink -translate-y-1/2"></div>
-                  <FileIcon className="w-4 h-4 text-sub group-hover:text-ink shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-sm md:text-base text-ink truncate">{res.title}</h4>
-                    {res.notes && <p className="text-xs text-sub truncate">{res.notes}</p>}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <a 
-                      href={res.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="p-2 bg-ink text-bg rounded-lg hover:bg-sub transition-colors"
-                      title="Visit Link"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                    <button 
-                      onClick={() => removeResource(res.id)} 
-                      className="p-2 text-sub hover:text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                      title="Delete Resource"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <button 
+      onClick={onClick}
+      className="bg-line border-2 border-ink rounded-3xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-highlight hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-ink)] transition-all group aspect-square"
+    >
+      <div className="p-4 bg-bg rounded-2xl border-2 border-ink group-hover:scale-110 transition-transform">
+        <Folder className="w-8 h-8 text-ink" />
+      </div>
+      <div className="text-center w-full">
+        <h3 className="font-extrabold uppercase tracking-widest text-ink text-sm md:text-base truncate">{category}</h3>
+        <p className="text-[10px] font-bold text-sub uppercase tracking-widest mt-1 bg-bg inline-block px-2 py-0.5 rounded-md border-2 border-ink">{count} items</p>
+      </div>
+    </button>
   );
 };
 
@@ -81,26 +33,12 @@ export default function Resources() {
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
-  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+  const [activeFolder, setActiveFolder] = useState<string | null>(null);
   
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [category, setCategory] = useState("");
   const [notes, setNotes] = useState("");
-
-  const categories = useMemo(() => {
-    const cats = new Set(resources.map(r => r.category));
-    return ["ALL", ...Array.from(cats)].sort();
-  }, [resources]);
-
-  // Expand all folders by default when search is active or first loaded
-  React.useEffect(() => {
-    const newState: Record<string, boolean> = {};
-    categories.forEach(c => {
-      if (c !== "ALL") newState[c] = true;
-    });
-    setExpandedFolders(newState);
-  }, [categories.length]); // Only re-run if number of categories changes
 
   const filtered = resources.filter(r => {
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -109,6 +47,11 @@ export default function Resources() {
     const matchesCategory = activeCategory === "ALL" || r.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const categories = useMemo(() => {
+    const cats = new Set(resources.map(r => r.category));
+    return ["ALL", ...Array.from(cats)].sort();
+  }, [resources]);
 
   const groupedResources = useMemo(() => {
     const groups: Record<string, Resource[]> = {};
@@ -134,10 +77,6 @@ export default function Resources() {
     setCategory("");
     setNotes("");
     setShowAdd(false);
-  };
-
-  const toggleFolder = (cat: string) => {
-    setExpandedFolders(prev => ({ ...prev, [cat]: !prev[cat] }));
   };
 
   return (
@@ -226,20 +165,70 @@ export default function Resources() {
         </div>
       </div>
 
-      {/* Directory Tree View */}
+      {/* Directory Grid / Folder Content View */}
       <div className="bg-bg border-2 border-ink rounded-3xl p-4 md:p-6 shadow-[4px_4px_0px_var(--theme-ink)]">
-        {Object.keys(groupedResources).length > 0 ? (
-          <div className="space-y-1">
+        {activeFolder ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-ink">
+              <button 
+                onClick={() => setActiveFolder(null)}
+                className="p-2 hover:bg-highlight border-2 border-transparent hover:border-ink rounded-xl transition-colors"
+              >
+                <ChevronRight className="w-6 h-6 rotate-180" />
+              </button>
+              <h2 className="text-xl md:text-2xl font-extrabold uppercase tracking-widest flex items-center gap-3">
+                <FolderOpen className="w-6 h-6 text-ink" /> {activeFolder}
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {groupedResources[activeFolder]?.map((res) => (
+                <div 
+                  key={res.id} 
+                  className="flex flex-col justify-between bg-line border-2 border-ink p-4 rounded-2xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 transition-all group"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="p-2 bg-bg border-2 border-ink rounded-xl shrink-0 group-hover:bg-highlight transition-colors">
+                        <FileIcon className="w-5 h-5 text-ink" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm md:text-base text-ink truncate block w-full">{res.title}</h4>
+                        {res.notes && <p className="text-xs font-bold text-sub truncate uppercase tracking-widest">{res.notes}</p>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-2 border-t-2 border-ink border-dashed pt-3">
+                    <a 
+                      href={res.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex-1 py-2 px-3 text-center bg-ink text-bg font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-sub transition-colors flex items-center justify-center gap-2"
+                    >
+                      Open Link <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <button 
+                      onClick={() => removeResource(res.id)} 
+                      className="p-2 text-sub hover:text-bg hover:bg-red-500 hover:border-red-500 border-2 border-transparent rounded-xl transition-all"
+                      title="Delete Resource"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : Object.keys(groupedResources).length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {Object.entries(groupedResources)
               .sort(([catA], [catB]) => catA.localeCompare(catB))
               .map(([category, items]) => (
-                <TreeFolder
+                <FolderCard
                   key={category}
                   category={category}
-                  resources={items}
-                  removeResource={removeResource}
-                  expanded={expandedFolders[category] ?? true}
-                  toggleExpand={() => toggleFolder(category)}
+                  count={items.length}
+                  onClick={() => setActiveFolder(category)}
                 />
               ))}
           </div>

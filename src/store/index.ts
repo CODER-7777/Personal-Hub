@@ -19,9 +19,13 @@ interface AppState {
 
   geminiApiKey: string;
   profileName: string;
+  cfHandle: string;
+  profilePicture: string;
   animationsEnabled: boolean;
   setGeminiApiKey: (key: string) => void;
   setProfileName: (name: string) => void;
+  setCfHandle: (handle: string) => void;
+  setProfilePicture: (url: string) => void;
   setAnimationsEnabled: (enabled: boolean) => void;
   
   classes: ClassSession[];
@@ -88,9 +92,13 @@ export const useAppStore = create<AppState>()(
       
       geminiApiKey: '',
       profileName: 'User',
+      cfHandle: '',
+      profilePicture: '',
       animationsEnabled: true,
       setGeminiApiKey: (key) => set({ geminiApiKey: key }),
       setProfileName: (name) => set({ profileName: name }),
+      setCfHandle: (handle) => set({ cfHandle: handle }),
+      setProfilePicture: (url) => set({ profilePicture: url }),
       setAnimationsEnabled: (enabled) => set({ animationsEnabled: enabled }),
       
       classes: [],

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Calendar, FileText, PieChart, Code, Sun, Moon, Brain, Target, StickyNote, Wifi, WifiOff, RefreshCw, Settings } from "lucide-react";
+import { LayoutDashboard, Calendar, FileText, PieChart, Code, Sun, Moon, Brain, Target, StickyNote, Wifi, WifiOff, RefreshCw, Settings, Flame } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
@@ -11,6 +11,7 @@ const navItems = [
   { icon: FileText, label: "Resources", path: "/resources" },
   { icon: PieChart, label: "Finances", path: "/finances" },
   { icon: Code, label: "Contests", path: "/contests" },
+  { icon: Flame, label: "Habits", path: "/habits" },
   { icon: Target, label: "Goals", path: "/goals" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];

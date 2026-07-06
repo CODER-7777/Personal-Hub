@@ -79,13 +79,63 @@ graph TD
     Desktop --> Gemini
 ```
 
+### Detailed Architecture (With Technologies)
+
+```mermaid
+flowchart TB
+    subgraph Clients["Client Applications (React 19 + TypeScript + Vite)"]
+        Web[" Web Browser<br/>(Vite PWA)"]
+        Android[" Android App<br/>(Capacitor)"]
+        Desktop[" Desktop App<br/>(Electron)"]
+    end
+
+    subgraph State["Frontend State Management"]
+        Zustand[" Local State<br/>(Zustand + Persist)"]
+        Styling[" UI & Styling<br/>(Tailwind CSS 4, Motion, Lucide)"]
+    end
+
+    subgraph Backend["Cloud & Authentication"]
+        Auth[" Authentication<br/>(Firebase Auth)"]
+        DB[" Realtime Sync<br/>(Firebase Realtime DB)"]
+    end
+
+    subgraph ThirdParty["External APIs & AI"]
+        Gemini[" AI Processing<br/>(Google Gemini 3.1 API)"]
+        GCal[" Calendar Sync<br/>(Google Calendar API)"]
+    end
+
+    %% Client routing to state
+    Web -->|Renders UI| Styling
+    Android -->|Renders UI| Styling
+    Desktop -->|Renders UI| Styling
+
+    Styling <-->|Reads/Writes| Zustand
+
+    %% State and direct client API connections
+    Zustand <-->|Syncs Data| DB
+    Clients -->|Login/Tokens| Auth
+
+    Zustand -->|Schedule Gen/Parsing| Gemini
+    Zustand -->|Push Classes| GCal
+
+    classDef client fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
+    classDef state fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff;
+    classDef cloud fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
+    classDef api fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
+
+    class Web,Android,Desktop client;
+    class Zustand,Styling state;
+    class Auth,DB cloud;
+    class Gemini,GCal api;
+```
+
 ---
 
 ## Getting Started
 
 ### 1. Prerequisites
 - Node.js (v18+)
-- A Google AI Studio API Key (You can configure this inside the app's Settings page!)
+- A Gemini API Key (You can configure this inside the app's Settings page!)
 - Firebase Project configured (with Realtime Database and Auth enabled).
 
 ### 2. Installation

@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppStore } from "../store";
-import { Settings as SettingsIcon, Key, User, Zap, ExternalLink, Trash2, LogOut, FileText, Code, Image, Mail } from "lucide-react";
+import { Settings as SettingsIcon, Key, User, Zap, ExternalLink, Trash2, LogOut, FileText, Code, Image, Mail, Download } from "lucide-react";
 import { auth } from "../lib/firebase";
 import { signOut, deleteUser } from "firebase/auth";
 import { toast } from "sonner";
@@ -35,6 +35,41 @@ export default function Settings() {
       } catch (error: any) {
         toast.error(error.message || "Failed to delete account. Please log in again to perform this action.");
       }
+    }
+  };
+
+  const handleExportData = () => {
+    try {
+      const state = useAppStore.getState();
+      const exportData = {
+        classes: state.classes,
+        tasks: state.tasks,
+        resources: state.resources,
+        expenses: state.expenses,
+        reminders: state.reminders,
+        pomodoroSessions: state.pomodoroSessions,
+        habits: state.habits,
+        notes: state.notes,
+        goals: state.goals,
+        monthlyGoals: state.monthlyGoals,
+        profileName: state.profileName,
+        cfHandle: state.cfHandle,
+      };
+      
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `personal_hub_backup_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Data exported successfully!");
+    } catch (error) {
+      toast.error("Failed to export data");
     }
   };
 
@@ -146,6 +181,19 @@ export default function Settings() {
         {/* ACCOUNT MANAGEMENT */}
         <div className="bg-bg border-2 border-ink rounded-3xl p-6 md:p-8 shadow-[4px_4px_0px_var(--theme-ink)] space-y-6">
           <div>
+            <div className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2 mb-4">
+              <Download className="w-4 h-4 text-sub" /> Data Management
+            </div>
+            
+            <button 
+              onClick={handleExportData}
+              className="w-full bg-line border-2 border-ink p-4 rounded-xl font-bold text-ink hover:bg-sub hover:text-bg transition-colors flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" /> Export All Data (JSON)
+            </button>
+          </div>
+
+          <div className="border-t-2 border-ink border-dashed pt-6">
             <div className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2 mb-4">
               <User className="w-4 h-4 text-sub" /> Account Management
             </div>

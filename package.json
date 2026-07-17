@@ -1,7 +1,7 @@
 {
   "name": "react-example",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
@@ -19,6 +19,7 @@
     "@capacitor/device": "8.0.2",
     "@capacitor/filesystem": "8.1.2",
     "@capacitor/local-notifications": "8.2.0",
+    "@capacitor/push-notifications": "^8.1.1",
     "@capacitor/share": "8.0.1",
     "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
     "@google/genai": "1.29.0",

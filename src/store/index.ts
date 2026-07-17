@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ref, onValue, set as dbSet } from "firebase/database";
-import { db, isFirebaseConfigured } from "../lib/firebase";
+import { db, auth, isFirebaseConfigured } from "../lib/firebase";
 import { 
   ClassSession, Task, Resource, Expense, Reminder, 
   PomodoroSession, Habit, QuickNote, Goal, MonthlyGoal 
@@ -286,8 +286,9 @@ export const useAppStore = create<AppState>()(
 );
 
 function syncToFirebase(key: string, data: any) {
-  if (isFirebaseConfigured) {
-    dbSet(ref(db, 'user_data/' + key), data);
+  const uid = auth.currentUser?.uid;
+  if (isFirebaseConfigured && uid) {
+    dbSet(ref(db, `user_data/${uid}/${key}`), data);
   }
 }
 
@@ -298,6 +299,8 @@ function sanitizeHabits(rawHabits: any[]): Habit[] {
     completions: Array.isArray(h.completions) ? h.completions : [],
   }));
 }
+
+let currentUnsubscribe: (() => void) | null = null;
 
 export function initFirebaseSync() {
   if (!isFirebaseConfigured) return;
@@ -310,22 +313,35 @@ export function initFirebaseSync() {
     }
   });
 
-  onValue(ref(db, 'user_data'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      useAppStore.setState({
-        classes: Array.isArray(data.classes) ? data.classes : [],
-        tasks: Array.isArray(data.tasks) ? data.tasks : [],
-        resources: Array.isArray(data.resources) ? data.resources : [],
-        expenses: Array.isArray(data.expenses) ? data.expenses : [],
-        reminders: Array.isArray(data.reminders) ? data.reminders : [],
-        pomodoroSessions: Array.isArray(data.pomodoroSessions) ? data.pomodoroSessions : [],
-        habits: sanitizeHabits(data.habits),
-        notes: Array.isArray(data.notes) ? data.notes : [],
-        goals: Array.isArray(data.goals) ? data.goals : [],
-        monthlyGoals: Array.isArray(data.monthlyGoals) ? data.monthlyGoals : [],
-        lastSyncTime: new Date().toISOString(),
-      });
+  // Listen for auth state changes to bind per-user data path
+  auth.onAuthStateChanged((user) => {
+    // Unsubscribe from previous user's data listener
+    if (currentUnsubscribe) {
+      currentUnsubscribe();
+      currentUnsubscribe = null;
     }
+
+    if (!user) return;
+
+    const userRef = ref(db, `user_data/${user.uid}`);
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        useAppStore.setState({
+          classes: Array.isArray(data.classes) ? data.classes : [],
+          tasks: Array.isArray(data.tasks) ? data.tasks : [],
+          resources: Array.isArray(data.resources) ? data.resources : [],
+          expenses: Array.isArray(data.expenses) ? data.expenses : [],
+          reminders: Array.isArray(data.reminders) ? data.reminders : [],
+          pomodoroSessions: Array.isArray(data.pomodoroSessions) ? data.pomodoroSessions : [],
+          habits: sanitizeHabits(data.habits),
+          notes: Array.isArray(data.notes) ? data.notes : [],
+          goals: Array.isArray(data.goals) ? data.goals : [],
+          monthlyGoals: Array.isArray(data.monthlyGoals) ? data.monthlyGoals : [],
+          lastSyncTime: new Date().toISOString(),
+        });
+      }
+    });
+    currentUnsubscribe = unsubscribe;
   });
 }

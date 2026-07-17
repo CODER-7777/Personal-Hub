@@ -1,6 +1,10 @@
 {
   "rules": {
-    ".read": "now < 2082758400000",
-    ".write": "now < 2082758400000"
+    "user_data": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
   }
 }

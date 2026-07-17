@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "451679332521",
+    "firebase_url": "https://personal-hub-7d9f0-default-rtdb.firebaseio.com",
+    "project_id": "personal-hub-7d9f0",
+    "storage_bucket": "personal-hub-7d9f0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451679332521:android:737bfb6e178237a06c61b8",
+        "android_client_info": {
+          "package_name": "com.personalhub.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451679332521-qbken7u3ggvl684kaqtg2l69jer9nos9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEOAzXwRZqFxcOPoQrLZhMj6AEP2Oy6tw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "451679332521-qbken7u3ggvl684kaqtg2l69jer9nos9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

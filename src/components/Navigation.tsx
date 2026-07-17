@@ -1,8 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Calendar, FileText, PieChart, Code, Sun, Moon, Brain, Target, StickyNote, Wifi, WifiOff, RefreshCw, Settings, Flame } from "lucide-react";
+import { LayoutDashboard, Calendar, FileText, PieChart, Code, Sun, Moon, Brain, Target, StickyNote, Wifi, WifiOff, RefreshCw, Settings, Flame, LogOut } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
+import { auth } from "../lib/firebase";
+import { signOut } from "firebase/auth";
+import { toast } from "sonner";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -50,7 +53,7 @@ function SyncIndicator({ compact = false }: { compact?: boolean }) {
 }
 
 export function Sidebar() {
-  const { theme, toggleTheme } = useAppStore();
+  const { theme, toggleTheme, profileName, profilePicture } = useAppStore();
   
   return (
     <div className="w-64 flex-shrink-0 bg-bg h-screen flex flex-col hidden md:flex sticky top-0 print:hidden transition-colors">
@@ -80,17 +83,35 @@ export function Sidebar() {
       </nav>
       <div className="p-4 border-t-2 border-ink space-y-3">
         <SyncIndicator />
-        <div className="flex justify-between items-center">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-sub">
-            Make it a great day.
+        <div className="flex items-center gap-3">
+          {/* Profile picture or initials */}
+          {profilePicture ? (
+            <img src={profilePicture} alt="" className="w-8 h-8 rounded-full border-2 border-ink object-cover flex-shrink-0" />
+          ) : (
+            <div className="w-8 h-8 rounded-full border-2 border-ink bg-line flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-extrabold text-ink">{profileName.charAt(0).toUpperCase()}</span>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold text-ink truncate">{profileName}</p>
+            <p className="text-[8px] font-bold uppercase tracking-widest text-sub truncate">{auth.currentUser?.email || ''}</p>
           </div>
-          <button 
-            onClick={toggleTheme} 
-            className="p-2 border-2 border-transparent rounded-xl hover:border-ink hover:bg-highlight transition-colors text-ink bg-bg"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={toggleTheme} 
+              className="p-1.5 border-2 border-transparent rounded-lg hover:border-ink hover:bg-highlight transition-colors text-ink bg-bg"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
+            <button 
+              onClick={async () => { try { await signOut(auth); toast.success('Logged out'); } catch(e) { toast.error('Logout failed'); } }}
+              className="p-1.5 border-2 border-transparent rounded-lg hover:border-[var(--color-safe-red)] hover:bg-[var(--color-safe-red-bg)] transition-colors text-sub hover:text-[var(--color-safe-red)]"
+              aria-label="Log out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

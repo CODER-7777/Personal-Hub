@@ -119,7 +119,7 @@ export default function Settings() {
             />
             <p className="text-[10px] md:text-xs font-bold text-sub">
               Your API key is stored locally on your device. 
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="ml-1 text-ink underline inline-flex items-center gap-1">
+              <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener noreferrer" className="ml-1 text-ink underline inline-flex items-center gap-1">
                 Get an API Key <ExternalLink className="w-3 h-3" />
               </a>
             </p>

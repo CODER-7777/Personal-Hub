@@ -227,7 +227,7 @@ export default function Resources() {
                 <FolderCard
                   key={category}
                   category={category}
-                  count={items.length}
+                  count={(items as any[]).length}
                   onClick={() => setActiveFolder(category)}
                 />
               ))}

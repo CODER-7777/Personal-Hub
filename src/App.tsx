@@ -22,6 +22,7 @@ import Privacy from "./pages/Privacy";
 import Habits from "./pages/Habits";
 import { SplashIntro } from "./components/SplashIntro";
 import { AlarmSystem } from "./components/AlarmSystem";
+import { PushNotificationSystem } from "./components/PushNotificationSystem";
 import { ThemeLoader } from "./components/ThemeLoader";
 
 // ─── APP ─────────────────────────────────
@@ -67,6 +68,7 @@ export default function App() {
     <BrowserRouter>
       <ThemeLoader />
       <AlarmSystem />
+      <PushNotificationSystem />
       <div className="flex h-screen bg-bg text-ink font-sans overflow-hidden transition-colors">
         <Sidebar />
         <main className="flex-1 overflow-hidden p-0 md:p-4 bg-line relative flex flex-col md:flex-row print:bg-bg print:p-0">

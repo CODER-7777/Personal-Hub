@@ -44,6 +44,24 @@ if (electronIsDev) {
   setupContentSecurityPolicy(myCapacitorApp.getCustomURLScheme());
   // Initialize our app, build windows, and load content.
   await myCapacitorApp.init();
+  
+  // Handle external links opening in the default browser
+  const mainWindow = myCapacitorApp.getMainWindow();
+  if (mainWindow) {
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      import('electron').then(({ shell }) => shell.openExternal(url));
+      return { action: 'deny' };
+    });
+    
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+      const customScheme = myCapacitorApp.getCustomURLScheme();
+      if (!url.startsWith('http://localhost') && !url.startsWith(`${customScheme}://`) && !url.startsWith('file://')) {
+        event.preventDefault();
+        import('electron').then(({ shell }) => shell.openExternal(url));
+      }
+    });
+  }
+
   // Check for updates if we are in a packaged app.
   // autoUpdater.checkForUpdatesAndNotify();
 })();

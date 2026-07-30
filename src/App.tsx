@@ -24,6 +24,7 @@ import { SplashIntro } from "./components/SplashIntro";
 import { AlarmSystem } from "./components/AlarmSystem";
 import { PushNotificationSystem } from "./components/PushNotificationSystem";
 import { ThemeLoader } from "./components/ThemeLoader";
+import { useMonthlyReset } from "./hooks/useMonthlyReset";
 
 // ─── APP ─────────────────────────────────
 
@@ -32,6 +33,9 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+
+  // Checks and resets finances on a new month automatically
+  useMonthlyReset();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

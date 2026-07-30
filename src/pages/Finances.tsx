@@ -11,6 +11,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recha
 import { parseISO } from "date-fns";
 import { GoogleGenAI, Type } from "@google/genai";
 import imageCompression from "browser-image-compression";
+import ExcelJS from 'exceljs';
+import {saveAs} from 'file-saver';
+import html2canvas from 'html2canvas';
 
 const COLORS = ['#4f46e5', '#ec4899', '#f59e0b', '#06b6d4', '#10b981', '#8b5cf6'];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -302,6 +305,45 @@ export default function Finances() {
       setIsExporting(false);
     }
   };
+  const handleExportToExcel = async () => {
+    try {
+      const chartElement = document.getElementById('finance-charts');
+      let imageBase64 = null;
+      if (chartElement) {
+        const canvas = await html2canvas(chartElement);
+        imageBase64 = canvas.toDataURL('image/png');
+      }
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("Finances");
+      sheet.columns = [
+        { header: 'Date', key: 'date', width: 20 },
+        { header: 'Type', key: 'type', width: 15 },
+        { header: 'Category', key: 'category', width: 20 },
+        { header: 'Amount', key: 'amount', width: 20 },
+      ];    
+      expenses.forEach(exp => {
+        sheet.addRow({
+          date: exp.date,
+          type: exp.type,
+          category: exp.category,
+          amount: exp.amount,
+        });
+      });
+      if (imageBase64) {
+        const imageId = workbook.addImage({
+          base64: imageBase64,
+          extension: 'png',
+        });
+        sheet.addImage(imageId, 'F2:M20');
+      }
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(new Blob([buffer]), `Finances_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success("Excel Report downloaded!");
+    } catch (error) {
+      console.error("Failed to export Excel:", error);
+      toast.error("Failed to export Excel.");
+    }
+  };
 
   return (
     <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8" ref={reportRef}>
@@ -342,6 +384,12 @@ export default function Finances() {
             EXPORT PDF
           </button>
           <button 
+            onClick={handleExportToExcel}
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
+          >
+            <Download className="w-5 h-5" /> EXPORT EXCEL
+          </button>
+          <button 
             onClick={() => { setShowAdd(!showAdd); setType('expense'); }}
             className="bg-ink hover:bg-sub text-bg px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-transparent rounded-xl hover:shadow-[4px_4px_0px_var(--theme-sub)] hover:-translate-y-1 flex-1 md:flex-none justify-center"
           >
@@ -351,7 +399,7 @@ export default function Finances() {
       </div>
 
       {/* TOP CHARTS & STATS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div id="finance-charts" className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-bg p-2 -m-2 rounded-3xl">
         
         {/* SUMMARY CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:col-span-2 gap-4 md:gap-6">

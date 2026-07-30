@@ -4,6 +4,7 @@ import { Trophy, Clock, Target, ExternalLink, Activity, Flame, CheckCircle, Tren
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useAppStore } from "../store";
 import { Link } from "react-router-dom";
+import { scheduleContestNotifications } from "../lib/notifications";
 
 interface CFContest {
   id: number;
@@ -64,7 +65,9 @@ export default function Contests() {
             const upcoming = data.result
               .filter((c: CFContest) => c.phase === "BEFORE")
               .sort((a: CFContest, b: CFContest) => a.startTimeSeconds - b.startTimeSeconds);
-            setContests(upcoming.slice(0, 10));
+            const topUpcoming = upcoming.slice(0, 10);
+            setContests(topUpcoming);
+            scheduleContestNotifications(topUpcoming);
           }
         }
       } catch (err) {

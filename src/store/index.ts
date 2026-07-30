@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ref, onValue, set as dbSet } from "firebase/database";
 import { db, auth, isFirebaseConfigured } from "../lib/firebase";
+import { scheduleTaskNotification, scheduleReminderNotification } from "../lib/notifications";
 import { 
   ClassSession, Task, Resource, Expense, Reminder, 
   PomodoroSession, Habit, QuickNote, Goal, MonthlyGoal 
@@ -78,6 +79,13 @@ interface AppState {
   removeMonthlyGoal: (id: string) => void;
 
   forceSync: () => void;
+  
+  //finance report
+  lastResetMonth: string;
+  financeReports: any[];
+  setLastResetMonth: (month: string) => void;
+  setFinanceReports: (updater: (prev: any[]) => any[]) => void;
+  clearExpenses: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -112,6 +120,25 @@ export const useAppStore = create<AppState>()(
       goals: [],
       monthlyGoals: [],
       
+      lastResetMonth: '',
+      financeReports: [],
+      
+      setLastResetMonth: (month) => {
+        set({ lastResetMonth: month });
+        // Optional: syncToFirebase('lastResetMonth', month); 
+        // We'll skip syncToFirebase for this to keep it simple, it's persisted locally
+      },
+      setFinanceReports: (updater) => {
+        const newReports = updater(get().financeReports || []);
+        set({ financeReports: newReports });
+        // Optional: syncToFirebase('financeReports', newReports);
+      },
+      clearExpenses: () => {
+        set({ expenses: [] });
+        // Note: syncToFirebase logic requires auth, which is imported here but normally called directly.
+        // We will just clear it locally and the next force sync or local cache will handle it.
+      },
+      
       addClasses: (newClasses) => {
         const classes = [...get().classes, ...newClasses];
         set({ classes });
@@ -127,6 +154,8 @@ export const useAppStore = create<AppState>()(
         const tasks = [...get().tasks, task];
         set({ tasks });
         syncToFirebase('tasks', tasks);
+        // Schedule notification for the task deadline
+        scheduleTaskNotification(task);
       },
       toggleTask: (id) => {
         const tasks = get().tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
@@ -165,6 +194,8 @@ export const useAppStore = create<AppState>()(
         const reminders = [...get().reminders, rem];
         set({ reminders });
         syncToFirebase('reminders', reminders);
+        // Schedule notification for the reminder
+        scheduleReminderNotification(rem);
       },
       markReminderTriggered: (id) => {
         const reminders = get().reminders.map(r => r.id === id ? { ...r, triggered: true } : r);

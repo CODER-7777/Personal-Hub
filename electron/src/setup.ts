@@ -243,7 +243,7 @@ export function setupContentSecurityPolicy(customScheme: string): void {
         'Content-Security-Policy': [
           electronIsDev
             ? `default-src ${customScheme}://* 'unsafe-inline' devtools://* 'unsafe-eval' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} ws: wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`
-            : `default-src ${customScheme}://* 'unsafe-inline' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`,
+            : `default-src ${customScheme}://* 'unsafe-inline' 'unsafe-eval' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`,
         ],
       },
     });

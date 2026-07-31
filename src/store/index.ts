@@ -316,10 +316,22 @@ export const useAppStore = create<AppState>()(
   )
 );
 
+// Guard flag to prevent Firebase onValue from overwriting local state
+// immediately after a local write triggers a server echo
+let isLocalWrite = false;
+let localWriteTimer: ReturnType<typeof setTimeout> | null = null;
+
 function syncToFirebase(key: string, data: any) {
   const uid = auth.currentUser?.uid;
   if (isFirebaseConfigured && uid) {
-    dbSet(ref(db, `user_data/${uid}/${key}`), data);
+    // Set the guard so the incoming onValue echo doesn't clobber local state
+    isLocalWrite = true;
+    if (localWriteTimer) clearTimeout(localWriteTimer);
+    localWriteTimer = setTimeout(() => { isLocalWrite = false; }, 2000);
+
+    dbSet(ref(db, `user_data/${uid}/${key}`), data).catch((err) => {
+      console.error(`Firebase sync failed for "${key}":`, err);
+    });
   }
 }
 
@@ -354,8 +366,32 @@ export function initFirebaseSync() {
 
     if (!user) return;
 
+    // On first login, push any locally cached data up to Firebase
+    // so nothing stored offline is lost
+    const state = useAppStore.getState();
+    const dataKeys = [
+      'classes', 'tasks', 'resources', 'expenses', 'reminders',
+      'pomodoroSessions', 'habits', 'notes', 'goals', 'monthlyGoals'
+    ] as const;
+
+    const hasLocalData = dataKeys.some(
+      (k) => Array.isArray(state[k]) && (state[k] as any[]).length > 0
+    );
+
+    if (hasLocalData) {
+      // Push local data to Firebase first before listening
+      for (const key of dataKeys) {
+        if (Array.isArray(state[key]) && (state[key] as any[]).length > 0) {
+          syncToFirebase(key, state[key]);
+        }
+      }
+    }
+
     const userRef = ref(db, `user_data/${user.uid}`);
     const unsubscribe = onValue(userRef, (snapshot) => {
+      // Skip the echo from our own write
+      if (isLocalWrite) return;
+
       const data = snapshot.val();
       if (data) {
         useAppStore.setState({

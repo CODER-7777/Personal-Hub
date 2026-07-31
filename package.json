@@ -1,7 +1,7 @@
 {
   "name": "react-example",
   "private": true,
-  "version": "2.2.2",
+  "version": "2.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
@@ -10,7 +10,8 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "build:linux": "npm run build && npx cap copy electron && cd electron && npm run electron:make:linux",
-    "build:windows": "npm run build && npx cap copy electron && cd electron && npm run electron:make:win"
+    "build:windows": "npm run build && npx cap copy electron && cd electron && npm run electron:make:win",
+    "build:android": "npm run build && npx cap copy android && npx cap sync android"
   },
   "dependencies": {
     "@capacitor-community/electron": "5.0.1",

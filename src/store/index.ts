@@ -316,25 +316,32 @@ export const useAppStore = create<AppState>()(
   )
 );
 
-// Guard flag to prevent Firebase onValue from overwriting local state
-// immediately after a local write triggers a server echo
-let isLocalWrite = false;
-let localWriteTimer: ReturnType<typeof setTimeout> | null = null;
+// ─── Per-key write tracking ───────────────────────────────────────────────
+// Instead of one global boolean, we track how many writes are "in-flight"
+// for each data key. The onValue handler only applies remote data when
+// pendingWrites[key] === 0, meaning no local writes are waiting for
+// Firebase acknowledgement.
+const pendingWrites: Record<string, number> = {};
 
 function syncToFirebase(key: string, data: any) {
   const uid = auth.currentUser?.uid;
-  if (isFirebaseConfigured && uid) {
-    // Set the guard so the incoming onValue echo doesn't clobber local state
-    isLocalWrite = true;
-    if (localWriteTimer) clearTimeout(localWriteTimer);
-    localWriteTimer = setTimeout(() => { isLocalWrite = false; }, 2000);
+  if (!isFirebaseConfigured || !uid) return;
 
-    dbSet(ref(db, `user_data/${uid}/${key}`), data).catch((err) => {
+  // Increment the pending counter BEFORE the write
+  pendingWrites[key] = (pendingWrites[key] || 0) + 1;
+
+  dbSet(ref(db, `user_data/${uid}/${key}`), data)
+    .then(() => {
+      // Write succeeded — decrement the counter
+      pendingWrites[key] = Math.max(0, (pendingWrites[key] || 1) - 1);
+    })
+    .catch((err) => {
       console.error(`Firebase sync failed for "${key}":`, err);
+      pendingWrites[key] = Math.max(0, (pendingWrites[key] || 1) - 1);
     });
-  }
 }
 
+// ─── Sanitizers ───────────────────────────────────────────────────────────
 function sanitizeHabits(rawHabits: any[]): Habit[] {
   if (!Array.isArray(rawHabits)) return [];
   return rawHabits.map(h => ({
@@ -343,11 +350,37 @@ function sanitizeHabits(rawHabits: any[]): Habit[] {
   }));
 }
 
-let currentUnsubscribe: (() => void) | null = null;
+function toSafeArray(val: any): any[] {
+  return Array.isArray(val) ? val : [];
+}
+
+// Merge two arrays by `id`, keeping the item from `primary` if both have it
+function mergeById(local: any[], remote: any[]): any[] {
+  const map = new Map<string, any>();
+  for (const item of remote) {
+    if (item && item.id) map.set(item.id, item);
+  }
+  for (const item of local) {
+    if (item && item.id) map.set(item.id, item); // local wins on conflict
+  }
+  return Array.from(map.values());
+}
+
+// ─── Sync keys configuration ─────────────────────────────────────────────
+const DATA_KEYS = [
+  'classes', 'tasks', 'resources', 'expenses', 'reminders',
+  'pomodoroSessions', 'habits', 'notes', 'goals', 'monthlyGoals'
+] as const;
+
+type DataKey = typeof DATA_KEYS[number];
+
+// ─── Firebase Sync Init ──────────────────────────────────────────────────
+let currentUnsubscribes: (() => void)[] = [];
 
 export function initFirebaseSync() {
   if (!isFirebaseConfigured) return;
 
+  // Connection status listener
   onValue(ref(db, '.info/connected'), (snapshot) => {
     if (snapshot.val() === true) {
       useAppStore.setState({ syncStatus: 'connected' });
@@ -356,59 +389,70 @@ export function initFirebaseSync() {
     }
   });
 
-  // Listen for auth state changes to bind per-user data path
-  auth.onAuthStateChanged((user) => {
-    // Unsubscribe from previous user's data listener
-    if (currentUnsubscribe) {
-      currentUnsubscribe();
-      currentUnsubscribe = null;
+  auth.onAuthStateChanged(async (user) => {
+    // Clean up all previous listeners
+    for (const unsub of currentUnsubscribes) {
+      unsub();
     }
+    currentUnsubscribes = [];
 
     if (!user) return;
 
-    // On first login, push any locally cached data up to Firebase
-    // so nothing stored offline is lost
-    const state = useAppStore.getState();
-    const dataKeys = [
-      'classes', 'tasks', 'resources', 'expenses', 'reminders',
-      'pomodoroSessions', 'habits', 'notes', 'goals', 'monthlyGoals'
-    ] as const;
+    // ── Step 1: One-time read + merge with local ──
+    // Read remote data once, merge with local (union by ID), then push
+    // the merged result back. This prevents data loss from either side.
+    const { get: fbGet } = await import('firebase/database');
+    try {
+      const snapshot = await fbGet(ref(db, `user_data/${user.uid}`));
+      const remoteData = snapshot.val() || {};
+      const localState = useAppStore.getState();
 
-    const hasLocalData = dataKeys.some(
-      (k) => Array.isArray(state[k]) && (state[k] as any[]).length > 0
-    );
-
-    if (hasLocalData) {
-      // Push local data to Firebase first before listening
-      for (const key of dataKeys) {
-        if (Array.isArray(state[key]) && (state[key] as any[]).length > 0) {
-          syncToFirebase(key, state[key]);
-        }
+      const merged: Partial<Record<DataKey, any[]>> = {};
+      for (const key of DATA_KEYS) {
+        const localArr = toSafeArray(localState[key]);
+        let remoteArr = toSafeArray(remoteData[key]);
+        if (key === 'habits') remoteArr = sanitizeHabits(remoteArr);
+        merged[key] = mergeById(localArr, remoteArr);
       }
+
+      // Apply merged data locally
+      useAppStore.setState({
+        ...merged,
+        lastSyncTime: new Date().toISOString(),
+      } as any);
+
+      // Push merged data back to Firebase so both sides are identical
+      for (const key of DATA_KEYS) {
+        syncToFirebase(key, merged[key]);
+      }
+    } catch (err) {
+      console.error('Initial Firebase merge failed:', err);
     }
 
-    const userRef = ref(db, `user_data/${user.uid}`);
-    const unsubscribe = onValue(userRef, (snapshot) => {
-      // Skip the echo from our own write
-      if (isLocalWrite) return;
+    // ── Step 2: Set up per-key real-time listeners ──
+    // Each key gets its own onValue listener, so a change to "tasks"
+    // doesn't trigger a re-download of "expenses", "classes", etc.
+    for (const key of DATA_KEYS) {
+      const keyRef = ref(db, `user_data/${user.uid}/${key}`);
+      const unsub = onValue(keyRef, (snapshot) => {
+        // If we have pending local writes for THIS key, skip the echo
+        if ((pendingWrites[key] || 0) > 0) return;
 
-      const data = snapshot.val();
-      if (data) {
+        const rawData = snapshot.val();
+        let data: any[];
+        if (key === 'habits') {
+          data = sanitizeHabits(rawData);
+        } else {
+          data = toSafeArray(rawData);
+        }
+
         useAppStore.setState({
-          classes: Array.isArray(data.classes) ? data.classes : [],
-          tasks: Array.isArray(data.tasks) ? data.tasks : [],
-          resources: Array.isArray(data.resources) ? data.resources : [],
-          expenses: Array.isArray(data.expenses) ? data.expenses : [],
-          reminders: Array.isArray(data.reminders) ? data.reminders : [],
-          pomodoroSessions: Array.isArray(data.pomodoroSessions) ? data.pomodoroSessions : [],
-          habits: sanitizeHabits(data.habits),
-          notes: Array.isArray(data.notes) ? data.notes : [],
-          goals: Array.isArray(data.goals) ? data.goals : [],
-          monthlyGoals: Array.isArray(data.monthlyGoals) ? data.monthlyGoals : [],
+          [key]: data,
           lastSyncTime: new Date().toISOString(),
-        });
-      }
-    });
-    currentUnsubscribe = unsubscribe;
+        } as any);
+      });
+      currentUnsubscribes.push(unsub);
+    }
   });
 }
+

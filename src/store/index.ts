@@ -86,6 +86,8 @@ interface AppState {
   setLastResetMonth: (month: string) => void;
   setFinanceReports: (updater: (prev: any[]) => any[]) => void;
   clearExpenses: () => void;
+  
+  clearUserData: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -125,18 +127,32 @@ export const useAppStore = create<AppState>()(
       
       setLastResetMonth: (month) => {
         set({ lastResetMonth: month });
-        // Optional: syncToFirebase('lastResetMonth', month); 
-        // We'll skip syncToFirebase for this to keep it simple, it's persisted locally
       },
       setFinanceReports: (updater) => {
         const newReports = updater(get().financeReports || []);
         set({ financeReports: newReports });
-        // Optional: syncToFirebase('financeReports', newReports);
       },
       clearExpenses: () => {
         set({ expenses: [] });
-        // Note: syncToFirebase logic requires auth, which is imported here but normally called directly.
-        // We will just clear it locally and the next force sync or local cache will handle it.
+      },
+      
+      clearUserData: () => {
+        set({
+          classes: [],
+          tasks: [],
+          resources: [],
+          expenses: [],
+          reminders: [],
+          pomodoroSessions: [],
+          habits: [],
+          notes: [],
+          goals: [],
+          monthlyGoals: [],
+          financeReports: [],
+          profileName: '',
+          cfHandle: '',
+          profilePicture: ''
+        });
       },
       
       addClasses: (newClasses) => {
@@ -396,7 +412,10 @@ export function initFirebaseSync() {
     }
     currentUnsubscribes = [];
 
-    if (!user) return;
+    if (!user) {
+      useAppStore.getState().clearUserData();
+      return;
+    }
 
     // ── Step 1: One-time read + merge with local ──
     // Read remote data once, merge with local (union by ID), then push

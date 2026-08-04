@@ -150,7 +150,7 @@ export default function Dashboard() {
           <div className="hidden md:grid md:grid-cols-2 gap-6">
             {/* Pie Chart */}
             <div className="flex flex-col items-center justify-center">
-              <div className="relative w-40 h-40">
+              <div className="relative w-48 h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
@@ -203,6 +203,32 @@ export default function Dashboard() {
                   <Area type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} fill="url(#colorExpense)" />
                 </AreaChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Desktop: Recent Transactions */}
+          <div className="hidden md:block pt-4 border-t-2 border-ink/10">
+            <p className="text-[10px] font-bold text-sub uppercase tracking-widest mb-3">Recent Transactions</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3).map(t => (
+                <div key={t.id} className="bg-line/50 border-2 border-ink/10 rounded-xl p-3 flex justify-between items-center hover:bg-line transition-colors">
+                  <div className="flex items-center gap-3 truncate">
+                    <div className={`w-8 h-8 rounded-lg flex flex-shrink-0 items-center justify-center ${t.type === 'income' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'}`}>
+                      {t.type === 'income' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                    </div>
+                    <div className="truncate pr-2">
+                      <p className="text-xs font-bold text-ink truncate">{t.category}</p>
+                      <p className="text-[9px] font-bold text-sub uppercase">{format(parseISO(t.date), "MMM d")}</p>
+                    </div>
+                  </div>
+                  <p className={`text-sm font-extrabold flex-shrink-0 ${t.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {t.type === 'income' ? '+' : '-'}₹{t.amount}
+                  </p>
+                </div>
+              ))}
+              {expenses.length === 0 && (
+                <p className="text-xs font-bold text-sub">No transactions yet.</p>
+              )}
             </div>
           </div>
 

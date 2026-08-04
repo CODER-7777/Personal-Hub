@@ -5,10 +5,10 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar, Camera } from "lucide-react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar, Camera, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { parseISO } from "date-fns";
+import { parseISO, subMonths } from "date-fns";
 import { GoogleGenAI, Type } from "@google/genai";
 import imageCompression from "browser-image-compression";
 import ExcelJS from 'exceljs';
@@ -19,7 +19,7 @@ const COLORS = ['#4f46e5', '#ec4899', '#f59e0b', '#06b6d4', '#10b981', '#8b5cf6'
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default function Finances() {
-  const { expenses, addExpense, removeExpense } = useAppStore();
+  const { expenses, addExpense, removeExpense, geminiApiKey } = useAppStore();
   const [showAdd, setShowAdd] = useState(false);
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState("");
@@ -33,6 +33,14 @@ export default function Finances() {
   
   // Time filter sublevels
   const [timeFilter, setTimeFilter] = useState<string>('ALL');
+
+  // AI Advisor State
+  const [showAdvisor, setShowAdvisor] = useState(false);
+  const [advice, setAdvice] = useState("");
+  const [isAdvising, setIsAdvising] = useState(false);
+
+  // Export Modal State
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,6 +139,41 @@ export default function Finances() {
       setIsScanning(false);
     } finally {
       if (scanInputRef.current) scanInputRef.current.value = "";
+    }
+  };
+  const handleGetAIAdvice = async () => {
+    try {
+      setIsAdvising(true);
+      setShowAdvisor(true);
+      setAdvice("Analyzing your finances...");
+
+      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      
+      if (!apiKey) {
+        setAdvice("API Key missing. Please set your Gemini API Key in Settings.");
+        setIsAdvising(false);
+        return;
+      }
+
+      // Prepare data
+      const recentExpenses = expenses
+        .filter(e => new Date(e.date) >= subMonths(new Date(), 1))
+        .map(e => ({ type: e.type, amount: e.amount, category: e.category, date: e.date }));
+      
+      const prompt = `You are an expert Financial Advisor. Analyze the user's last 30 days of transactions and give a short, punchy, and highly actionable piece of advice. Do not be generic. Point out specific spending habits. Here is the JSON data of transactions: ${JSON.stringify(recentExpenses)}`;
+
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+      });
+      
+      setAdvice(response.text || "I couldn't generate advice right now.");
+    } catch (err) {
+      console.error(err);
+      setAdvice("An error occurred while generating advice.");
+    } finally {
+      setIsAdvising(false);
     }
   };
 
@@ -310,8 +353,13 @@ export default function Finances() {
       const chartElement = document.getElementById('finance-charts');
       let imageBase64 = null;
       if (chartElement) {
-        const canvas = await html2canvas(chartElement);
-        imageBase64 = canvas.toDataURL('image/png');
+        try {
+          const canvas = await html2canvas(chartElement);
+          imageBase64 = canvas.toDataURL('image/png');
+        } catch (imgError) {
+          console.warn("Failed to capture chart image for Excel:", imgError);
+          // Proceed without the image if html2canvas fails (e.g. unsupported oklch colors)
+        }
       }
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Finances");
@@ -337,11 +385,32 @@ export default function Finances() {
         sheet.addImage(imageId, 'F2:M20');
       }
       const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer]), `Finances_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
-      toast.success("Excel Report downloaded!");
-    } catch (error) {
+      const fileName = `Finances_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      const deviceInfo = await Device.getInfo();
+      if (deviceInfo.platform === 'ios' || deviceInfo.platform === 'android') {
+        const base64 = btoa(
+          new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
+        const savedFile = await Filesystem.writeFile({
+          path: fileName,
+          data: base64,
+          directory: Directory.Documents
+        });
+        await Share.share({
+          title: 'Finance Report',
+          text: 'Here is your finance report in Excel',
+          url: savedFile.uri,
+          dialogTitle: 'Open Finance Report',
+        });
+        toast.success("Excel generated and shared!");
+      } else {
+        saveAs(new Blob([buffer]), fileName);
+        toast.success("Excel Report downloaded!");
+      }
+    } catch (error: any) {
       console.error("Failed to export Excel:", error);
-      toast.error("Failed to export Excel.");
+      toast.error("Failed: " + (error?.message || String(error)));
     }
   };
 
@@ -350,9 +419,9 @@ export default function Finances() {
       
       {/* HEADER & TIME FILTER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
-        <div className="flex-1 w-full overflow-hidden">
+        <div className="flex-1 min-w-0">
           <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-2">FINANCES</h1>
-          <div className="flex gap-2 md:gap-3 mt-4 overflow-x-auto pb-4 scrollbar-hide w-full [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="flex gap-2 md:gap-3 mt-4 overflow-x-auto pt-2 pb-6 px-2 scrollbar-hide w-full [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {['ALL', ...MONTHS].map(filter => (
               <button 
                 key={filter}
@@ -366,6 +435,14 @@ export default function Finances() {
         </div>
         
         <div className="flex flex-wrap gap-2 md:gap-3 print:hidden">
+          <button 
+            onClick={handleGetAIAdvice}
+            disabled={isAdvising}
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
+          >
+            {isAdvising ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+            AI ADVISOR
+          </button>
           <input type="file" accept="image/*" className="hidden" ref={scanInputRef} onChange={handleReceiptScan} />
           <button 
             onClick={() => scanInputRef.current?.click()}
@@ -376,18 +453,10 @@ export default function Finances() {
             {isScanning ? "SCANNING..." : "SCAN RECEIPT"}
           </button>
           <button 
-            onClick={handleExportPDF}
-            disabled={isExporting}
-            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
+            onClick={() => setShowExportModal(true)}
+            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center"
           >
-            {isExporting ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-            EXPORT PDF
-          </button>
-          <button 
-            onClick={handleExportToExcel}
-            className="bg-bg hover:bg-highlight text-ink px-4 md:px-6 py-3 font-extrabold uppercase tracking-widest text-xs md:text-sm transition-all flex items-center gap-2 border-2 border-ink rounded-xl hover:shadow-[4px_4px_0px_var(--theme-ink)] hover:-translate-y-1 flex-1 md:flex-none justify-center disabled:opacity-50"
-          >
-            <Download className="w-5 h-5" /> EXPORT EXCEL
+            <Download className="w-5 h-5" /> EXPORT
           </button>
           <button 
             onClick={() => { setShowAdd(!showAdd); setType('expense'); }}
@@ -555,6 +624,69 @@ export default function Finances() {
           {filteredExpenses.length === 0 && <div className="p-20 text-center text-sm md:text-base font-extrabold uppercase tracking-widest text-sub">No transactions matched.</div>}
         </div>
       </div>
+
+      {showAdvisor && (
+        <div className="fixed inset-0 bg-ink/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-bg border-2 border-ink rounded-3xl w-full max-w-lg shadow-[8px_8px_0px_var(--theme-ink)] flex flex-col max-h-[80vh]"
+          >
+            <div className="flex items-center justify-between p-6 border-b-2 border-ink bg-line">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-accent" />
+                <h2 className="text-lg font-extrabold uppercase tracking-widest text-ink">AI Advisor</h2>
+              </div>
+              <button onClick={() => setShowAdvisor(false)} className="text-sub hover:text-ink transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto font-bold text-ink whitespace-pre-wrap leading-relaxed">
+              {isAdvising ? (
+                <div className="flex items-center gap-3 text-sub">
+                  <RefreshCw className="w-5 h-5 animate-spin" /> Analyzing 30-day trends...
+                </div>
+              ) : advice}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showExportModal && (
+        <div className="fixed inset-0 bg-ink/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-bg border-2 border-ink rounded-3xl w-full max-w-sm shadow-[8px_8px_0px_var(--theme-ink)] flex flex-col p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-extrabold uppercase tracking-widest text-ink flex items-center gap-2">
+                <Download className="w-5 h-5" /> Export Data
+              </h2>
+              <button onClick={() => setShowExportModal(false)} className="text-sub hover:text-ink transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs font-bold text-sub">Choose a format to export your financial report.</p>
+            <div className="grid grid-cols-1 gap-3 pt-2">
+              <button 
+                onClick={() => { setShowExportModal(false); handleExportPDF(); }}
+                disabled={isExporting}
+                className="bg-line hover:bg-highlight text-ink py-4 rounded-xl font-extrabold uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 border-2 border-ink hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-ink)] disabled:opacity-50"
+              >
+                {isExporting ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Printer className="w-5 h-5" />}
+                Export as PDF
+              </button>
+              <button 
+                onClick={() => { setShowExportModal(false); handleExportToExcel(); }}
+                className="bg-ink hover:bg-sub text-bg py-4 rounded-xl font-extrabold uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-sub)]"
+              >
+                <Download className="w-5 h-5" /> Export as Excel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

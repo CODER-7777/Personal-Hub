@@ -176,6 +176,26 @@ export default function Settings() {
               <div className={`w-4 h-4 md:w-5 md:h-5 rounded-full transition-transform ${animationsEnabled ? 'translate-x-6 md:translate-x-7 bg-bg' : 'translate-x-0 bg-sub'}`} />
             </button>
           </div>
+
+          <div className="border-t-2 border-ink border-dashed pt-6 space-y-4">
+            <div className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
+              <span className="w-4 h-4 text-sub flex items-center justify-center font-serif">G</span> Google Calendar Sync
+            </div>
+            <p className="text-[10px] md:text-xs font-bold text-sub">
+              To enable bidirectional sync, please set up a Google Cloud Project with the Calendar API enabled and enter your Client ID here.
+            </p>
+            <input 
+              type="text" 
+              placeholder="Google Client ID (.apps.googleusercontent.com)"
+              className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
+            />
+            <button 
+              className="bg-ink text-bg px-4 py-3 rounded-xl font-extrabold uppercase tracking-widest text-xs transition-transform hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-sub)] disabled:opacity-50"
+              onClick={() => toast.info("Calendar sync implementation is pending final OAuth setup.")}
+            >
+              Connect Calendar
+            </button>
+          </div>
         </div>
 
         {/* ACCOUNT MANAGEMENT */}

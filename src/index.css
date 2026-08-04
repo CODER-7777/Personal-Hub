@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -7,7 +8,7 @@
   --color-sub: var(--theme-sub);
   --color-line: var(--theme-line);
   --color-highlight: var(--theme-highlight);
-  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", sans-serif;
 }
 
 :root {
@@ -45,5 +46,5 @@ body {
 }
 
 html {
-  font-size: 87.5%; /* Changes base 1rem from 16px to 14px */
+  font-size: 81.25%; /* Changes base 1rem to 13px */
 }

@@ -39,7 +39,7 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
         <div className="relative z-10 flex flex-col items-center">
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: [0, 1.2, 1], rotate: 0 }}
+            animate={{ scale: 1, rotate: 0 }}
             transition={{ duration: 1, type: "spring", bounce: 0.5 }}
             className="w-24 h-24 md:w-32 md:h-32 bg-ink rounded-3xl flex items-center justify-center shadow-[8px_8px_0px_var(--theme-highlight)] mb-8 border-4 border-bg"
           >

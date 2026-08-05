@@ -5,7 +5,7 @@
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
 - **Brutalist, Premium UI:** A stunning, high-contrast visual design (`oklch` colors) built with Tailwind CSS 4, offering fluid micro-animations (Framer Motion) and deep customizability.
 - **AI Schedule Assistant (Powered by Gemini):** Automatically build an optimized daily schedule around your classes, to-do lists, and weekly goals with one click.
@@ -33,7 +33,7 @@ Personal Hub is engineered with cutting-edge tools to maximize performance and c
 
 ---
 
-## 🏗 Architecture & Pipeline
+##  Architecture & Pipeline
 
 ### How It Works (Simple Explanation)
 
@@ -143,7 +143,7 @@ flowchart TB
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### 1. Prerequisites
 - Node.js (v18+)
@@ -231,7 +231,7 @@ npx cap open android
 
 ---
 
-## ⚙️ Configuration
+##  Configuration
 
 Say goodbye to messy `.env` files. **Personal Hub features a built-in Settings page!** 
 Simply navigate to the **Settings** tab within the app to:
@@ -241,13 +241,13 @@ Simply navigate to the **Settings** tab within the app to:
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## ❤️ Support the Project
+##  Support the Project
 
 If **Personal Hub** makes your life even a little bit more organized, the best way to show support is to **star this repository**! It takes one second and genuinely means a lot.
 
@@ -257,7 +257,7 @@ If **Personal Hub** makes your life even a little bit more organized, the best w
 
 ---
 
-## 🐞 Reporting Issues
+##  Reporting Issues
 
 Found a bug? Have a feature request? I'd love to hear from you!
 
@@ -276,7 +276,7 @@ Found a bug? Have a feature request? I'd love to hear from you!
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! If you'd like to fix a bug or add a feature:
 
@@ -291,3 +291,4 @@ Please keep PRs focused and well-described. Large changes should be discussed in
 ---
 
 *Developed by [Mansoju Vivekananda](https://github.com/CODER-7777)*
+*Mail at [Email](vivekanandamansoju@gmail.com)*

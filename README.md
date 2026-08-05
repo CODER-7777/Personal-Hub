@@ -1,45 +1,49 @@
 # Personal Hub
 > A modern, premium command center for your digital life. 
 
-**Personal Hub** is a cross-platform, AI-powered productivity suite designed for individuals who demand a fast, beautiful, and fully-featured digital workspace. Built in 2026, it merges aesthetics and functionality to offer an unparalleled user experience, running seamlessly on Android, Desktop (Linux/Windows/macOS), and the Web.
+**Personal Hub** is a cross-platform, AI-powered productivity suite designed for individuals who demand a fast, beautiful, and fully-featured digital workspace. Built in 2026, it merges aesthetics (brutalist UI) and functionality to offer an unparalleled user experience, running seamlessly on Android, Desktop (Linux/Windows/macOS), and the Web.
 
 ---
 
-##  Features
+## 🌟 Key Features
 
+- **Brutalist, Premium UI:** A stunning, high-contrast visual design (`oklch` colors) built with Tailwind CSS 4, offering fluid micro-animations (Framer Motion) and deep customizability.
 - **AI Schedule Assistant (Powered by Gemini):** Automatically build an optimized daily schedule around your classes, to-do lists, and weekly goals with one click.
 - **AI Timetable Scanner:** Upload a photo of your schedule and Gemini automatically parses it into your weekly classes.
-- **Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
-- **Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams and one-click PDF generation.
+- **Advanced Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams. Get intelligent summaries of your spending habits with the **AI Advisor**.
+- **PDF & Excel Exports:** Generate and download/share detailed financial reports in standard PDF or Excel formats with a single click.
 - **Goals & Habits Tracking:** Set, monitor, and crush your daily habits and monthly goals with intuitive progress indicators.
-- **Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data.
+- **Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
+- **Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data. Also includes personalized onboarding (Codeforces handle, Profile Name).
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 Personal Hub is engineered with cutting-edge tools to maximize performance and cross-platform reach.
 
 - **Frontend:** React 19, TypeScript, Vite
 - **Styling:** Tailwind CSS 4, Framer Motion, Lucide React
-- **State Management:** Zustand (with persist)
+- **State Management:** Zustand (with local persistence & safe cross-account boundaries)
 - **Backend & Sync:** Firebase (Auth & Realtime Database)
 - **AI Integration:** Google GenAI (Gemini 3.1 Flash)
 - **Mobile Build:** Capacitor (Android/iOS)
 - **Desktop Build:** Electron & Capacitor-Community Electron (Windows/macOS/Linux)
+- **CI/CD:** GitHub Actions (Automated multi-platform releases)
 
 ---
 
-## Architecture & Pipeline
+## 🏗 Architecture & Pipeline
 
 ### How It Works (Simple Explanation)
 
 Personal Hub is designed to work everywhere you do. Here is a simple breakdown of how the different pieces fit together:
 
 1. **The Apps (Frontend):** You can use the app on the Web, on your Android phone, or as a Desktop app. They are built to share the exact same code and design.
-2. **The Memory (State Management):** When you do something in the app (like adding a task), it gets saved in a local memory bank immediately. This makes the app feel incredibly fast because it doesn't have to wait for the internet.
+2. **The Memory (State Management):** When you do something in the app (like adding a task), it gets saved in a local memory bank immediately (Zustand LocalStorage). This makes the app feel incredibly fast because it doesn't have to wait for the internet.
 3. **The Brain (AI Integration):** When you need a schedule made or a timetable scanned, the app securely sends that request to Google's Gemini AI, which acts as the smart brain to organize your life.
 4. **The Cloud (Backend Services):** To make sure your phone and laptop have the exact same data, the app securely backs up your memory to a real-time Cloud Database. It also talks to Google Calendar to automatically add your classes to your schedule!
+5. **The Factory (CI/CD Pipeline):** Every time new code is tagged, GitHub Actions spins up automated servers to build, package, and release the Desktop installers (.exe, .deb, .AppImage) and Android APKs.
 
 ```mermaid
 graph TD
@@ -100,8 +104,12 @@ flowchart TB
     end
 
     subgraph ThirdParty["External APIs & AI"]
-        Gemini[" AI Processing<br/>(Google Gemini 3.1 API)"]
+        Gemini[" AI Processing<br/>(Google Gemini API)"]
         GCal[" Calendar Sync<br/>(Google Calendar API)"]
+    end
+
+    subgraph Pipeline["CI/CD Pipeline (GitHub Actions)"]
+        GH[" Automated Releases<br/>(APK, EXE, DEB, AppImage)"]
     end
 
     %% Client routing to state
@@ -117,21 +125,25 @@ flowchart TB
 
     Zustand -->|Schedule Gen/Parsing| Gemini
     Zustand -->|Push Classes| GCal
+    
+    GH -.->|Builds| Clients
 
     classDef client fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
     classDef state fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff;
     classDef cloud fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
     classDef api fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff;
+    classDef ci fill:#ef4444,stroke:#b91c1c,stroke-width:2px,color:#fff;
 
     class Web,Android,Desktop client;
     class Zustand,Styling state;
     class Auth,DB cloud;
     class Gemini,GCal api;
+    class GH ci;
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### 1. Prerequisites
 - Node.js (v18+)
@@ -210,7 +222,7 @@ sudo apt-get install -f
 ### 6. Building for Android
 
 ```bash
-npx cap sync android
+npm run build:android
 npx cap open android
 ```
 
@@ -219,25 +231,25 @@ npx cap open android
 
 ---
 
-## Configuration
+## ⚙️ Configuration
 
 Say goodbye to messy `.env` files. **Personal Hub features a built-in Settings page!** 
 Simply navigate to the **Settings** tab within the app to:
 - Enter and securely save your **Gemini API Key**.
-- Set your **Profile Name**.
+- Set your **Profile Name** and **Codeforces Handle**.
 - Toggle high-performance **Animations** on or off.
 
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-##  Support the Project
+## ❤️ Support the Project
 
-If **Personal Hub** makes your life even a little bit more organised, the best way to show support is to **star this repository**! It takes one second and genuinely means a lot.
+If **Personal Hub** makes your life even a little bit more organized, the best way to show support is to **star this repository**! It takes one second and genuinely means a lot.
 
 [![Star this repo](https://img.shields.io/github/stars/CODER-7777/personal-hub?style=social)](https://github.com/CODER-7777/personal-hub)
 
@@ -245,7 +257,7 @@ If **Personal Hub** makes your life even a little bit more organised, the best w
 
 ---
 
-##  Reporting Issues
+## 🐞 Reporting Issues
 
 Found a bug? Have a feature request? I'd love to hear from you!
 
@@ -264,7 +276,7 @@ Found a bug? Have a feature request? I'd love to hear from you!
 
 ---
 
-##  Contributing
+## 🤝 Contributing
 
 Contributions are welcome! If you'd like to fix a bug or add a feature:
 
@@ -278,4 +290,4 @@ Please keep PRs focused and well-described. Large changes should be discussed in
 
 ---
 
-*Developed  by [Mansoju Vivekananda](https://github.com/CODER-7777)*
+*Developed by [Mansoju Vivekananda](https://github.com/CODER-7777)*

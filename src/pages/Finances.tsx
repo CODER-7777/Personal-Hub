@@ -630,7 +630,7 @@ export default function Finances() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-bg border-2 border-ink rounded-3xl w-full max-w-lg shadow-[8px_8px_0px_var(--theme-ink)] flex flex-col max-h-[80vh]"
+            className="bg-bg border-2 border-ink rounded-3xl w-full max-w-lg shadow-[8px_8px_0px_var(--theme-ink)] flex flex-col max-h-[80vh] overflow-hidden"
           >
             <div className="flex items-center justify-between p-6 border-b-2 border-ink bg-line">
               <div className="flex items-center gap-3">

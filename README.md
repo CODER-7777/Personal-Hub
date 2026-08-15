@@ -18,7 +18,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 Personal Hub is engineered with cutting-edge tools to maximize performance and cross-platform reach.
 

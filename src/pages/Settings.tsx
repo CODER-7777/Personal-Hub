@@ -7,14 +7,30 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Settings() {
-  const { 
-    geminiApiKey, setGeminiApiKey, 
-    profileName, setProfileName,
-    cfHandle, setCfHandle,
-    profilePicture, setProfilePicture,
-    animationsEnabled, setAnimationsEnabled
-  } = useAppStore();
+  const store = useAppStore();
   const navigate = useNavigate();
+
+  // Local state for manual saving
+  const [geminiApiKey, setGeminiApiKey] = React.useState(store.geminiApiKey);
+  const [profileName, setProfileName] = React.useState(store.profileName);
+  const [cfHandle, setCfHandle] = React.useState(store.cfHandle);
+  const [profilePicture, setProfilePicture] = React.useState(store.profilePicture);
+  const [animationsEnabled, setAnimationsEnabled] = React.useState(store.animationsEnabled);
+  
+  const handleSaveSettings = () => {
+    store.setGeminiApiKey(geminiApiKey);
+    store.setProfileName(profileName);
+    store.setCfHandle(cfHandle);
+    store.setProfilePicture(profilePicture);
+    store.setAnimationsEnabled(animationsEnabled);
+    toast.success("Settings saved successfully!");
+  };
+
+  const handleProfileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Strip emojis
+    const cleanName = e.target.value.replace(/\p{Emoji_Presentation}/gu, '');
+    setProfileName(cleanName);
+  };
 
   const handleLogout = async () => {
     try {
@@ -91,7 +107,7 @@ export default function Settings() {
             <input 
               type="text" 
               value={profileName}
-              onChange={(e) => setProfileName(e.target.value)}
+              onChange={handleProfileNameChange}
               placeholder="Your Name"
               className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
             />
@@ -194,6 +210,15 @@ export default function Settings() {
               onClick={() => toast.info("Calendar sync implementation is pending final OAuth setup.")}
             >
               Connect Calendar
+            </button>
+          </div>
+
+          <div className="border-t-2 border-ink border-dashed pt-6">
+            <button 
+              onClick={handleSaveSettings}
+              className="w-full bg-ink text-bg px-6 py-4 rounded-xl font-extrabold uppercase tracking-widest text-sm transition-transform hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-ink)] flex items-center justify-center gap-2"
+            >
+              <SettingsIcon className="w-5 h-5" /> Save Changes
             </button>
           </div>
         </div>

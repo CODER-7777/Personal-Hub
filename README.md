@@ -15,6 +15,8 @@
 - **Goals & Habits Tracking:** Set, monitor, and crush your daily habits and monthly goals with intuitive progress indicators.
 - **Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
 - **Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data. Also includes personalized onboarding (Codeforces handle, Profile Name).
+- **Profile Customization & Safety:** Manual save controls for settings with built-in validation (e.g., emoji stripping for profile names).
+- **Mobile-Friendly Habit Management:** Touch-optimized habit tracking with easily accessible controls across all devices.
 
 ---
 

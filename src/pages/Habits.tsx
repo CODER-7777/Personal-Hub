@@ -128,7 +128,7 @@ export default function Habits() {
                       </div>
                       <button 
                         onClick={() => removeHabit(habit.id)}
-                        className="opacity-0 group-hover:opacity-100 text-sub hover:text-red-600 transition-opacity"
+                        className="text-sub hover:text-red-600 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -23,6 +23,7 @@ import Habits from "./pages/Habits";
 import { SplashIntro } from "./components/SplashIntro";
 import { AlarmSystem } from "./components/AlarmSystem";
 import { PushNotificationSystem } from "./components/PushNotificationSystem";
+import { LocalNotificationSystem } from "./components/LocalNotificationSystem";
 import { ThemeLoader } from "./components/ThemeLoader";
 import { useMonthlyReset } from "./hooks/useMonthlyReset";
 
@@ -73,6 +74,7 @@ export default function App() {
       <ThemeLoader />
       <AlarmSystem />
       <PushNotificationSystem />
+      <LocalNotificationSystem />
       <div className="flex h-screen bg-bg text-ink font-sans overflow-hidden transition-colors">
         <Sidebar />
         <main className="flex-1 overflow-hidden p-0 md:p-4 bg-line relative flex flex-col md:flex-row print:bg-bg print:p-0">

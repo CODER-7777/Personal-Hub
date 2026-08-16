@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
-import { Wallet, Clock, BookOpen, StickyNote, PieChart as PieChartIcon, AlertTriangle, TrendingUp, Flame, Search, ChevronRight, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Wallet, Clock, BookOpen, StickyNote, PieChart as PieChartIcon, AlertTriangle, TrendingUp, Flame, Search, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, RefreshCw, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { GoogleGenAI } from "@google/genai";
 import { differenceInDays, parseISO, format, subDays, isSameDay, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 
@@ -26,7 +28,11 @@ function useMonthlyTrend(expenses: any[]) {
 }
 
 export default function Dashboard() {
-  const { classes, expenses, tasks, notes, habits, goals, profileName } = useAppStore();
+  const { classes, expenses, tasks, notes, habits, goals, profileName, geminiApiKey } = useAppStore();
+  
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [reviewText, setReviewText] = useState("");
 
   const today = new Date();
   const todayDayOfWeek = today.getDay();
@@ -65,6 +71,50 @@ export default function Dashboard() {
   ];
   const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 100) : 0;
 
+  const handleWeeklyReview = async () => {
+    try {
+      setShowReviewModal(true);
+      setIsReviewing(true);
+      setReviewText("Synthesizing your week across habits, finances, and schedule...");
+
+      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      
+      if (!apiKey) {
+        setReviewText("API Key missing. Please set your Gemini API Key in Settings.");
+        setIsReviewing(false);
+        return;
+      }
+
+      // Prepare context data
+      const activeHabits = habits.map(h => ({ name: h.name, streak: getStreak(h) }));
+      const upcomingTasks = tasks.filter(t => !t.completed).map(t => ({ title: t.title, due: t.dueDate }));
+      const recentExpenses = expenses.filter(e => e.type === 'expense' && new Date(e.date) >= subDays(new Date(), 7)).reduce((sum, e) => sum + e.amount, 0);
+      const scheduleSummary = classes.length + " classes this week.";
+
+      const prompt = `You are a strict but encouraging personal life coach. Look at my current life data and give me a single, highly insightful "Weekly Review" paragraph. Connect the dots between my habits, money, and schedule if possible (e.g. "You spent $X but crushed your X habit"). 
+      DATA: 
+      - Habits: ${JSON.stringify(activeHabits)}
+      - Pending Tasks: ${JSON.stringify(upcomingTasks)}
+      - Money spent last 7 days: $${recentExpenses}
+      - Schedule: ${scheduleSummary}
+      
+      Keep it punchy, direct, and under 4 sentences. Do not use generic filler.`;
+
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+      });
+      
+      setReviewText(response.text || "No insights could be generated.");
+    } catch (error) {
+      console.error(error);
+      setReviewText("Failed to generate review. Please check your internet or API key.");
+    } finally {
+      setIsReviewing(false);
+    }
+  };
+
   // ─── STAT CARD CONFIG (gradient colors matching reference screenshots) ───
   const statCards = [
     { title: "Today's Classes", value: todayClasses.length.toString(), icon: Clock, path: "/schedule", gradient: "from-teal-500/20 to-teal-600/5", border: "border-teal-500/30", iconBg: "bg-teal-500/20", iconColor: "text-teal-400" },
@@ -83,13 +133,33 @@ export default function Dashboard() {
             Welcome {profileName}. Here's your overview for today.
           </p>
         </div>
-        {/* Desktop search bar */}
-        <div className="hidden md:flex items-center gap-2 bg-line border-2 border-ink/20 rounded-xl px-4 py-2.5 hover:border-ink/40 transition-colors w-72">
-          <Search className="w-4 h-4 text-sub" />
-          <span className="text-xs font-bold text-sub uppercase tracking-widest">Search</span>
-          <ChevronRight className="w-3 h-3 text-sub ml-auto" />
+        {/* Desktop search bar and Review button */}
+        <div className="hidden md:flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-line border-2 border-ink/20 rounded-xl px-4 py-2.5 hover:border-ink/40 transition-colors w-64">
+            <Search className="w-4 h-4 text-sub" />
+            <span className="text-xs font-bold text-sub uppercase tracking-widest">Search</span>
+            <ChevronRight className="w-3 h-3 text-sub ml-auto" />
+          </div>
+          <button 
+            onClick={handleWeeklyReview}
+            className="flex items-center gap-2 bg-ink text-bg border-2 border-ink rounded-xl px-4 py-2.5 hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-sub)] transition-all font-bold uppercase tracking-widest text-xs whitespace-nowrap"
+          >
+            <Sparkles className="w-4 h-4 text-accent" />
+            Weekly AI Review
+          </button>
         </div>
       </motion.div>
+
+      {/* Mobile Weekly Review Button */}
+      <div className="md:hidden pt-2">
+        <button 
+          onClick={handleWeeklyReview}
+          className="w-full flex justify-center items-center gap-2 bg-ink text-bg border-2 border-ink rounded-xl px-4 py-3 hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-sub)] transition-all font-bold uppercase tracking-widest text-xs"
+        >
+          <Sparkles className="w-4 h-4 text-accent" />
+          Weekly AI Review
+        </button>
+      </div>
 
       {/* ─── STAT CARDS ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
@@ -372,6 +442,33 @@ export default function Dashboard() {
           )}
         </motion.div>
       </div>
+
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-ink/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-bg border-2 border-ink rounded-3xl w-full max-w-lg shadow-[8px_8px_0px_var(--theme-ink)] flex flex-col max-h-[80vh] overflow-hidden"
+          >
+            <div className="flex items-center justify-between p-6 border-b-2 border-ink bg-line">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-accent" />
+                <h2 className="text-lg font-extrabold uppercase tracking-widest text-ink">Weekly AI Review</h2>
+              </div>
+              <button onClick={() => setShowReviewModal(false)} className="text-sub hover:text-ink transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto font-bold text-ink whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+              {isReviewing ? (
+                <div className="flex items-center gap-3 text-sub">
+                  <RefreshCw className="w-5 h-5 animate-spin" /> Synthesizing your data...
+                </div>
+              ) : reviewText}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

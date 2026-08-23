@@ -7,16 +7,15 @@
 
 ##  Key Features
 
-- **Brutalist, Premium UI:** A stunning, high-contrast visual design (`oklch` colors) built with Tailwind CSS 4, offering fluid micro-animations (Framer Motion) and deep customizability.
+- **Brutalist, Premium UI:** A stunning, high-contrast edge-to-edge visual design (`oklch` colors) built with Tailwind CSS 4, offering fluid micro-animations (Framer Motion) and deep customizability.
 - **AI Schedule Assistant (Powered by Gemini):** Automatically build an optimized daily schedule around your classes, to-do lists, and weekly goals with one click.
-- **AI Timetable Scanner:** Upload a photo of your schedule and Gemini automatically parses it into your weekly classes.
-- **Advanced Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams. Get intelligent summaries of your spending habits with the **AI Advisor**.
+- **AI Receipt & Timetable Scanner:** Upload a photo of your schedule or a receipt and Gemini automatically parses the data to organize your life.
+- **Advanced Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams and manage data smoothly with intelligent case-insensitive categorization. Get intelligent summaries of your spending habits with the **AI Advisor**.
 - **PDF & Excel Exports:** Generate and download/share detailed financial reports in standard PDF or Excel formats with a single click.
 - **Goals & Habits Tracking:** Set, monitor, and crush your daily habits and monthly goals with intuitive progress indicators.
 - **Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
-- **Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data. Also includes personalized onboarding (Codeforces handle, Profile Name).
-- **Profile Customization & Safety:** Manual save controls for settings with built-in validation (e.g., emoji stripping for profile names).
-- **Mobile-Friendly Habit Management:** Touch-optimized habit tracking with easily accessible controls across all devices.
+- **Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data, with robust cross-session data wiping to prevent leakage.
+- **Automated Workflow Monitoring:** Built-in CronKeeper GitHub Actions workflow automatically tracks scheduled background tasks and sends Slack alerts if runs fail or miss their window.
 
 ---
 

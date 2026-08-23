@@ -173,7 +173,7 @@ export default function Contests() {
   };
 
   return (
-    <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-6 md:space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3 mb-1">

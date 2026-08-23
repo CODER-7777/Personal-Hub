@@ -95,7 +95,7 @@ export default function Goals() {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
-    <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-6 md:space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">

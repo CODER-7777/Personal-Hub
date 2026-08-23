@@ -4,8 +4,8 @@ import { Device } from '@capacitor/device';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { useAppStore } from "../store";
-import { motion } from "motion/react";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar, Camera, Sparkles, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, DollarSign, Download, Filter, Search, User, RefreshCw, Printer, Calendar, Camera, Sparkles, X, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { parseISO, subMonths } from "date-fns";
@@ -24,6 +24,7 @@ export default function Finances() {
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [person, setPerson] = useState("");
 
@@ -195,7 +196,8 @@ export default function Finances() {
   const expenseByCategory = timeFilteredExpenses
     .filter(e => e.type === 'expense')
     .reduce((acc, current) => {
-      acc[current.category] = (acc[current.category] || 0) + current.amount;
+      const cat = current.category ? current.category.toUpperCase() : 'OTHER';
+      acc[cat] = (acc[cat] || 0) + current.amount;
       return acc;
     }, {} as Record<string, number>);
 
@@ -537,9 +539,47 @@ export default function Finances() {
               <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Amount</label>
               <input required value={amount} onChange={e => setAmount(e.target.value)} type="number" step="0.01" className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="0.00" />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Category</label>
-              <input required value={category} onChange={e => setCategory(e.target.value)} type="text" className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder={type === 'expense' ? 'Food, Rent...' : 'Salary, Freelance...'} />
+              <button
+                type="button"
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                className="w-full px-5 py-4 rounded-xl border-2 border-ink text-lg font-bold bg-bg focus:outline-none focus:ring-2 focus:ring-ink uppercase flex justify-between items-center"
+              >
+                <span className={`truncate mr-2 ${category ? "text-ink" : "text-sub"}`}>
+                  {category || (type === 'expense' ? 'Select Expense Category' : 'Select Income Category')}
+                </span>
+                <motion.div animate={{ rotate: isCategoryOpen ? 180 : 0 }}>
+                  <ChevronDown className="w-5 h-5 text-ink flex-shrink-0" />
+                </motion.div>
+              </button>
+              
+              <AnimatePresence>
+                {isCategoryOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10, scaleY: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                    exit={{ opacity: 0, y: -10, scaleY: 0.9 }}
+                    transition={{ duration: 0.2, type: "spring", bounce: 0 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-bg border-2 border-ink rounded-xl shadow-[4px_4px_0px_var(--theme-ink)] z-50 max-h-60 overflow-y-auto origin-top"
+                    style={{ scrollbarWidth: 'thin' }}
+                  >
+                    {(type === 'expense' 
+                      ? ["FOOD", "TRANSPORT", "SHOPPING", "HOUSING", "UTILITIES", "HEALTH", "EDUCATION", "ENTERTAINMENT", "ACCESSORIES", "DONATION", "OTHER"]
+                      : ["SALARY", "FREELANCE", "INVESTMENT", "GIFT", "OTHER"]
+                    ).map(cat => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => { setCategory(cat); setIsCategoryOpen(false); }}
+                        className="w-full text-left px-5 py-3 hover:bg-highlight border-b-2 border-transparent hover:border-ink transition-colors font-bold text-ink text-sm md:text-base uppercase"
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div>
               <label className="block text-xs md:text-sm font-extrabold uppercase tracking-widest text-ink mb-2">Description</label>

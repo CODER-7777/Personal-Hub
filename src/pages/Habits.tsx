@@ -56,7 +56,7 @@ export default function Habits() {
   };
 
   return (
-    <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-6 md:space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2 flex items-center gap-3">

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Calendar, FileText, PieChart, Code, Sun, Moon, Brain, Target, StickyNote, Wifi, WifiOff, RefreshCw, Settings, Flame, LogOut } from "lucide-react";
+import { LayoutDashboard, Calendar, FileText, PieChart, Code, Sun, Moon, Brain, Target, StickyNote, Wifi, WifiOff, RefreshCw, Settings, Flame, LogOut, Menu } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../store";
 import { motion } from "motion/react";
@@ -53,15 +53,34 @@ function SyncIndicator({ compact = false }: { compact?: boolean }) {
 }
 
 export function Sidebar() {
-  const { theme, toggleTheme, profileName, profilePicture } = useAppStore();
+  const { theme, toggleTheme, profileName, profilePicture, isSidebarOpen, toggleSidebar } = useAppStore();
   
   return (
-    <div className="w-64 flex-shrink-0 bg-bg h-screen flex flex-col hidden md:flex sticky top-0 print:hidden transition-colors">
-      <div className="px-8 py-10 border-b-2 border-ink">
-        <h1 className="text-3xl font-extrabold uppercase tracking-tighter leading-none">
-          Personal<br />Hub
-        </h1>
-      </div>
+    <>
+      <button 
+        onClick={toggleSidebar}
+        className="hidden md:flex fixed top-4 left-4 z-50 p-2 bg-bg border-2 border-ink rounded-lg shadow-[2px_2px_0px_var(--theme-ink)] hover:bg-highlight transition-colors"
+      >
+        <motion.div animate={{ rotate: isSidebarOpen ? 90 : 0, scale: isSidebarOpen ? 0.8 : 1 }} transition={{ duration: 0.3, type: "spring" }}>
+          <Menu className="w-5 h-5 text-ink" />
+        </motion.div>
+      </button>
+
+      <motion.div 
+        initial={{ width: 256, x: 0 }}
+        animate={{ 
+          width: isSidebarOpen ? 256 : 0,
+          x: isSidebarOpen ? 0 : -256,
+          opacity: isSidebarOpen ? 1 : 0
+        }}
+        transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}
+        className="flex-shrink-0 bg-bg h-screen flex flex-col hidden md:flex sticky top-0 print:hidden transition-colors border-r-2 border-ink z-40 overflow-hidden"
+      >
+        <div className="pl-[4.5rem] pr-4 py-4 border-b-2 border-ink flex items-center min-h-[72px]">
+          <h1 className="text-xl font-extrabold uppercase tracking-tighter leading-none whitespace-nowrap">
+            Personal<br/>Hub
+          </h1>
+        </div>
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
@@ -105,7 +124,7 @@ export function Sidebar() {
               {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
             <button 
-              onClick={async () => { try { await signOut(auth); toast.success('Logged out'); } catch(e) { toast.error('Logout failed'); } }}
+              onClick={async () => { try { await signOut(auth); useAppStore.getState().clearUserData(); toast.success('Logged out'); } catch(e) { toast.error('Logout failed'); } }}
               className="p-1.5 border-2 border-transparent rounded-lg hover:border-[var(--color-safe-red)] hover:bg-[var(--color-safe-red-bg)] transition-colors text-sub hover:text-[var(--color-safe-red)]"
               aria-label="Log out"
             >
@@ -114,10 +133,10 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
+    </>
   );
 }
-
 export function MobileHeader() {
   const { theme, toggleTheme } = useAppStore();
   

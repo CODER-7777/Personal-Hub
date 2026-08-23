@@ -14,6 +14,9 @@ interface AppState {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
   
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
+  
   syncStatus: 'connected' | 'disconnected' | 'syncing';
   setSyncStatus: (s: 'connected' | 'disconnected' | 'syncing') => void;
   lastSyncTime: string | null;
@@ -95,6 +98,9 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       theme: 'light',
       toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+      
+      isSidebarOpen: true,
+      toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
       
       syncStatus: 'disconnected',
       setSyncStatus: (s) => set({ syncStatus: s }),

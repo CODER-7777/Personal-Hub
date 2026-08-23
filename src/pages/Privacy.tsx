@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 export default function Privacy() {
   return (
-    <div className="p-4 md:p-10 max-w-4xl mx-auto space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-8">
       <div className="flex items-center gap-4">
         <Link to="/settings" className="p-2 border-2 border-ink rounded-xl hover:bg-sub hover:text-bg transition-colors">
           <ArrowLeft className="w-5 h-5" />

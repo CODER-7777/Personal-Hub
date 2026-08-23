@@ -38,14 +38,13 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
         
         <div className="relative z-10 flex flex-col items-center">
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 1, type: "spring", bounce: 0.5 }}
-            className="w-24 h-24 md:w-32 md:h-32 bg-ink rounded-3xl flex items-center justify-center shadow-[8px_8px_0px_var(--theme-highlight)] mb-8 border-4 border-bg"
+            initial={{ scale: 0, rotate: -180, opacity: 0 }}
+            animate={{ scale: 1, rotate: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+            className="w-16 h-16 md:w-20 md:h-20 bg-ink text-bg flex items-center justify-center rounded-2xl shadow-[6px_6px_0px_var(--theme-highlight)] border-2 border-transparent mb-8"
           >
-            <Command className="w-12 h-12 md:w-16 md:h-16 text-bg" />
+            <span className="text-3xl md:text-4xl font-extrabold tracking-tighter">PH</span>
           </motion.div>
-
           <motion.div className="flex space-x-2 mb-2">
             {["P", "E", "R", "S", "O", "N", "A", "L"].map((letter, i) => (
               <motion.span

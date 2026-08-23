@@ -90,7 +90,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="p-4 md:p-10 max-w-4xl mx-auto space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2 flex items-center gap-3">
           <SettingsIcon className="w-8 h-8 md:w-10 md:h-10 text-ink" /> Settings

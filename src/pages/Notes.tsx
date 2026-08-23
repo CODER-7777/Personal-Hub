@@ -66,7 +66,7 @@ export default function Notes() {
     });
 
   return (
-    <div className="p-4 md:p-10 max-w-6xl mx-auto space-y-6 md:space-y-8 relative">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8 relative">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
           <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink flex items-center gap-2 md:gap-3">

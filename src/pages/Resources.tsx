@@ -15,14 +15,14 @@ const FolderCard: React.FC<{
   return (
     <button 
       onClick={onClick}
-      className="bg-line border-2 border-ink rounded-3xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-highlight hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-ink)] transition-all group aspect-square"
+      className="bg-line border-2 border-ink rounded-2xl p-4 flex items-center justify-start gap-4 hover:bg-highlight hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-ink)] transition-all group w-full text-left"
     >
-      <div className="p-4 bg-bg rounded-2xl border-2 border-ink group-hover:scale-110 transition-transform">
-        <Folder className="w-8 h-8 text-ink" />
+      <div className="p-3 bg-bg rounded-xl border-2 border-ink group-hover:scale-110 transition-transform shrink-0">
+        <Folder className="w-6 h-6 text-ink" />
       </div>
-      <div className="text-center w-full">
-        <h3 className="font-extrabold uppercase tracking-widest text-ink text-sm md:text-base truncate">{category}</h3>
-        <p className="text-[10px] font-bold text-sub uppercase tracking-widest mt-1 bg-bg inline-block px-2 py-0.5 rounded-md border-2 border-ink">{count} items</p>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-extrabold uppercase tracking-widest text-ink text-sm truncate">{category}</h3>
+        <p className="text-[10px] font-bold text-sub uppercase tracking-widest mt-1">{count} {count === 1 ? 'item' : 'items'}</p>
       </div>
     </button>
   );
@@ -80,7 +80,7 @@ export default function Resources() {
   };
 
   return (
-    <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-6 md:space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 md:space-y-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2 flex items-center gap-3">
@@ -181,7 +181,7 @@ export default function Resources() {
               </h2>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {groupedResources[activeFolder]?.map((res) => (
                 <div 
                   key={res.id} 
@@ -220,7 +220,7 @@ export default function Resources() {
             </div>
           </div>
         ) : Object.keys(groupedResources).length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Object.entries(groupedResources)
               .sort(([catA], [catB]) => catA.localeCompare(catB))
               .map(([category, items]) => (

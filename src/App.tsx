@@ -77,8 +77,8 @@ export default function App() {
       <LocalNotificationSystem />
       <div className="flex h-screen bg-bg text-ink font-sans overflow-hidden transition-colors">
         <Sidebar />
-        <main className="flex-1 overflow-hidden p-0 md:p-4 bg-line relative flex flex-col md:flex-row print:bg-bg print:p-0">
-          <div className="bg-bg h-full flex-1 flex flex-col md:rounded-3xl md:border-2 border-ink md:shadow-[4px_4px_0px_var(--theme-ink)] overflow-hidden transition-all print:shadow-none print:border-none print:rounded-none">
+        <main className="flex-1 overflow-hidden relative flex flex-col print:bg-bg">
+          <div className="bg-bg h-full flex-1 flex flex-col overflow-hidden transition-all print:shadow-none print:border-none print:rounded-none">
             <MobileHeader />
             <div className="flex-1 overflow-y-auto print:overflow-visible pb-24 md:pb-0">
               <Routes>

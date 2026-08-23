@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useAppStore } from "../../store";
 import { Plus, Trash2 } from "lucide-react";
-import { GoogleCalendarSync } from "./GoogleCalendarSync";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -28,8 +27,6 @@ export function ClassesTab() {
         <button onClick={() => setCShowAdd(!cShowAdd)} className="text-[11px] font-bold uppercase tracking-widest bg-ink text-bg px-4 py-2 flex items-center gap-1 hover:bg-sub rounded-xl"><Plus className="w-4 h-4"/> ADD MANUAL</button>
       </div>
 
-      <GoogleCalendarSync />
-      
       {cShowAdd && (
         <form onSubmit={handleAddClass} className="bg-highlight border-2 border-ink p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-[3px_3px_0px_var(--theme-ink)] md:shadow-[4px_4px_0px_var(--theme-ink)] grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4 items-end">
           <div className="md:col-span-2">

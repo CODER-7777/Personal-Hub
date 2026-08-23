@@ -103,7 +103,7 @@ export default function Schedule() {
   };
 
   return (
-    <div className="p-4 md:p-10 max-w-6xl mx-auto space-y-4 md:space-y-8">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-4 md:space-y-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-6">
         <div>
           <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2">Schedule & Reminders</h1>

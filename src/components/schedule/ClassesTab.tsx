@@ -67,7 +67,7 @@ export function ClassesTab() {
                 <div className="space-y-4 flex-1">
                   {dayClasses.map(c => (
                     <div key={c.id} className="bg-bg p-4 rounded-2xl border-2 border-ink relative group text-sm hover:bg-highlight transition-colors hover:shadow-[4px_4px_0px_var(--theme-ink)] -translate-x-[2px] -translate-y-[2px]">
-                      <button onClick={()=>removeClass(c.id)} className="absolute top-2 right-2 p-1 text-sub opacity-0 group-hover:opacity-100 hover:text-red-600 bg-bg rounded-md border-2 border-transparent group-hover:border-ink transition-all"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={()=>removeClass(c.id)} className="absolute top-2 right-2 p-1 text-sub md:opacity-0 md:group-hover:opacity-100 opacity-100 hover:text-red-600 bg-bg rounded-md border-2 border-transparent group-hover:border-ink transition-all"><Trash2 className="w-4 h-4" /></button>
                       <div className="text-ink font-bold text-[10px] uppercase tracking-widest border-2 border-ink bg-bg px-2 py-1 inline-block mb-3 rounded-lg">
                         {c.startTime} — {c.endTime}
                       </div>

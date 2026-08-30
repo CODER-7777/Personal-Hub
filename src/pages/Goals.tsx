@@ -49,16 +49,21 @@ export default function Goals() {
     if (!mTitle) return;
     if (mType === 'progress' && !mTargetCount) return;
     
-    addMonthlyGoal({
+    const newGoal: Partial<MonthlyGoal> = {
       id: crypto.randomUUID(),
       title: mTitle,
       month: filterMonth,
       year: filterYear,
       type: mType,
-      targetCount: mType === 'progress' ? parseInt(mTargetCount, 10) : undefined,
-      currentCount: mType === 'progress' ? 0 : undefined,
-      completed: mType === 'custom' ? false : undefined,
-    });
+    };
+    if (mType === 'progress') {
+      newGoal.targetCount = parseInt(mTargetCount, 10);
+      newGoal.currentCount = 0;
+    } else {
+      newGoal.completed = false;
+    }
+    
+    addMonthlyGoal(newGoal as MonthlyGoal);
     setMTitle("");
     setMTargetCount("");
     setShowAddMonthly(false);

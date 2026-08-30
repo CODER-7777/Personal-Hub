@@ -423,32 +423,33 @@ export function initFirebaseSync() {
       return;
     }
 
-    // ── Step 1: One-time read + merge with local ──
-    // Read remote data once, merge with local (union by ID), then push
-    // the merged result back. This prevents data loss from either side.
+    // ── Step 1: One-time read + sync ──
+    // Cloud is the absolute source of truth on startup to prevent local 
+    // devices from resurrecting deleted items.
     const { get: fbGet } = await import('firebase/database');
     try {
       const snapshot = await fbGet(ref(db, `user_data/${user.uid}`));
-      const remoteData = snapshot.val() || {};
-      const localState = useAppStore.getState();
-
-      const merged: Partial<Record<DataKey, any[]>> = {};
-      for (const key of DATA_KEYS) {
-        const localArr = toSafeArray(localState[key]);
-        let remoteArr = toSafeArray(remoteData[key]);
-        if (key === 'habits') remoteArr = sanitizeHabits(remoteArr);
-        merged[key] = mergeById(localArr, remoteArr);
-      }
-
-      // Apply merged data locally
-      useAppStore.setState({
-        ...merged,
-        lastSyncTime: new Date().toISOString(),
-      } as any);
-
-      // Push merged data back to Firebase so both sides are identical
-      for (const key of DATA_KEYS) {
-        syncToFirebase(key, merged[key]);
+      
+      if (snapshot.exists()) {
+        const remoteData = snapshot.val();
+        const newState: Partial<Record<DataKey, any[]>> = {};
+        for (const key of DATA_KEYS) {
+          let remoteArr = toSafeArray(remoteData[key]);
+          if (key === 'habits') remoteArr = sanitizeHabits(remoteArr);
+          newState[key] = remoteArr;
+        }
+        
+        // Apply remote data locally
+        useAppStore.setState({
+          ...newState,
+          lastSyncTime: new Date().toISOString(),
+        } as any);
+      } else {
+        // First time sync: push local state up to Cloud
+        const localState = useAppStore.getState();
+        for (const key of DATA_KEYS) {
+          syncToFirebase(key, toSafeArray(localState[key]));
+        }
       }
     } catch (err) {
       console.error('Initial Firebase merge failed:', err);

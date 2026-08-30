@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 export function TasksTab() {
   const { tasks, addTask, toggleTask, removeTask } = useAppStore();
   const [tName, setTName] = useState("");
+  const [tDesc, setTDesc] = useState("");
   const [tDue, setTDue] = useState("");
   const [tPriority, setTPriority] = useState<'low'|'medium'|'high'>('medium');
   const [tShowAdd, setTShowAdd] = useState(false);
@@ -12,8 +13,8 @@ export function TasksTab() {
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     if(!tName || !tDue) return;
-    addTask({ id: crypto.randomUUID(), title: tName, completed: false, dueDate: new Date(tDue).toISOString(), priority: tPriority });
-    setTName(""); setTDue(""); setTShowAdd(false);
+    addTask({ id: crypto.randomUUID(), title: tName, description: tDesc, completed: false, dueDate: new Date(tDue).toISOString(), priority: tPriority });
+    setTName(""); setTDesc(""); setTDue(""); setTShowAdd(false);
   };
 
   return (
@@ -28,6 +29,10 @@ export function TasksTab() {
           <div className="md:col-span-2">
             <label className="block text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-ink mb-1 md:mb-2">Task Title</label>
             <input required value={tName} onChange={e=>setTName(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-sm bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Finish assignment..." />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-ink mb-1 md:mb-2">Description (Optional)</label>
+            <input value={tDesc} onChange={e=>setTDesc(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-sm bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Notes..." />
           </div>
           <div>
             <label className="block text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-ink mb-1 md:mb-2">Due Date</label>
@@ -46,6 +51,7 @@ export function TasksTab() {
               <input type="checkbox" checked={t.completed} onChange={() => toggleTask(t.id)} className="w-5 h-5 md:w-6 md:h-6 shrink-0 border-2 border-ink accent-ink rounded-md cursor-pointer" />
               <div className="flex-1">
                 <h4 className={`text-base md:text-lg font-bold tracking-tight ${t.completed ? 'line-through text-ink' : 'text-ink'}`}>{t.title}</h4>
+                {t.description && <p className={`text-xs mt-1 ${t.completed ? 'line-through text-sub' : 'text-ink'}`}>{t.description}</p>}
                 <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-sub mt-1 md:mt-2">Due: {new Date(t.dueDate).toLocaleDateString()}</p>
               </div>
             </div>

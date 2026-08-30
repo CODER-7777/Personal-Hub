@@ -142,42 +142,6 @@ export default function Finances() {
       if (scanInputRef.current) scanInputRef.current.value = "";
     }
   };
-  const handleGetAIAdvice = async () => {
-    try {
-      setIsAdvising(true);
-      setShowAdvisor(true);
-      setAdvice("Analyzing your finances...");
-
-      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
-      
-      if (!apiKey) {
-        setAdvice("API Key missing. Please set your Gemini API Key in Settings.");
-        setIsAdvising(false);
-        return;
-      }
-
-      // Prepare data
-      const recentExpenses = expenses
-        .filter(e => new Date(e.date) >= subMonths(new Date(), 1))
-        .map(e => ({ type: e.type, amount: e.amount, category: e.category, date: e.date }));
-      
-      const prompt = `You are an expert Financial Advisor. Analyze the user's last 30 days of transactions and give a short, punchy, and highly actionable piece of advice. Do not be generic. Point out specific spending habits. Here is the JSON data of transactions: ${JSON.stringify(recentExpenses)}`;
-
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-      });
-      
-      setAdvice(response.text || "I couldn't generate advice right now.");
-    } catch (err) {
-      console.error(err);
-      setAdvice("An error occurred while generating advice.");
-    } finally {
-      setIsAdvising(false);
-    }
-  };
-
   // Filter by time
   const now = new Date();
   const timeFilteredExpenses = expenses.filter(e => {
@@ -200,6 +164,46 @@ export default function Finances() {
       acc[cat] = (acc[cat] || 0) + current.amount;
       return acc;
     }, {} as Record<string, number>);
+
+  const handleGetAIAdvice = async () => {
+    try {
+      setIsAdvising(true);
+      setShowAdvisor(true);
+      setAdvice("Analyzing your finances...");
+
+      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      
+      if (!apiKey) {
+        setAdvice("API Key missing. Please set your Gemini API Key in Settings.");
+        setIsAdvising(false);
+        return;
+      }
+      
+      const prompt = `You are an expert Financial Advisor. Analyze the user's finances for the selected period.
+Current Income: ${totalIncome}
+Current Expense: ${totalExpense}
+Balance: ${balance}
+Category Breakdown: ${JSON.stringify(expenseByCategory)}
+
+Please provide a highly dynamic, short, and actionable piece of advice. 
+Tell the user exactly their current income and expense situation.
+Tell the user exactly where they should decrease expenses based on their highest categories.
+Provide actionable financial tips. Do not be generic.`;
+
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+      });
+      
+      setAdvice(response.text || "I couldn't generate advice right now.");
+    } catch (err) {
+      console.error(err);
+      setAdvice("An error occurred while generating advice.");
+    } finally {
+      setIsAdvising(false);
+    }
+  };
 
   const chartData = Object.entries(expenseByCategory).map(([name, value]) => ({ name, value }));
 
@@ -681,13 +685,18 @@ export default function Finances() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto font-bold text-ink whitespace-pre-wrap leading-relaxed">
+            <div className="p-6 overflow-y-auto font-bold text-ink whitespace-pre-wrap leading-relaxed border-b-2 border-ink">
               {isAdvising ? (
                 <div className="flex items-center gap-3 text-sub">
                   <RefreshCw className="w-5 h-5 animate-spin" /> Analyzing 30-day trends...
                 </div>
               ) : advice}
             </div>
+            {!isAdvising && (
+              <div className="p-4 bg-line text-[10px] md:text-xs font-bold uppercase tracking-widest text-sub text-center">
+                Disclaimer: Gemini can make mistakes. Please double-check this advice.
+              </div>
+            )}
           </motion.div>
         </div>
       )}

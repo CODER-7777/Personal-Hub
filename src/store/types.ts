@@ -14,6 +14,7 @@ export interface Task {
   completed: boolean;
   dueDate: string; // ISO date
   priority: 'low' | 'medium' | 'high';
+  description?: string;
 }
 
 export interface Resource {
@@ -39,6 +40,7 @@ export interface Reminder {
   title: string;
   time: string; // ISO date
   triggered: boolean;
+  description?: string;
 }
 
 export interface PomodoroSession {

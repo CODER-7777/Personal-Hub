@@ -144,6 +144,31 @@ flowchart TB
 
 ---
 
+## 🏦 Plaid API Integration Strategy (Planned)
+
+To achieve true "zero-labor" automated finance tracking, Personal Hub's roadmap includes integration with the **Plaid API**. 
+
+### Working Architecture
+
+1. **Custom API Backend:**
+   - Secure backend-to-backend communication using Plaid credentials.
+   - Hosted via Firebase Cloud Functions or a dedicated Node.js service.
+   - Responsible for exchanging tokens and securely fetching transaction data.
+
+2. **React Frontend (Plaid Link):**
+   - Implements `react-plaid-link` for a seamless bank connection UI.
+   - Authenticates the user via the Plaid modal and retrieves a temporary `public_token`.
+
+3. **Secure Token Exchange:**
+   - The frontend transmits the `public_token` to the Custom API Backend.
+   - The backend exchanges it for a permanent `access_token` stored securely in Firebase.
+
+4. **Automated Fetching:**
+   - A scheduled backend cron job uses the `access_token` to fetch the latest transactions and writes them directly to the Firebase Realtime Database.
+   - The Personal Hub frontend instantly syncs and visualizes the updated financial data.
+
+---
+
 ##  Getting Started
 
 ### 1. Prerequisites

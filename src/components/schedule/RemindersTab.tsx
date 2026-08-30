@@ -5,14 +5,15 @@ import { Plus, Trash2, Clock, AlertCircle } from "lucide-react";
 export function RemindersTab() {
   const { reminders, addReminder, removeReminder } = useAppStore();
   const [rName, setRName] = useState("");
+  const [rDesc, setRDesc] = useState("");
   const [rTime, setRTime] = useState("");
   const [rShowAdd, setRShowAdd] = useState(false);
 
   const handleAddReminder = (e: React.FormEvent) => {
     e.preventDefault();
     if(!rName || !rTime) return;
-    addReminder({ id: crypto.randomUUID(), title: rName, time: new Date(rTime).toISOString(), triggered: false });
-    setRName(""); setRTime(""); setRShowAdd(false);
+    addReminder({ id: crypto.randomUUID(), title: rName, description: rDesc, time: new Date(rTime).toISOString(), triggered: false });
+    setRName(""); setRDesc(""); setRTime(""); setRShowAdd(false);
   };
 
   return (
@@ -27,6 +28,10 @@ export function RemindersTab() {
           <div className="md:col-span-2">
             <label className="block text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-ink mb-1 md:mb-2">Reminder Title</label>
             <input required value={rName} onChange={e=>setRName(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-sm bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Wake up / Check server..." />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-ink mb-1 md:mb-2">Description (Optional)</label>
+            <input value={rDesc} onChange={e=>setRDesc(e.target.value)} type="text" className="w-full px-4 py-3 rounded-xl border-2 border-ink text-sm bg-bg focus:outline-none focus:ring-2 focus:ring-ink" placeholder="Notes..." />
           </div>
           <div>
             <label className="block text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-ink mb-1 md:mb-2">Time</label>
@@ -46,6 +51,7 @@ export function RemindersTab() {
             
             <div className="pl-4 md:pl-6 flex-1">
               <h4 className={`text-base md:text-lg font-bold tracking-tight mb-1 md:mb-2 pr-4 ${r.triggered ? 'text-sub line-through' : 'text-ink'}`}>{r.title}</h4>
+              {r.description && <p className={`text-xs mb-2 ${r.triggered ? 'text-sub line-through' : 'text-ink'}`}>{r.description}</p>}
               <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-ink flex items-center gap-1.5 md:gap-2"><Clock className="w-3 h-3"/> {new Date(r.time).toLocaleString()}</p>
             </div>
             <button onClick={() => removeReminder(r.id)} className="text-ink opacity-100 md:opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-2 shrink-0"><Trash2 className="w-5 h-5" /></button>

@@ -7,15 +7,18 @@
 
 ##  Key Features
 
-- **Brutalist, Premium UI:** A stunning, high-contrast edge-to-edge visual design (`oklch` colors) built with Tailwind CSS 4, offering fluid micro-animations (Framer Motion) and deep customizability.
+- **Brutalist, Premium UI:** A stunning, high-contrast edge-to-edge visual design (oklch colors) built with Tailwind CSS 4, offering fluid micro-animations (Framer Motion) and deep customizability.
 - **AI Schedule Assistant (Powered by Gemini):** Automatically build an optimized daily schedule around your classes, to-do lists, and weekly goals with one click.
+- **Dynamic AI Financial Advisor:** Get highly actionable, context-aware financial advice. Gemini analyzes your exact 30-day income, expenses, and category breakdowns to tell you exactly where to cut costs.
+- **Advanced Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams and manage data smoothly with intelligent case-insensitive categorization.
+- **Detailed Task & Reminder Management:** Keep track of your life with robust to-do lists and reminders, now featuring expanded description fields for better context.
 - **AI Receipt & Timetable Scanner:** Upload a photo of your schedule or a receipt and Gemini automatically parses the data to organize your life.
-- **Advanced Financial Tracking:** Visualize your income and expenses effortlessly using beautiful Recharts diagrams and manage data smoothly with intelligent case-insensitive categorization. Get intelligent summaries of your spending habits with the **AI Advisor**.
 - **PDF & Excel Exports:** Generate and download/share detailed financial reports in standard PDF or Excel formats with a single click.
 - **Goals & Habits Tracking:** Set, monitor, and crush your daily habits and monthly goals with intuitive progress indicators.
 - **Real-Time Sync:** Never lose your data. Firebase Realtime Database synchronizes your habits, tasks, finances, and goals instantly across all your devices.
 - **Secure Authentication:** Safe, reliable email/password authentication via Firebase Auth to protect your private data, with robust cross-session data wiping to prevent leakage.
 - **Automated Workflow Monitoring:** Built-in CronKeeper GitHub Actions workflow automatically tracks scheduled background tasks and sends Slack alerts if runs fail or miss their window.
+- **1-Click Installation Scripts:** Instantly set up the project locally using the provided install.bat or install.sh scripts.
 
 ---
 
@@ -60,9 +63,11 @@ graph TD
     FirebaseDB[(Cloud Database)]
     FirebaseAuth{Secure Login}
     GoogleCalendar[Google Calendar]
+    CustomAPI[Custom API Backend (Planned)]
 
-    %% AI
+    %% AI & Banking
     Gemini((Gemini AI Brain))
+    Plaid[Plaid Banking API]
 
     %% Connections
     Web --> Zustand
@@ -82,6 +87,12 @@ graph TD
     Web --> Gemini
     Android --> Gemini
     Desktop --> Gemini
+
+    Web --> CustomAPI
+    Android --> CustomAPI
+    Desktop --> CustomAPI
+    CustomAPI <--> Plaid
+    CustomAPI --> FirebaseDB
 ```
 
 ### Detailed Architecture (With Technologies)
@@ -102,11 +113,13 @@ flowchart TB
     subgraph Backend["Cloud & Authentication"]
         Auth[" Authentication<br/>(Firebase Auth)"]
         DB[" Realtime Sync<br/>(Firebase Realtime DB)"]
+        CustomAPI[" Custom API Backend<br/>(Node.js / Planned)"]
     end
 
     subgraph ThirdParty["External APIs & AI"]
         Gemini[" AI Processing<br/>(Google Gemini API)"]
         GCal[" Calendar Sync<br/>(Google Calendar API)"]
+        Plaid[" Banking Sync<br/>(Plaid API)"]
     end
 
     subgraph Pipeline["CI/CD Pipeline (GitHub Actions)"]
@@ -123,10 +136,14 @@ flowchart TB
     %% State and direct client API connections
     Zustand <-->|Syncs Data| DB
     Clients -->|Login/Tokens| Auth
+    Clients -->|Token Exchange| CustomAPI
 
     Zustand -->|Schedule Gen/Parsing| Gemini
     Zustand -->|Push Classes| GCal
     
+    CustomAPI <-->|Fetches Transactions| Plaid
+    CustomAPI -->|Writes Financials| DB
+
     GH -.->|Builds| Clients
 
     classDef client fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
@@ -137,35 +154,26 @@ flowchart TB
 
     class Web,Android,Desktop client;
     class Zustand,Styling state;
-    class Auth,DB cloud;
-    class Gemini,GCal api;
+    class Auth,DB,CustomAPI cloud;
+    class Gemini,GCal,Plaid api;
     class GH ci;
 ```
 
 ---
 
-## 🏦 Plaid API Integration Strategy (Planned)
+## Upcoming Updates
 
-To achieve true "zero-labor" automated finance tracking, Personal Hub's roadmap includes integration with the **Plaid API**. 
+### Plaid API Integration (In Development)
 
-### Working Architecture
+To achieve true zero-labor automated finance tracking, Personal Hub's roadmap includes a full integration with the Plaid API. Please note that this feature is currently in active development and requires a backend service to securely handle authentication tokens. 
 
-1. **Custom API Backend:**
-   - Secure backend-to-backend communication using Plaid credentials.
-   - Hosted via Firebase Cloud Functions or a dedicated Node.js service.
-   - Responsible for exchanging tokens and securely fetching transaction data.
+**Working Architecture:**
+1. **Custom API Backend:** Hosted via Firebase Cloud Functions or a dedicated Node.js service, responsible for exchanging tokens and securely fetching transaction data.
+2. **React Frontend (Plaid Link):** Implements react-plaid-link for a seamless bank connection UI.
+3. **Secure Token Exchange:** The frontend transmits the temporary public token to the backend, which exchanges it for a permanent access token stored securely in Firebase.
+4. **Automated Fetching:** A scheduled backend cron job uses the access token to fetch the latest transactions and writes them directly to the Firebase Realtime Database.
 
-2. **React Frontend (Plaid Link):**
-   - Implements `react-plaid-link` for a seamless bank connection UI.
-   - Authenticates the user via the Plaid modal and retrieves a temporary `public_token`.
-
-3. **Secure Token Exchange:**
-   - The frontend transmits the `public_token` to the Custom API Backend.
-   - The backend exchanges it for a permanent `access_token` stored securely in Firebase.
-
-4. **Automated Fetching:**
-   - A scheduled backend cron job uses the `access_token` to fetch the latest transactions and writes them directly to the Firebase Realtime Database.
-   - The Personal Hub frontend instantly syncs and visualizes the updated financial data.
+We appreciate your patience while we finalize the backend infrastructure for this feature. Once deployed, users will be able to securely connect their bank accounts from the Settings tab for automatic daily syncing.
 
 ---
 

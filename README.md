@@ -63,7 +63,7 @@ graph TD
     FirebaseDB[(Cloud Database)]
     FirebaseAuth{Secure Login}
     GoogleCalendar[Google Calendar]
-    CustomAPI[Custom API Backend (Planned)]
+    CustomAPI["Custom API Backend (Planned)"]
 
     %% AI & Banking
     Gemini((Gemini AI Brain))

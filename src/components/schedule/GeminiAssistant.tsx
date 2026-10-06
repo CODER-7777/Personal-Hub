@@ -13,7 +13,7 @@ export function GeminiAssistant() {
   const generatePlan = async () => {
     try {
       setLoading(true);
-      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      const apiKey = geminiApiKey;
       if (!apiKey) {
         toast.error("Gemini API Key missing. Please configure it in Settings.");
         setLoading(false);

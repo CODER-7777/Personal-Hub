@@ -1,3 +1,6 @@
+import { parseClassSessions } from "../lib/schedule";
+import { readAsDataUrl } from "../lib/files";
+import { auth } from "../lib/firebase";
 import React, { useState, useRef } from "react";
 import { useAppStore } from "../store";
 import { Sparkles, Calendar as CalendarIcon, Clock, Plus, Upload, AlertCircle, RefreshCw } from "lucide-react";
@@ -26,6 +29,8 @@ export default function Schedule() {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const requestUid = auth.currentUser?.uid;
+    if (!requestUid) return;
 
     try {
       setIsUploading(true);
@@ -33,12 +38,11 @@ export default function Schedule() {
 
       // Compress image if too large
       const compressedFile = await imageCompression(file, { maxSizeMB: 2, maxWidthOrHeight: 2048 });
-      const reader = new FileReader();
+      const dataUrl = await readAsDataUrl(compressedFile);
       
-      reader.onloadend = async () => {
-        const base64Data = (reader.result as string).split(',')[1];
+        const base64Data = dataUrl.split(',')[1];
         
-        const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+        const apiKey = geminiApiKey;
         if (!apiKey) {
           toast.error("Gemini API Key missing. Please configure it in Settings.");
           setIsUploading(false);
@@ -50,7 +54,7 @@ export default function Schedule() {
           contents: {
             parts: [
               { text: "Extract the class schedule from this timetable image. Format the days of the week as 0 (Sunday) to 6 (Saturday). Keep times in HH:mm 24-hour format." },
-              { inlineData: { mimeType: file.type, data: base64Data } }
+              { inlineData: { mimeType: compressedFile.type, data: base64Data } }
             ]
           },
           config: {
@@ -75,13 +79,8 @@ export default function Schedule() {
 
         if (response.text) {
           try {
-            const parsedClasses = JSON.parse(response.text);
-            const classesToAdd = parsedClasses.map((c: any) => ({
-              ...c,
-              id: crypto.randomUUID(),
-              type: 'Timetable Entry'
-            }));
-            
+            const classesToAdd = parseClassSessions(JSON.parse(response.text));
+            if (auth.currentUser?.uid !== requestUid || useAppStore.getState().syncOwnerUid !== requestUid) return;
             addClasses(classesToAdd);
             toast.success(`Successfully added ${classesToAdd.length} classes from your timetable!`);
             setActiveTab('classes');
@@ -90,9 +89,7 @@ export default function Schedule() {
             console.error(e);
           }
         }
-      };
-      
-      reader.readAsDataURL(compressedFile);
+
     } catch (error) {
       toast.error("Error processing image.");
       console.error(error);

@@ -77,7 +77,7 @@ export default function Dashboard() {
       setIsReviewing(true);
       setReviewText("Synthesizing your week across habits, finances, and schedule...");
 
-      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      const apiKey = geminiApiKey;
       
       if (!apiKey) {
         setReviewText("API Key missing. Please set your Gemini API Key in Settings.");

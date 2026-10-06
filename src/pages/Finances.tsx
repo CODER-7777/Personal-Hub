@@ -1,3 +1,5 @@
+import { readAsDataUrl } from "../lib/files";
+import { auth } from "../lib/firebase";
 import React, { useState, useRef } from "react";
 import jsPDF from "jspdf";
 import { Device } from '@capacitor/device';
@@ -46,6 +48,7 @@ export default function Finances() {
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !category) return;
+    if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) { toast.error("Enter a positive amount."); return; }
     addExpense({
       id: crypto.randomUUID(),
       amount: parseFloat(amount),
@@ -70,20 +73,21 @@ export default function Finances() {
   const handleReceiptScan = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const requestUid = auth.currentUser?.uid;
+    if (!requestUid) return;
 
     try {
       setIsScanning(true);
       toast.info("Analyzing receipt...");
 
       const compressedFile = await imageCompression(file, { maxSizeMB: 2, maxWidthOrHeight: 2048 });
-      const reader = new FileReader();
+      const dataUrl = await readAsDataUrl(compressedFile);
 
-      reader.onloadend = async () => {
-        const base64Data = (reader.result as string).split(',')[1];
-        const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+        const base64Data = dataUrl.split(',')[1];
+        const apiKey = geminiApiKey;
         
         if (!apiKey) {
-          toast.error("Gemini API Key missing in environment variables.");
+          toast.error("Gemini API Key missing. Please configure it in Settings.");
           setIsScanning(false);
           return;
         }
@@ -94,7 +98,7 @@ export default function Finances() {
           contents: {
             parts: [
               { text: "Extract the expense details from this receipt image. Use logical categories like Food, Utilities, Transport, Shopping." },
-              { inlineData: { mimeType: file.type, data: base64Data } }
+              { inlineData: { mimeType: compressedFile.type, data: base64Data } }
             ]
           },
           config: {
@@ -116,12 +120,16 @@ export default function Finances() {
         if (response.text) {
           try {
             const parsed = JSON.parse(response.text);
+            if (!Number.isFinite(parsed.amount) || parsed.amount <= 0 || typeof parsed.category !== 'string' || !parsed.category.trim()) {
+              throw new Error('Invalid receipt details.');
+            }
+            if (auth.currentUser?.uid !== requestUid || useAppStore.getState().syncOwnerUid !== requestUid) return;
             addExpense({
               id: crypto.randomUUID(),
               amount: parsed.amount,
               category: parsed.category,
-              description: parsed.description || "Scanned Receipt",
-              person: parsed.person || "",
+              description: typeof parsed.description === 'string' ? parsed.description : "Scanned Receipt",
+              person: typeof parsed.person === 'string' ? parsed.person : "",
               type: 'expense',
               date: new Date().toISOString(),
             });
@@ -132,13 +140,13 @@ export default function Finances() {
           }
         }
         setIsScanning(false);
-      };
-      reader.readAsDataURL(compressedFile);
+
     } catch (error) {
       toast.error("Error processing receipt image.");
       console.error(error);
       setIsScanning(false);
     } finally {
+      setIsScanning(false);
       if (scanInputRef.current) scanInputRef.current.value = "";
     }
   };
@@ -171,7 +179,7 @@ export default function Finances() {
       setShowAdvisor(true);
       setAdvice("Analyzing your finances...");
 
-      const apiKey = geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && (process as any).env?.GEMINI_API_KEY);
+      const apiKey = geminiApiKey;
       
       if (!apiKey) {
         setAdvice("API Key missing. Please set your Gemini API Key in Settings.");

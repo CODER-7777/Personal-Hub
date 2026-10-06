@@ -103,7 +103,7 @@ jobs:
           target: android-34
           arch: x86_64
           channel: stable
-          cmdline-tools-version: latest
+          cmdline-tools-version: 9.0
 
       - name: Install Root Dependencies
         run: npm ci --legacy-peer-deps

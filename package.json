@@ -1,7 +1,7 @@
 {
   "name": "personal-hub",
   "private": true,
-  "version": "2.3.8",
+  "version": "2.5.0",
   "type": "module",
   "scripts": {
     "icons": "node scripts/generate-icons.mjs",

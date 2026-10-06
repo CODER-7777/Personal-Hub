@@ -20,10 +20,11 @@ const navItems = [
 ];
 
 function SyncIndicator({ compact = false }: { compact?: boolean }) {
-  const { syncStatus, lastSyncTime, forceSync } = useAppStore();
+  const { syncStatus, syncError, pendingSyncCount, lastSyncTime, forceSync } = useAppStore();
 
   const statusConfig = {
     connected: { icon: Wifi, label: "Synced", color: "text-[var(--color-safe-green)]", bg: "bg-[var(--color-safe-green-bg)]", border: "border-[var(--color-safe-green)]" },
+    error: { icon: WifiOff, label: "Sync error", color: "text-[var(--color-safe-red)]", bg: "bg-[var(--color-safe-red-bg)]", border: "border-[var(--color-safe-red)]" },
     disconnected: { icon: WifiOff, label: "Offline", color: "text-[var(--color-safe-red)]", bg: "bg-[var(--color-safe-red-bg)]", border: "border-[var(--color-safe-red)]" },
     syncing: { icon: RefreshCw, label: "Syncing...", color: "text-ink", bg: "bg-line", border: "border-ink" },
   };
@@ -34,13 +35,14 @@ function SyncIndicator({ compact = false }: { compact?: boolean }) {
   return (
     <button
       onClick={forceSync}
+      aria-label={`${config.label}. ${pendingSyncCount} pending changes. ${syncError || "Retry pending sync"}`}
       className={cn(
         "flex items-center gap-2 transition-all rounded-lg border-2",
         config.border, config.bg,
         compact ? "p-1.5" : "px-3 py-1.5",
         "hover:opacity-80"
       )}
-      title={`Status: ${config.label}${lastSyncTime ? ` • Last sync: ${new Date(lastSyncTime).toLocaleTimeString()}` : ''}\nClick to force sync`}
+      title={`Status: ${config.label}${lastSyncTime ? ` • Last sync: ${new Date(lastSyncTime).toLocaleTimeString()}` : ''}\nClick to retry pending changes`}
     >
       <Icon className={cn("w-3.5 h-3.5", config.color, syncStatus === 'syncing' && 'animate-spin')} />
       {!compact && (

@@ -4,11 +4,12 @@ import { Settings as SettingsIcon, Key, User, Zap, ExternalLink, Trash2, LogOut,
 import { auth } from "../lib/firebase";
 import { signOut, deleteUser } from "firebase/auth";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { safeExternalUrl } from "../lib/urls";
 
 export default function Settings() {
   const store = useAppStore();
-  const navigate = useNavigate();
+  const [profileDirty, setProfileDirty] = React.useState(false);
 
   // Local state for manual saving
   const [geminiApiKey, setGeminiApiKey] = React.useState(store.geminiApiKey);
@@ -17,18 +18,28 @@ export default function Settings() {
   const [profilePicture, setProfilePicture] = React.useState(store.profilePicture);
   const [animationsEnabled, setAnimationsEnabled] = React.useState(store.animationsEnabled);
   
+  React.useEffect(() => {
+    if (!profileDirty) {
+      setProfileName(store.profileName); setCfHandle(store.cfHandle); setProfilePicture(store.profilePicture);
+    }
+  }, [store.profileName, store.cfHandle, store.profilePicture, profileDirty]);
+
   const handleSaveSettings = () => {
+    if (!profileName.trim()) { toast.error("Please enter your name."); return; }
+    if (profilePicture.trim() && (!safeExternalUrl(profilePicture.trim()) || !profilePicture.trim().toLowerCase().startsWith('https://'))) {
+      toast.error("Profile pictures must use an HTTPS URL."); return;
+    }
     store.setGeminiApiKey(geminiApiKey);
-    store.setProfileName(profileName);
-    store.setCfHandle(cfHandle);
-    store.setProfilePicture(profilePicture);
+    useAppStore.setState({ profileName: profileName.trim(), cfHandle: cfHandle.trim(), profilePicture: profilePicture.trim() });
+    setProfileDirty(false);
     store.setAnimationsEnabled(animationsEnabled);
-    toast.success("Settings saved successfully!");
+    toast.success("Changes saved on this device. Your profile will sync when online.");
   };
 
   const handleProfileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Strip emojis
     const cleanName = e.target.value.replace(/\p{Emoji_Presentation}/gu, '');
+    setProfileDirty(true);
     setProfileName(cleanName);
   };
 
@@ -42,7 +53,7 @@ export default function Settings() {
   };
 
   const handleDeleteAccount = async () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (window.confirm("Delete your sign-in account? This cannot be undone. Cloud records are not automatically erased in this version; export your data first and contact the developer for complete data removal.")) {
       try {
         if (auth.currentUser) {
           await deleteUser(auth.currentUser);
@@ -70,6 +81,11 @@ export default function Settings() {
         monthlyGoals: state.monthlyGoals,
         profileName: state.profileName,
         cfHandle: state.cfHandle,
+        profilePicture: state.profilePicture,
+        financeReports: state.financeReports,
+        lastResetMonth: state.lastResetMonth,
+        exportedAt: new Date().toISOString(),
+        schemaVersion: 1,
       };
       
       const dataStr = JSON.stringify(exportData, null, 2);
@@ -99,6 +115,12 @@ export default function Settings() {
       </div>
 
       <div className="space-y-6">
+        <div className="bg-line border-2 border-ink rounded-3xl p-6 space-y-3" role="status">
+          <h2 className="font-bold text-ink">Account sync</h2>
+          <p className="text-sm text-sub">{store.pendingSyncCount ? `${store.pendingSyncCount} changes waiting to sync.` : store.syncStatus === 'connected' ? 'Your Hub is synced.' : 'Waiting for a cloud connection.'}</p>
+          {store.syncError && <p className="text-sm text-red-600">{store.syncError}</p>}
+          <button onClick={store.forceSync} className="min-h-11 px-4 py-3 bg-ink text-bg rounded-xl font-bold">Retry pending sync</button>
+        </div>
         <div className="bg-bg border-2 border-ink rounded-3xl p-6 md:p-8 shadow-[4px_4px_0px_var(--theme-ink)] space-y-6">
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-bold uppercase tracking-widest text-ink flex items-center gap-2">
@@ -106,6 +128,7 @@ export default function Settings() {
             </label>
             <input 
               type="text" 
+              maxLength={80}
               value={profileName}
               onChange={handleProfileNameChange}
               placeholder="Your Name"
@@ -120,7 +143,7 @@ export default function Settings() {
             <input 
               type="text" 
               value={profilePicture}
-              onChange={(e) => setProfilePicture(e.target.value)}
+              onChange={(e) => { setProfileDirty(true); setProfilePicture(e.target.value); }}
               placeholder="https://example.com/avatar.png"
               className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
             />
@@ -138,8 +161,9 @@ export default function Settings() {
             </label>
             <input 
               type="text" 
+              maxLength={80}
               value={cfHandle}
-              onChange={(e) => setCfHandle(e.target.value)}
+              onChange={(e) => { setProfileDirty(true); setCfHandle(e.target.value); }}
               placeholder="e.g. tourist"
               className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
             />
@@ -169,7 +193,7 @@ export default function Settings() {
               className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
             />
             <p className="text-[10px] md:text-xs font-bold text-sub">
-              Your API key is stored locally on your device. 
+              Your API key stays in memory for this session. Enter it again after restarting the app.
               <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener noreferrer" className="ml-1 text-ink underline inline-flex items-center gap-1">
                 Get an API Key <ExternalLink className="w-3 h-3" />
               </a>
@@ -198,19 +222,8 @@ export default function Settings() {
               <span className="w-4 h-4 text-sub flex items-center justify-center font-serif">G</span> Google Calendar Sync
             </div>
             <p className="text-[10px] md:text-xs font-bold text-sub">
-              To enable bidirectional sync, please set up a Google Cloud Project with the Calendar API enabled and enter your Client ID here.
+              Google Calendar integration is planned and is not available yet. Your Hub schedule already syncs between devices using your account.
             </p>
-            <input 
-              type="text" 
-              placeholder="Google Client ID (.apps.googleusercontent.com)"
-              className="w-full bg-line border-2 border-ink p-3 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink"
-            />
-            <button 
-              className="bg-ink text-bg px-4 py-3 rounded-xl font-extrabold uppercase tracking-widest text-xs transition-transform hover:-translate-y-1 hover:shadow-[4px_4px_0px_var(--theme-sub)] disabled:opacity-50"
-              onClick={() => toast.info("Calendar sync implementation is pending final OAuth setup.")}
-            >
-              Connect Calendar
-            </button>
           </div>
 
           <div className="border-t-2 border-ink border-dashed pt-6">
@@ -265,7 +278,7 @@ export default function Settings() {
               to="/privacy"
               className="w-full bg-line border-2 border-ink p-4 rounded-xl font-bold text-ink hover:bg-sub hover:text-bg transition-colors flex items-center justify-center gap-2"
             >
-              <FileText className="w-4 h-4" /> Privacy Policy (Play Store Requirement)
+              <FileText className="w-4 h-4" /> Privacy Policy
             </Link>
           </div>
         </div>

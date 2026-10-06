@@ -4,6 +4,7 @@
   "version": "2.3.8",
   "type": "module",
   "scripts": {
+    "test": "node --import tsx --test tests/*.test.mjs",
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",

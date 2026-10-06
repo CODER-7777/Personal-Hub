@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 import { Sidebar, MobileNav, MobileHeader } from "./components/Navigation";
 import { useAppStore, initFirebaseSync } from "./store";
 import { auth } from "./lib/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
 
 // Initialize Firebase Realtime Sync
 initFirebaseSync();
@@ -25,18 +25,14 @@ import { AlarmSystem } from "./components/AlarmSystem";
 import { PushNotificationSystem } from "./components/PushNotificationSystem";
 import { LocalNotificationSystem } from "./components/LocalNotificationSystem";
 import { ThemeLoader } from "./components/ThemeLoader";
-import { useMonthlyReset } from "./hooks/useMonthlyReset";
 
 // ─── APP ─────────────────────────────────
 
 export default function App() {
-  const { theme } = useAppStore();
+  const { theme, syncReady, syncOwnerUid, syncError, forceSync } = useAppStore();
   const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-
-  // Checks and resets finances on a new month automatically
-  useMonthlyReset();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -66,6 +62,23 @@ export default function App() {
         <Auth />
         <Toaster position="top-right" theme={theme} richColors />
       </>
+    );
+  }
+
+  if (!syncReady || syncOwnerUid !== user.uid) {
+    return (
+      <div className="min-h-screen bg-bg text-ink flex items-center justify-center p-6">
+        <ThemeLoader />
+        <div className="max-w-md space-y-4 text-center" role="status">
+          <h1 className="text-xl font-bold">Loading your Hub</h1>
+          <p>{syncError || 'Waiting for your account data. Connect to the internet for the first sign-in on this device.'}</p>
+          <div className="flex justify-center gap-4">
+            <button onClick={forceSync} className="border-2 border-ink rounded-xl px-4 py-3">Retry</button>
+            <button onClick={() => void signOut(auth)} className="border-2 border-ink rounded-xl px-4 py-3">Sign out</button>
+          </div>
+        </div>
+        <Toaster position="top-right" theme={theme} richColors />
+      </div>
     );
   }
 

@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from "motion/react";
 import { LogIn, UserPlus, Key, Mail, Sparkles, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { auth, db } from "../lib/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { ref, set as dbSet, get as dbGet } from "firebase/database";
-import { useAppStore } from "../store";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { ref, update } from "firebase/database";
 
 export default function Auth() {
   const [mode, setMode] = useState<"select" | "login" | "signup">("select");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,8 +20,7 @@ export default function Auth() {
       return;
     }
     
-    const store = useAppStore.getState();
-    if (mode === "signup" && (!store.profileName || store.profileName === "User")) {
+    if (mode === "signup" && !name.trim()) {
       toast.error("Please enter a profile name.");
       return;
     }
@@ -29,24 +28,19 @@ export default function Auth() {
     setLoading(true);
     try {
       if (mode === "login") {
-        const userCred = await signInWithEmailAndPassword(auth, email, password);
-        // Fetch user profile from DB
-        const profileRef = ref(db, `user_data/${userCred.user.uid}/profile`);
-        const snapshot = await dbGet(profileRef);
-        if (snapshot.exists()) {
-          const profile = snapshot.val();
-          store.setProfileName(profile.profileName || "User");
-          store.setCfHandle(profile.cfHandle || "");
-        }
+        await signInWithEmailAndPassword(auth, email.trim(), password);
         toast.success("Welcome back!");
       } else {
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        // Save user profile to DB
-        await dbSet(ref(db, `user_data/${userCred.user.uid}/profile`), {
-          profileName: store.profileName,
-          cfHandle: store.cfHandle
-        });
-        toast.success("Account created successfully!");
+        const userCred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        try {
+          await Promise.all([
+            updateProfile(userCred.user, { displayName: name.trim() }),
+            update(ref(db, `user_data/${userCred.user.uid}/profile`), { profileName: name.trim() }),
+          ]);
+          toast.success("Account created successfully!");
+        } catch {
+          toast.error("Account created, but your name could not be saved. Update it in Settings when online.");
+        }
       }
     } catch (error: any) {
       toast.error(error.message || "Authentication failed");
@@ -129,26 +123,16 @@ export default function Auth() {
                 <>
                   <div className="space-y-2">
                     <label className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-ink flex items-center gap-2">
-                      <UserPlus className="w-3.5 h-3.5 text-sub" /> Profile Name
+                      <UserPlus className="w-3.5 h-3.5 text-sub" /> Your Name
                     </label>
                     <input 
                       type="text"
-                      value={useAppStore.getState().profileName !== "User" ? useAppStore.getState().profileName : ""}
-                      onChange={(e) => useAppStore.getState().setProfileName(e.target.value)}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      autoComplete="name"
+                      maxLength={80}
                       placeholder="John Doe"
                       required
-                      className="w-full bg-bg border-2 border-ink p-4 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink transition-shadow"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-ink flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-sub" /> Codeforces Handle
-                    </label>
-                    <input 
-                      type="text"
-                      value={useAppStore.getState().cfHandle}
-                      onChange={(e) => useAppStore.getState().setCfHandle(e.target.value)}
-                      placeholder="tourist (Optional)"
                       className="w-full bg-bg border-2 border-ink p-4 rounded-xl font-bold text-ink focus:outline-none focus:ring-2 focus:ring-ink transition-shadow"
                     />
                   </div>
@@ -161,6 +145,7 @@ export default function Auth() {
                 </label>
                 <input 
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
@@ -175,6 +160,8 @@ export default function Auth() {
                 </label>
                 <input 
                   type="password"
+                  minLength={mode === "signup" ? 6 : undefined}
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"

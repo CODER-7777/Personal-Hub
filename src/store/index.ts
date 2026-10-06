@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ref, onValue, set as dbSet } from "firebase/database";
+import { ref, onValue, runTransaction } from "firebase/database";
 import { db, auth, isFirebaseConfigured } from "../lib/firebase";
 import { scheduleTaskNotification, scheduleReminderNotification } from "../lib/notifications";
 import { 
   ClassSession, Task, Resource, Expense, Reminder, 
   PomodoroSession, Habit, QuickNote, Goal, MonthlyGoal 
 } from './types';
+
+import { applyChange, diffRecords, safeArray, SyncChange } from './syncChanges';
 
 export * from './types';
 
@@ -17,9 +19,13 @@ interface AppState {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   
-  syncStatus: 'connected' | 'disconnected' | 'syncing';
-  setSyncStatus: (s: 'connected' | 'disconnected' | 'syncing') => void;
+  syncStatus: 'connected' | 'disconnected' | 'syncing' | 'error';
+  setSyncStatus: (s: 'connected' | 'disconnected' | 'syncing' | 'error') => void;
   lastSyncTime: string | null;
+  syncReady: boolean;
+  syncOwnerUid: string | null;
+  syncError: string | null;
+  pendingSyncCount: number;
 
   geminiApiKey: string;
   profileName: string;
@@ -105,6 +111,10 @@ export const useAppStore = create<AppState>()(
       syncStatus: 'disconnected',
       setSyncStatus: (s) => set({ syncStatus: s }),
       lastSyncTime: null,
+      syncReady: false,
+      syncOwnerUid: null,
+      syncError: null,
+      pendingSyncCount: 0,
       
       geminiApiKey: '',
       profileName: 'User',
@@ -157,94 +167,87 @@ export const useAppStore = create<AppState>()(
           financeReports: [],
           profileName: '',
           cfHandle: '',
-          profilePicture: ''
+          profilePicture: '',
+          geminiApiKey: '',
+          lastResetMonth: '',
+          lastSyncTime: null,
+          syncOwnerUid: null,
+          syncReady: false,
+          syncError: null,
+          pendingSyncCount: 0,
+          syncStatus: 'disconnected'
         });
       },
       
       addClasses: (newClasses) => {
         const classes = [...get().classes, ...newClasses];
         set({ classes });
-        syncToFirebase('classes', classes);
       },
       removeClass: (id) => {
         const classes = get().classes.filter(c => c.id !== id);
         set({ classes });
-        syncToFirebase('classes', classes);
       },
       
       addTask: (task) => {
         const tasks = [...get().tasks, task];
         set({ tasks });
-        syncToFirebase('tasks', tasks);
         // Schedule notification for the task deadline
         scheduleTaskNotification(task);
       },
       toggleTask: (id) => {
         const tasks = get().tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
         set({ tasks });
-        syncToFirebase('tasks', tasks);
       },
       removeTask: (id) => {
         const tasks = get().tasks.filter(t => t.id !== id);
         set({ tasks });
-        syncToFirebase('tasks', tasks);
       },
       
       addResource: (res) => {
         const resources = [...get().resources, res];
         set({ resources });
-        syncToFirebase('resources', resources);
       },
       removeResource: (id) => {
         const resources = get().resources.filter(r => r.id !== id);
         set({ resources });
-        syncToFirebase('resources', resources);
       },
       
       addExpense: (exp) => {
         const expenses = [...get().expenses, exp];
         set({ expenses });
-        syncToFirebase('expenses', expenses);
       },
       removeExpense: (id) => {
         const expenses = get().expenses.filter(e => e.id !== id);
         set({ expenses });
-        syncToFirebase('expenses', expenses);
       },
       
       addReminder: (rem) => {
         const reminders = [...get().reminders, rem];
         set({ reminders });
-        syncToFirebase('reminders', reminders);
         // Schedule notification for the reminder
         scheduleReminderNotification(rem);
       },
       markReminderTriggered: (id) => {
         const reminders = get().reminders.map(r => r.id === id ? { ...r, triggered: true } : r);
         set({ reminders });
-        syncToFirebase('reminders', reminders);
       },
       removeReminder: (id) => {
         const reminders = get().reminders.filter(r => r.id !== id);
         set({ reminders });
-        syncToFirebase('reminders', reminders);
       },
       
       addPomodoroSession: (session) => {
         const pomodoroSessions = [...get().pomodoroSessions, session];
         set({ pomodoroSessions });
-        syncToFirebase('pomodoroSessions', pomodoroSessions);
       },
       
       addHabit: (habit) => {
         const habits = [...get().habits, habit];
         set({ habits });
-        syncToFirebase('habits', habits);
       },
       removeHabit: (id) => {
         const habits = get().habits.filter(h => h.id !== id);
         set({ habits });
-        syncToFirebase('habits', habits);
       },
       toggleHabitDay: (habitId, date) => {
         const habits = get().habits.map(h => {
@@ -256,229 +259,285 @@ export const useAppStore = create<AppState>()(
           return { ...h, completions };
         });
         set({ habits });
-        syncToFirebase('habits', habits);
       },
       
       addNote: (note) => {
         const notes = [...get().notes, note];
         set({ notes });
-        syncToFirebase('notes', notes);
       },
       updateNote: (id, updates) => {
         const notes = get().notes.map(n => n.id === id ? { ...n, ...updates, updatedAt: new Date().toISOString() } : n);
         set({ notes });
-        syncToFirebase('notes', notes);
       },
       removeNote: (id) => {
         const notes = get().notes.filter(n => n.id !== id);
         set({ notes });
-        syncToFirebase('notes', notes);
       },
       togglePinNote: (id) => {
         const notes = get().notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n);
         set({ notes });
-        syncToFirebase('notes', notes);
       },
       
       addGoal: (goal) => {
         const goals = [...get().goals, goal];
         set({ goals });
-        syncToFirebase('goals', goals);
       },
       updateGoalProgress: (id, newCount) => {
         const goals = get().goals.map(g => g.id === id ? { ...g, currentCount: newCount } : g);
         set({ goals });
-        syncToFirebase('goals', goals);
       },
       removeGoal: (id) => {
         const goals = get().goals.filter(g => g.id !== id);
         set({ goals });
-        syncToFirebase('goals', goals);
       },
       
       addMonthlyGoal: (goal) => {
         const monthlyGoals = [...get().monthlyGoals, goal];
         set({ monthlyGoals });
-        syncToFirebase('monthlyGoals', monthlyGoals);
       },
       updateMonthlyGoalProgress: (id, newCount) => {
         const monthlyGoals = get().monthlyGoals.map(g => g.id === id ? { ...g, currentCount: newCount } : g);
         set({ monthlyGoals });
-        syncToFirebase('monthlyGoals', monthlyGoals);
       },
       toggleMonthlyGoalComplete: (id) => {
         const monthlyGoals = get().monthlyGoals.map(g => g.id === id ? { ...g, completed: !g.completed } : g);
         set({ monthlyGoals });
-        syncToFirebase('monthlyGoals', monthlyGoals);
       },
       removeMonthlyGoal: (id) => {
         const monthlyGoals = get().monthlyGoals.filter(g => g.id !== id);
         set({ monthlyGoals });
-        syncToFirebase('monthlyGoals', monthlyGoals);
       },
       
-      forceSync: () => {
-        const state = get();
-        syncToFirebase('classes', state.classes);
-        syncToFirebase('tasks', state.tasks);
-        syncToFirebase('resources', state.resources);
-        syncToFirebase('expenses', state.expenses);
-        syncToFirebase('reminders', state.reminders);
-        syncToFirebase('pomodoroSessions', state.pomodoroSessions);
-        syncToFirebase('habits', state.habits);
-        syncToFirebase('notes', state.notes);
-        syncToFirebase('goals', state.goals);
-        syncToFirebase('monthlyGoals', state.monthlyGoals);
-        set({ lastSyncTime: new Date().toISOString() });
-      },
+      forceSync: () => { retrySync(); },
     }),
     {
       name: 'personal-hub-storage',
+      partialize: ({ geminiApiKey, syncStatus, syncReady, syncError, pendingSyncCount, ...state }) => state,
+      merge: (persisted, current) => {
+        const { geminiApiKey, syncStatus, syncReady, syncError, pendingSyncCount, ...saved } = (persisted || {}) as Partial<AppState>;
+        return { ...current, ...saved };
+      },
     }
   )
 );
 
-// ─── Per-key write tracking ───────────────────────────────────────────────
-// Instead of one global boolean, we track how many writes are "in-flight"
-// for each data key. The onValue handler only applies remote data when
-// pendingWrites[key] === 0, meaning no local writes are waiting for
-// Firebase acknowledgement.
-const pendingWrites: Record<string, number> = {};
-
-function syncToFirebase(key: string, data: any) {
-  const uid = auth.currentUser?.uid;
-  if (!isFirebaseConfigured || !uid) return;
-
-  // Increment the pending counter BEFORE the write
-  pendingWrites[key] = (pendingWrites[key] || 0) + 1;
-
-  dbSet(ref(db, `user_data/${uid}/${key}`), data)
-    .then(() => {
-      // Write succeeded — decrement the counter
-      pendingWrites[key] = Math.max(0, (pendingWrites[key] || 1) - 1);
-    })
-    .catch((err) => {
-      console.error(`Firebase sync failed for "${key}":`, err);
-      pendingWrites[key] = Math.max(0, (pendingWrites[key] || 1) - 1);
-    });
-}
-
-// ─── Sanitizers ───────────────────────────────────────────────────────────
-function sanitizeHabits(rawHabits: any[]): Habit[] {
-  if (!Array.isArray(rawHabits)) return [];
-  return rawHabits.map(h => ({
-    ...h,
-    completions: Array.isArray(h.completions) ? h.completions : [],
-  }));
-}
-
-function toSafeArray(val: any): any[] {
-  return Array.isArray(val) ? val : [];
-}
-
-// Merge two arrays by `id`, keeping the item from `primary` if both have it
-function mergeById(local: any[], remote: any[]): any[] {
-  const map = new Map<string, any>();
-  for (const item of remote) {
-    if (item && item.id) map.set(item.id, item);
-  }
-  for (const item of local) {
-    if (item && item.id) map.set(item.id, item); // local wins on conflict
-  }
-  return Array.from(map.values());
-}
-
-// ─── Sync keys configuration ─────────────────────────────────────────────
 const DATA_KEYS = [
-  'classes', 'tasks', 'resources', 'expenses', 'reminders',
-  'pomodoroSessions', 'habits', 'notes', 'goals', 'monthlyGoals'
+  'classes', 'tasks', 'resources', 'expenses', 'reminders', 'pomodoroSessions',
+  'habits', 'notes', 'goals', 'monthlyGoals', 'financeReports'
 ] as const;
+const PROFILE_KEYS = ['profileName', 'cfHandle', 'profilePicture'] as const;
+const SYNC_KEYS = [...DATA_KEYS, 'profile'];
+let applyingRemote = false;
+let activeUid: string | null = null;
+let generation = 0;
+let connected = false;
+let pending: SyncChange[] = [];
+let flushingGeneration: number | null = null;
+let unsubscribes: (() => void)[] = [];
+let initialized = false;
+let retryTimer: ReturnType<typeof setTimeout> | undefined;
+let retryDelay = 1000;
+let storageError: string | null = null;
+let startSession: ((user: typeof auth.currentUser) => void) | undefined;
+let latestRemote: Record<string, unknown> = {};
+let remoteVersions: Record<string, number> = {};
 
-type DataKey = typeof DATA_KEYS[number];
+function preserveUnownedCache(): boolean {
+  const state = useAppStore.getState();
+  if (state.syncOwnerUid || !DATA_KEYS.some(key => state[key].length)) return true;
+  try {
+    // Earlier versions never recorded cache ownership. Preserve a recovery copy;
+    // never attribute that data to the next account or automatically upload it.
+    const backup = Object.fromEntries([...DATA_KEYS, ...PROFILE_KEYS, 'lastResetMonth'].map(key => [key, state[key as keyof AppState]]));
+    localStorage.setItem('personal-hub-legacy-recovery', JSON.stringify({ ...backup, savedAt: new Date().toISOString() }));
+    return true;
+  } catch {
+    setRemote({ syncReady: false, syncError: 'The previous app data could not be backed up. Free device storage and retry before signing in.' });
+    return false;
+  }
+}
 
-// ─── Firebase Sync Init ──────────────────────────────────────────────────
-let currentUnsubscribes: (() => void)[] = [];
+function setRemote(state: Partial<AppState>) {
+  applyingRemote = true;
+  try { useAppStore.setState(state); } finally { applyingRemote = false; }
+}
+
+const queueKey = (uid: string) => `personal-hub-outbox:${uid}`;
+function saveQueue(uid: string, queue: SyncChange[]) {
+  try {
+    if (queue.length) localStorage.setItem(queueKey(uid), JSON.stringify(queue));
+    else localStorage.removeItem(queueKey(uid));
+    storageError = null;
+  } catch {
+    storageError = 'Device storage is full or unavailable. Keep this app open until changes sync.';
+  }
+}
+
+function updateStatus() {
+  const state = useAppStore.getState();
+  setRemote({
+    pendingSyncCount: pending.length,
+    syncStatus: state.syncError || storageError ? 'error' : !activeUid || !connected ? 'disconnected'
+      : pending.length || !state.syncReady ? 'syncing' : 'connected',
+    ...(storageError ? { syncError: storageError } : {}),
+  });
+}
+
+function overlay(key: string, remote: unknown) {
+  return pending.filter(change => change.key === key).reduce(applyChange, remote);
+}
+
+function applySnapshot(key: string, value: unknown) {
+  const data = overlay(key, value);
+  if (key === 'profile') {
+    const profile = data as Record<string, unknown> | null;
+    const fallbackName = auth.currentUser?.displayName || 'User';
+    setRemote({
+      profileName: typeof profile?.profileName === 'string' ? profile.profileName : fallbackName,
+      cfHandle: typeof profile?.cfHandle === 'string' ? profile.cfHandle : '',
+      profilePicture: typeof profile?.profilePicture === 'string' ? profile.profilePicture : '',
+    });
+  } else {
+    let list = safeArray(data);
+    if (key === 'habits') list = list.map(h => ({ ...h, completions: Array.isArray(h.completions) ? h.completions : [] }));
+    setRemote({ [key]: list });
+  }
+}
+
+async function flushQueue() {
+  const epoch = generation;
+  const uid = activeUid;
+  const queue = pending;
+  if (!uid || !connected || !useAppStore.getState().syncReady || flushingGeneration === epoch) return;
+  flushingGeneration = epoch;
+  updateStatus();
+  try {
+    while (queue.length && generation === epoch && connected && auth.currentUser?.uid === uid) {
+      const change = queue[0];
+      const remoteVersion = remoteVersions[change.key] || 0;
+      const result = await runTransaction(ref(db, `user_data/${uid}/${change.key}`), current => {
+        if (generation !== epoch || auth.currentUser?.uid !== uid) return;
+        return applyChange(current, change);
+      }, { applyLocally: false });
+      if (!result.committed) break;
+      queue.shift();
+      // Save the acknowledgement even if this session ended during the request.
+      saveQueue(uid, queue);
+      if (generation !== epoch) break;
+      // A newer live snapshot can arrive before this acknowledgement resolves.
+      // Do not replace it with an older transaction result.
+      const acknowledged = (remoteVersions[change.key] || 0) > remoteVersion
+        ? latestRemote[change.key] : result.snapshot.val();
+      applySnapshot(change.key, acknowledged);
+      setRemote({ lastSyncTime: new Date().toISOString(), syncError: storageError });
+      retryDelay = 1000;
+    }
+  } catch (error) {
+    if (generation === epoch) {
+      console.error('Cloud sync failed:', error);
+      setRemote({ syncError: 'Cloud sync failed. Your changes are queued on this device. Tap sync to retry.' });
+      clearTimeout(retryTimer);
+      retryTimer = setTimeout(() => { if (generation === epoch) void flushQueue(); }, retryDelay);
+      retryDelay = Math.min(retryDelay * 2, 30000);
+    }
+  } finally {
+    if (flushingGeneration === epoch) flushingGeneration = null;
+    if (generation === epoch) updateStatus();
+  }
+}
+
+function retrySync() {
+  if (!activeUid) return;
+  clearTimeout(retryTimer);
+  setRemote({ syncError: null });
+  if (!useAppStore.getState().syncReady) startSession?.(auth.currentUser);
+  else { saveQueue(activeUid, pending); void flushQueue(); }
+  updateStatus();
+}
 
 export function initFirebaseSync() {
-  if (!isFirebaseConfigured) return;
-
-  // Connection status listener
-  onValue(ref(db, '.info/connected'), (snapshot) => {
-    if (snapshot.val() === true) {
-      useAppStore.setState({ syncStatus: 'connected' });
-    } else {
-      useAppStore.setState({ syncStatus: 'disconnected' });
+  if (!isFirebaseConfigured || initialized) return;
+  initialized = true;
+  // One subscription records only user edits, never cloud hydration or status updates.
+  useAppStore.subscribe((state, previous) => {
+    if (applyingRemote || !activeUid || !state.syncReady || state.syncOwnerUid !== activeUid || auth.currentUser?.uid !== activeUid) return;
+    const changes: SyncChange[] = [];
+    for (const key of DATA_KEYS) {
+      if (state[key] === previous[key]) continue;
+      const records = diffRecords(previous[key], state[key]);
+      if (records.length) changes.push({ token: crypto.randomUUID(), key, records });
     }
+    const fields: Record<string, unknown> = {};
+    for (const key of PROFILE_KEYS) if (state[key] !== previous[key]) fields[key] = state[key];
+    if (Object.keys(fields).length) changes.push({ token: crypto.randomUUID(), key: 'profile', fields });
+    if (!changes.length) return;
+    pending.push(...changes);
+    saveQueue(activeUid, pending);
+    updateStatus();
+    void flushQueue();
   });
 
-  auth.onAuthStateChanged(async (user) => {
-    // Clean up all previous listeners
-    for (const unsub of currentUnsubscribes) {
-      unsub();
-    }
-    currentUnsubscribes = [];
+  onValue(ref(db, '.info/connected'), snapshot => {
+    connected = snapshot.val() === true;
+    updateStatus();
+    if (connected) void flushQueue();
+  });
 
+  startSession = user => {
+    const epoch = ++generation;
+    clearTimeout(retryTimer);
+    for (const unsubscribe of unsubscribes) unsubscribe();
+    unsubscribes = [];
+    activeUid = user?.uid || null;
+    pending = [];
+    storageError = null;
+    latestRemote = {};
+    remoteVersions = {};
+    if (!preserveUnownedCache()) { updateStatus(); return; }
     if (!user) {
-      useAppStore.getState().clearUserData();
+      applyingRemote = true;
+      try { useAppStore.getState().clearUserData(); } finally { applyingRemote = false; }
       return;
     }
-
-    // ── Step 1: One-time read + sync ──
-    // Cloud is the absolute source of truth on startup to prevent local 
-    // devices from resurrecting deleted items.
-    const { get: fbGet } = await import('firebase/database');
+    const sameOwner = useAppStore.getState().syncOwnerUid === user.uid;
+    if (!sameOwner) {
+      applyingRemote = true;
+      try { useAppStore.getState().clearUserData(); } finally { applyingRemote = false; }
+    }
     try {
-      const snapshot = await fbGet(ref(db, `user_data/${user.uid}`));
-      
-      if (snapshot.exists()) {
-        const remoteData = snapshot.val();
-        const newState: Partial<Record<DataKey, any[]>> = {};
-        for (const key of DATA_KEYS) {
-          let remoteArr = toSafeArray(remoteData[key]);
-          if (key === 'habits') remoteArr = sanitizeHabits(remoteArr);
-          newState[key] = remoteArr;
-        }
-        
-        // Apply remote data locally
-        useAppStore.setState({
-          ...newState,
-          lastSyncTime: new Date().toISOString(),
-        } as any);
-      } else {
-        // First time sync: push local state up to Cloud
-        const localState = useAppStore.getState();
-        for (const key of DATA_KEYS) {
-          syncToFirebase(key, toSafeArray(localState[key]));
-        }
-      }
-    } catch (err) {
-      console.error('Initial Firebase merge failed:', err);
+      const queue = JSON.parse(localStorage.getItem(queueKey(user.uid)) || '[]');
+      if (!Array.isArray(queue) || queue.some(c => !c || !SYNC_KEYS.includes(c.key) || typeof c.token !== 'string')) throw new Error('Invalid outbox');
+      pending = queue;
+    } catch {
+      storageError = 'Saved pending changes could not be read. Export your local data before clearing device storage.';
     }
-
-    // ── Step 2: Set up per-key real-time listeners ──
-    // Each key gets its own onValue listener, so a change to "tasks"
-    // doesn't trigger a re-download of "expenses", "classes", etc.
-    for (const key of DATA_KEYS) {
-      const keyRef = ref(db, `user_data/${user.uid}/${key}`);
-      const unsub = onValue(keyRef, (snapshot) => {
-        // If we have pending local writes for THIS key, skip the echo
-        if ((pendingWrites[key] || 0) > 0) return;
-
-        const rawData = snapshot.val();
-        let data: any[];
-        if (key === 'habits') {
-          data = sanitizeHabits(rawData);
-        } else {
-          data = toSafeArray(rawData);
-        }
-
-        useAppStore.setState({
-          [key]: data,
-          lastSyncTime: new Date().toISOString(),
-        } as any);
-      });
-      currentUnsubscribes.push(unsub);
+    setRemote({ syncOwnerUid: user.uid, syncReady: sameOwner, syncError: storageError, pendingSyncCount: pending.length });
+    for (const key of SYNC_KEYS) {
+      const cached = key === 'profile' ? Object.fromEntries(PROFILE_KEYS.map(k => [k, useAppStore.getState()[k]])) : useAppStore.getState()[key as typeof DATA_KEYS[number]];
+      applySnapshot(key, cached);
     }
-  });
+    const received = new Set<string>();
+    for (const key of SYNC_KEYS) {
+      unsubscribes.push(onValue(ref(db, `user_data/${user.uid}/${key}`), snapshot => {
+        if (epoch !== generation || auth.currentUser?.uid !== user.uid) return;
+        latestRemote[key] = snapshot.val();
+        remoteVersions[key] = (remoteVersions[key] || 0) + 1;
+        applySnapshot(key, snapshot.val());
+        received.add(key);
+        if (received.size === SYNC_KEYS.length) {
+          setRemote({ syncReady: true, syncError: storageError, ...(connected && !pending.length ? { lastSyncTime: new Date().toISOString() } : {}) });
+          void flushQueue();
+        }
+        updateStatus();
+      }, error => {
+        if (epoch !== generation) return;
+        console.error(`Cloud read failed for ${key}:`, error);
+        setRemote({ syncError: 'Cloud data could not be loaded. Check your connection and account permissions, then retry.' });
+        updateStatus();
+      }));
+    }
+    updateStatus();
+  };
+  auth.onAuthStateChanged(startSession);
 }
 

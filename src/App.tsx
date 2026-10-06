@@ -70,6 +70,7 @@ export default function App() {
       <div className="min-h-screen bg-bg text-ink flex items-center justify-center p-6">
         <ThemeLoader />
         <div className="max-w-md space-y-4 text-center" role="status">
+          <img src="/app-logo.png" alt="Personal Hub" className="w-20 h-20 mx-auto rounded-2xl" />
           <h1 className="text-xl font-bold">Loading your Hub</h1>
           <p>{syncError || 'Waiting for your account data. Connect to the internet for the first sign-in on this device.'}</p>
           <div className="flex justify-center gap-4">

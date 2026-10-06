@@ -66,7 +66,7 @@ export default function Auth() {
             className="w-full max-w-md bg-line border-2 border-ink rounded-3xl p-8 md:p-10 shadow-[8px_8px_0px_var(--theme-ink)] relative z-10 text-center"
           >
             <div className="inline-flex items-center justify-center w-20 h-20 bg-bg rounded-2xl border-2 border-ink mb-6 rotate-3 shadow-[4px_4px_0px_var(--theme-sub)]">
-              <Sparkles className="w-10 h-10 text-ink" />
+              <img src="/app-logo.png" alt="Personal Hub" className="w-14 h-14 object-contain rounded-xl" />
             </div>
             
             <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tighter text-ink leading-none mb-3">

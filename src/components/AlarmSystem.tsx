@@ -14,8 +14,8 @@ export function sendNativeNotification(title: string, body: string) {
   if ("Notification" in window && Notification.permission === "granted") {
     const notification = new Notification(title, {
       body,
-      icon: "/vite.svg",
-      badge: "/vite.svg",
+      icon: "/app-logo.png",
+      badge: "/app-logo.png",
       requireInteraction: true,
       tag: title + body, // deduplicate
     });

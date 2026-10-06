@@ -78,7 +78,8 @@ export function Sidebar() {
         transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}
         className="flex-shrink-0 bg-bg h-screen flex flex-col hidden md:flex sticky top-0 print:hidden transition-colors border-r-2 border-ink z-40 overflow-hidden"
       >
-        <div className="pl-[4.5rem] pr-4 py-4 border-b-2 border-ink flex items-center min-h-[72px]">
+        <div className="gap-2 pl-[4.5rem] pr-4 py-4 border-b-2 border-ink flex items-center min-h-[72px]">
+          <img src="/app-logo.png" alt="" className="w-10 h-10 rounded-xl shrink-0" />
           <h1 className="text-xl font-extrabold uppercase tracking-tighter leading-none whitespace-nowrap">
             Personal<br/>Hub
           </h1>
@@ -144,9 +145,12 @@ export function MobileHeader() {
   
   return (
     <div className="md:hidden flex items-center justify-between p-4 border-b-2 border-ink bg-bg sticky top-0 z-40 print:hidden transition-colors">
-      <h1 className="text-2xl font-extrabold uppercase tracking-tighter leading-none">
+      <div className="flex items-center gap-2 min-w-0">
+      <img src="/app-logo.png" alt="" className="w-9 h-9 rounded-xl shrink-0" />
+      <h1 className="text-lg font-extrabold uppercase tracking-tighter leading-none">
         Personal Hub
       </h1>
+      </div>
       <div className="flex items-center gap-2">
         <SyncIndicator compact />
         <button 

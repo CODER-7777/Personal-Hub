@@ -30,6 +30,10 @@
       "deb"
     ],
     "category": "Utility",
+    "icon": "assets/appIcon.png",
+    "desktop": {
+      "StartupWMClass": "personal-hub"
+    },
     "maintainer": "Mansoju Vivekananda <coder7777@github.com>"
   }
 }

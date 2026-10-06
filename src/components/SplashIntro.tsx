@@ -43,7 +43,7 @@ export function SplashIntro({ onComplete }: SplashIntroProps) {
             transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
             className="w-16 h-16 md:w-20 md:h-20 bg-ink text-bg flex items-center justify-center rounded-2xl shadow-[6px_6px_0px_var(--theme-highlight)] border-2 border-transparent mb-8"
           >
-            <span className="text-3xl md:text-4xl font-extrabold tracking-tighter">PH</span>
+            <img src="/app-logo.png" alt="Personal Hub" className="w-full h-full rounded-2xl object-contain" />
           </motion.div>
           <motion.div className="flex space-x-2 mb-2">
             {["P", "E", "R", "S", "O", "N", "A", "L"].map((letter, i) => (

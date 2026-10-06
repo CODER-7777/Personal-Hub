@@ -52,6 +52,7 @@ interface AppState {
   
   addClasses: (classes: ClassSession[]) => void;
   removeClass: (id: string) => void;
+  updateClass: (id: string, updates: Partial<ClassSession>) => void;
   
   addTask: (task: Task) => void;
   toggleTask: (id: string) => void;
@@ -182,6 +183,9 @@ export const useAppStore = create<AppState>()(
       addClasses: (newClasses) => {
         const classes = [...get().classes, ...newClasses];
         set({ classes });
+      },
+      updateClass: (id, updates) => {
+        set({ classes: get().classes.map(c => c.id === id ? { ...c, ...updates, id } : c) });
       },
       removeClass: (id) => {
         const classes = get().classes.filter(c => c.id !== id);

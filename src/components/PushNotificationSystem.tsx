@@ -21,7 +21,7 @@ export function PushNotificationSystem() {
 
       // On successful registration
       PushNotifications.addListener("registration", (token) => {
-        console.log("Push registration success, token: " + token.value);
+        // Register this token with an authenticated backend before enabling remote pushes.
         // Normally, you would send this token to your database so you know who to message
       });
 

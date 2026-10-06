@@ -6,11 +6,12 @@ import {
 } from '@capacitor-community/electron';
 import chokidar from 'chokidar';
 import type { MenuItemConstructorOptions } from 'electron';
-import { app, BrowserWindow, Menu, MenuItem, nativeImage, Tray, session } from 'electron';
+import { app, BrowserWindow, Menu, MenuItem, nativeImage, Tray, session, shell } from 'electron';
 import electronIsDev from 'electron-is-dev';
 import electronServe from 'electron-serve';
 import windowStateKeeper from 'electron-window-state';
 import { join } from 'path';
+import { isInternalUrl, safeExternalUrl } from './security';
 
 // Define components for a watcher to detect when the webapp is changed so we can reload in Dev mode.
 const reloadWatcher = {
@@ -115,7 +116,9 @@ export class ElectronCapacitorApp {
       width: this.mainWindowState.width,
       height: this.mainWindowState.height,
       webPreferences: {
-        nodeIntegration: true,
+        nodeIntegration: false,
+        // The existing Capacitor preload requires Node modules in its isolated world.
+        sandbox: false,
         contextIsolation: true,
         // Use preload to inject the electron varriant overrides for capacitor plugins.
         // preload: join(app.getAppPath(), "node_modules", "@capacitor-community", "electron", "dist", "runtime", "electron-rt.js"),
@@ -165,6 +168,26 @@ export class ElectronCapacitorApp {
     // Setup the main manu bar at the top of our window.
     Menu.setApplicationMenu(Menu.buildFromTemplate(this.AppMenuBarMenuTemplate));
 
+    // Keep privileged application content on its own exact origin.
+    const openExternal = (value: string) => {
+      const url = safeExternalUrl(value);
+      if (url) void shell.openExternal(url).catch(error => console.warn('Could not open link:', error));
+    };
+    this.MainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      openExternal(url);
+      return { action: 'deny' };
+    });
+    this.MainWindow.webContents.on('will-navigate', (event, url) => {
+      if (!isInternalUrl(url, this.customScheme)) {
+        event.preventDefault();
+        openExternal(url);
+      }
+    });
+    this.MainWindow.webContents.on('will-redirect', (event, url) => {
+      if (!isInternalUrl(url, this.customScheme)) event.preventDefault();
+    });
+    this.MainWindow.webContents.on('will-attach-webview', event => event.preventDefault());
+
     // If the splashscreen is enabled, show it first while the main window loads then switch it out for the main window, or just load the main window from the start.
     if (this.CapacitorFileConfig.electron?.splashScreenEnabled) {
       this.SplashScreen = new CapacitorSplashScreen({
@@ -180,20 +203,6 @@ export class ElectronCapacitorApp {
     } else {
       this.loadMainWindow(this);
     }
-
-    // Security
-    this.MainWindow.webContents.setWindowOpenHandler((details) => {
-      if (!details.url.includes(this.customScheme)) {
-        return { action: 'deny' };
-      } else {
-        return { action: 'allow' };
-      }
-    });
-    this.MainWindow.webContents.on('will-navigate', (event, _newURL) => {
-      if (!this.MainWindow.webContents.getURL().includes(this.customScheme)) {
-        event.preventDefault();
-      }
-    });
 
     // Link electron plugins into the system.
     setupCapacitorElectronPlugins();
@@ -243,7 +252,7 @@ export function setupContentSecurityPolicy(customScheme: string): void {
         'Content-Security-Policy': [
           electronIsDev
             ? `default-src ${customScheme}://* 'unsafe-inline' devtools://* 'unsafe-eval' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} ws: wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`
-            : `default-src ${customScheme}://* 'unsafe-inline' 'unsafe-eval' data: ${firebaseDomains} ${apiDomains}; connect-src ${customScheme}://* ${firebaseDomains} ${apiDomains} wss:; img-src ${customScheme}://* data: https:; font-src ${customScheme}://* data: https://fonts.gstatic.com;`,
+            : `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' ${firebaseDomains} ${apiDomains}; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-src 'none';`,
         ],
       },
     });

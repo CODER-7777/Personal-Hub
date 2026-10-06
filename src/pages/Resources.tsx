@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+import { safeExternalUrl } from "../lib/urls";
+import { toast } from "sonner";
 import { useAppStore, Resource } from "../store";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Trash2, ExternalLink, Search, Folder, FolderOpen, File as FileIcon, ChevronRight, ChevronDown } from "lucide-react";
@@ -65,10 +67,12 @@ export default function Resources() {
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !url) return;
+    const safeUrl = safeExternalUrl(url.trim());
+    if (!safeUrl) { toast.error("Use a valid HTTP or HTTPS link."); return; }
     addResource({
       id: crypto.randomUUID(),
       title,
-      url,
+      url: safeUrl,
       category: category.trim() || "Uncategorized",
       notes: notes.trim()
     });
@@ -200,7 +204,7 @@ export default function Resources() {
                   </div>
                   <div className="flex items-center justify-end gap-2 border-t-2 border-ink border-dashed pt-3">
                     <a 
-                      href={res.url} 
+                      href={safeExternalUrl(res.url)}
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="flex-1 py-2 px-3 text-center bg-ink text-bg font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-sub transition-colors flex items-center justify-center gap-2"

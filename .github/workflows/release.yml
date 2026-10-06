@@ -98,6 +98,12 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          target: android-34
+          arch: x86_64
+          channel: stable
+          cmdline-tools-version: latest
 
       - name: Install Root Dependencies
         run: npm ci --legacy-peer-deps

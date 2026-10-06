@@ -13,7 +13,7 @@ export default function Privacy() {
           <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tighter text-ink mb-1 md:mb-2 flex items-center gap-3">
             <Shield className="w-8 h-8 md:w-10 md:h-10 text-ink" /> Privacy Policy
           </h1>
-          <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Last updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-sub">Last updated: 6 October 2026</p>
         </div>
       </div>
 
@@ -22,13 +22,13 @@ export default function Privacy() {
         <p>Personal Hub collects information you provide directly, including your email address (for authentication) and data you manually input (tasks, schedule, finances).</p>
         
         <h2>2. Data Storage & Security</h2>
-        <p>Your data is securely stored using Google Firebase. Passwords and authentication tokens are encrypted by Firebase Auth. Realtime data is transmitted securely via HTTPS.</p>
+        <p>Your account data is stored in Google Firebase and transmitted using encrypted connections. Firebase Auth manages your password. A local copy of your Hub data and pending changes is saved on your device; this local copy is not encrypted by the app.</p>
         
         <h2>3. Local Storage & API Keys</h2>
-        <p>Your Gemini API Key is stored <strong>locally</strong> on your device and is only sent directly to Google's GenAI API for processing. It is never stored on our database.</p>
+        <p>Your Gemini API key stays in memory for the current app session and is sent directly to Google's GenAI API when you use an AI feature. It is not saved in our database or device storage. AI features send the selected schedule, task, goal, finance summary or uploaded image to Google for processing.</p>
         
         <h2>4. Account Deletion</h2>
-        <p>You have the right to delete your account and all associated data at any time via the Settings page. Deleting your account will immediately remove your authentication records.</p>
+        <p>The current Delete Account action removes your Firebase Auth sign-in account. Cloud database records are not automatically erased by this version. Export your data before deleting your account and contact the developer to request complete cloud data removal. Clear app storage on shared devices to remove local copies and pending changes.</p>
         
         <h2>5. Third-Party Services</h2>
         <p>We use Google Firebase (Auth, Database) and Google Gemini (AI). By using Personal Hub, you also agree to their respective privacy policies and terms of service.</p>

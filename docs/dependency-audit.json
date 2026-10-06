@@ -1,0 +1,1743 @@
+{
+  "date": "2026-10-06",
+  "root": {
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 3,
+        "moderate": 8,
+        "high": 17,
+        "critical": 2,
+        "total": 30
+      },
+      "dependencies": {
+        "prod": 605,
+        "dev": 632,
+        "optional": 111,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 1268
+      }
+    },
+    "packages": [
+      {
+        "name": "@capacitor/assets",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/@capacitor/assets"
+        ],
+        "fix": false,
+        "advisories": []
+      },
+      {
+        "name": "@capacitor/cli",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/@capacitor/assets/node_modules/@capacitor/cli",
+          "node_modules/@capacitor/cli"
+        ],
+        "fix": {
+          "name": "@capacitor/cli",
+          "version": "8.4.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "@firebase/firestore",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@firebase/firestore"
+        ],
+        "fix": {
+          "name": "firebase",
+          "version": "9.14.0",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "@firebase/firestore-compat",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@firebase/firestore-compat"
+        ],
+        "fix": {
+          "name": "firebase",
+          "version": "9.14.0",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "@grpc/grpc-js",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@grpc/grpc-js"
+        ],
+        "fix": {
+          "name": "firebase",
+          "version": "9.14.0",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "@grpc/grpc-js: In certain configurations, getAuthContext can return unauthorized certificates as though they were authorized",
+            "url": "https://github.com/advisories/GHSA-m9gg-hp2v-232j",
+            "range": "<1.13.6"
+          },
+          {
+            "title": "@grpc/grpc-js: The server transmits some error messages thrown by method handlers to the client in status messages",
+            "url": "https://github.com/advisories/GHSA-f596-whhp-79r4",
+            "range": "<1.13.6"
+          }
+        ]
+      },
+      {
+        "name": "@trapezedev/project",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@trapezedev/project"
+        ],
+        "fix": true,
+        "advisories": []
+      },
+      {
+        "name": "@xmldom/xmldom",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@xmldom/xmldom"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "xmldom: XML fragment injection via invalid EntityReference.nodeName during requireWellFormed serialization",
+            "url": "https://github.com/advisories/GHSA-6gmq-8vp8-gcm6",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: HTML raw-text closing-tag case mismatch causes output amplification",
+            "url": "https://github.com/advisories/GHSA-6mj3-qw4j-hgrw",
+            "range": ">=0.9.0-beta.1 <=0.9.11"
+          },
+          {
+            "title": "xmldom PI grammar regex ReDoS: quadratic backtracking on unterminated processing instructions",
+            "url": "https://github.com/advisories/GHSA-g53g-w8rj-fmg7",
+            "range": ">=0.9.0-beta.9 <=0.9.10"
+          },
+          {
+            "title": "xmldom: Element name injection via createElement() bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-w2rr-34g9-rvrj",
+            "range": ">=0.9.0 <=0.9.10"
+          },
+          {
+            "title": "xmldom: Attribute name injection via setAttribute() bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-4w3w-2rp5-g8jm",
+            "range": ">=0.9.0 <=0.9.10"
+          },
+          {
+            "title": "xmldom: Processing Instruction Target Injection Bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-c7q8-3ch8-vqpv",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: DocType `name` Injection Bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-27p8-2357-5qqv",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Creation-time XML Name/QName validation is bypassable via an embedded line terminator, allowing injection on the default serialization path",
+            "url": "https://github.com/advisories/GHSA-3px3-54cx-rmw9",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: requireWellFormed DocType publicId/systemId validation is bypassable via an embedded line terminator",
+            "url": "https://github.com/advisories/GHSA-vr34-hp96-76pp",
+            "range": ">=0.9.10 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Parser silently accepts a not-well-formed end tag whose name is followed by a line break and trailing content",
+            "url": "https://github.com/advisories/GHSA-6h8r-xr42-gp59",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Quadratic-time attribute deduplication",
+            "url": "https://github.com/advisories/GHSA-8344-3jmq-59r6",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Quadratic-memory consumption",
+            "url": "https://github.com/advisories/GHSA-965w-775f-mr7g",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Quadratic-time parsing via the malformed-input recovery path — `parseElementStartPart` re-scan and `normalize()` adjacent-text merge",
+            "url": "https://github.com/advisories/GHSA-93r5-fhx6-vmg9",
+            "range": ">=0.9.0 <=0.9.11"
+          }
+        ]
+      },
+      {
+        "name": "baseline-browser-mapping",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/baseline-browser-mapping"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+            "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+            "range": ">=2.0.0 <2.11.0"
+          }
+        ]
+      },
+      {
+        "name": "body-parser",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/body-parser"
+        ],
+        "fix": true,
+        "advisories": []
+      },
+      {
+        "name": "brace-expansion",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@capacitor/assets/node_modules/brace-expansion",
+          "node_modules/archiver-utils/node_modules/brace-expansion",
+          "node_modules/archiver/node_modules/brace-expansion",
+          "node_modules/brace-expansion",
+          "node_modules/exceljs/node_modules/brace-expansion",
+          "node_modules/filelist/node_modules/brace-expansion",
+          "node_modules/replace/node_modules/brace-expansion"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "range": ">=4.0.0 <5.0.9"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "range": ">=2.0.0 <2.1.4"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "range": "<1.1.18"
+          },
+          {
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "range": "<1.1.21"
+          },
+          {
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "range": ">=2.0.0 <2.1.7"
+          },
+          {
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "range": ">=4.0.0 <5.0.12"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "range": "<1.1.20"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "range": ">=2.0.0 <2.1.6"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "range": ">=4.0.0 <5.0.11"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "range": "<1.1.19"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "range": ">=2.0.0 <2.1.5"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "range": ">=4.0.0 <5.0.10"
+          }
+        ]
+      },
+      {
+        "name": "browserslist",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/browserslist"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+            "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+            "range": "<=4.28.6"
+          },
+          {
+            "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+            "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+            "range": "<=4.28.6"
+          }
+        ]
+      },
+      {
+        "name": "dompurify",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/dompurify"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "DOMPurify: IN_PLACE hook removal leaves a detached subtree executable, causing XSS",
+            "url": "https://github.com/advisories/GHSA-55q2-fjhq-7xh7",
+            "range": "<=3.4.12"
+          },
+          {
+            "title": "DOMPurify: IN_PLACE returns a force-removed rawtext root whose text carries attacker markup — pure HTML reparse executes",
+            "url": "https://github.com/advisories/GHSA-6688-9rhm-gjv2",
+            "range": "<=3.4.15"
+          }
+        ]
+      },
+      {
+        "name": "esbuild",
+        "severity": "low",
+        "direct": false,
+        "nodes": [
+          "node_modules/esbuild"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "esbuild allows arbitrary file read when running the development server on Windows",
+            "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+            "range": ">=0.27.3 <0.28.1"
+          }
+        ]
+      },
+      {
+        "name": "exceljs",
+        "severity": "low",
+        "direct": true,
+        "nodes": [
+          "node_modules/exceljs"
+        ],
+        "fix": true,
+        "advisories": []
+      },
+      {
+        "name": "express",
+        "severity": "moderate",
+        "direct": true,
+        "nodes": [
+          "node_modules/express"
+        ],
+        "fix": true,
+        "advisories": []
+      },
+      {
+        "name": "fast-csv",
+        "severity": "low",
+        "direct": false,
+        "nodes": [
+          "node_modules/fast-csv"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "Denial of service in fast-csv",
+            "url": "https://github.com/advisories/GHSA-8cv5-p934-3hwp",
+            "range": "<4.3.6"
+          }
+        ]
+      },
+      {
+        "name": "fast-uri",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/fast-uri"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "fast-uri vulnerable to host confusion via backslash authority introducer",
+            "url": "https://github.com/advisories/GHSA-7p8r-x3mc-p8w7",
+            "range": ">=3.0.0 <3.1.5"
+          },
+          {
+            "title": "fast-uri vulnerable to host confusion via skipped IDN canonicalization on scheme-relative references",
+            "url": "https://github.com/advisories/GHSA-5jgf-p345-68v8",
+            "range": ">=3.1.3 <3.1.6"
+          },
+          {
+            "title": "fast-uri vulnerable to server-side request forgery via malformed IPv6 normalization",
+            "url": "https://github.com/advisories/GHSA-f65p-4m7j-42xc",
+            "range": ">=3.0.0 <3.1.6"
+          },
+          {
+            "title": "fast-uri vulnerable to server-side request forgery via repeated hostname percent-decoding",
+            "url": "https://github.com/advisories/GHSA-fph4-wmhf-6fwf",
+            "range": ">=3.1.2 <3.1.6"
+          },
+          {
+            "title": "fast-uri vulnerable to host confusion via percent-encoded scheme normalization",
+            "url": "https://github.com/advisories/GHSA-jqff-g426-hqxp",
+            "range": ">=3.0.0 <3.1.6"
+          },
+          {
+            "title": "fast-uri vulnerable to authority injection via an unvalidated port in serialize",
+            "url": "https://github.com/advisories/GHSA-qw65-cvwx-89v3",
+            "range": ">=3.0.0 <3.1.7"
+          },
+          {
+            "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+            "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj",
+            "range": ">=3.0.0 <3.1.8"
+          }
+        ]
+      },
+      {
+        "name": "fflate",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/fflate"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "fflate unzipSync can enter an infinite loop when parsing malformed ZIP64 archives",
+            "url": "https://github.com/advisories/GHSA-px8p-9vwx-vf98",
+            "range": ">=0.8.0 <0.8.3"
+          }
+        ]
+      },
+      {
+        "name": "firebase",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/firebase"
+        ],
+        "fix": {
+          "name": "firebase",
+          "version": "9.14.0",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "minimatch",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/replace/node_modules/minimatch"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+            "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+            "range": "<3.1.3"
+          },
+          {
+            "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+            "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+            "range": "<3.1.3"
+          },
+          {
+            "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+            "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+            "range": "<3.1.4"
+          }
+        ]
+      },
+      {
+        "name": "nanoid",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/nanoid"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "nanoid: custom generators can loop indefinitely when size is zero",
+            "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+            "range": "<3.3.18"
+          }
+        ]
+      },
+      {
+        "name": "proxy-addr",
+        "severity": "critical",
+        "direct": false,
+        "nodes": [
+          "node_modules/proxy-addr"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet",
+            "url": "https://github.com/advisories/GHSA-jqcg-44mw-7w3h",
+            "range": ">=1.1.0 <2.0.8"
+          }
+        ]
+      },
+      {
+        "name": "qs",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/qs"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "qs array-limit bypass via bracket-key comma parsing",
+            "url": "https://github.com/advisories/GHSA-x5fp-wj9c-mxmx",
+            "range": ">=6.14.2 <=6.15.3"
+          },
+          {
+            "title": "qs: Denial of Service via Attacker Controlled isBuffer",
+            "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+            "range": ">=2.2.5 <6.16.0"
+          }
+        ]
+      },
+      {
+        "name": "replace",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/replace"
+        ],
+        "fix": true,
+        "advisories": []
+      },
+      {
+        "name": "sharp",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/sharp"
+        ],
+        "fix": false,
+        "advisories": [
+          {
+            "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+            "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+            "range": "<0.35.0"
+          },
+          {
+            "title": "sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545",
+            "url": "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+            "range": "<0.35.4"
+          }
+        ]
+      },
+      {
+        "name": "source-map-js",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/source-map-js"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+            "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+            "range": ">=1.0.0 <1.2.2"
+          }
+        ]
+      },
+      {
+        "name": "tar",
+        "severity": "critical",
+        "direct": false,
+        "nodes": [
+          "node_modules/@capacitor/assets/node_modules/tar"
+        ],
+        "fix": {
+          "name": "@capacitor/cli",
+          "version": "8.4.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+            "url": "https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
+            "range": "<7.5.7"
+          },
+          {
+            "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+            "url": "https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
+            "range": "<=7.5.2"
+          },
+          {
+            "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+            "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx",
+            "range": "<7.5.8"
+          },
+          {
+            "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+            "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96",
+            "range": "<=7.5.9"
+          },
+          {
+            "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+            "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256",
+            "range": "<=7.5.10"
+          },
+          {
+            "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+            "url": "https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
+            "range": "<=7.5.3"
+          },
+          {
+            "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+            "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh",
+            "range": "<=7.5.15"
+          },
+          {
+            "title": "node-tar: Process crash via PAX numeric path type confusion",
+            "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp",
+            "range": "<=7.5.17"
+          },
+          {
+            "title": "node-tar: Decompression/parse DoS via unlimited input",
+            "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
+            "range": "<=7.5.18"
+          },
+          {
+            "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+            "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
+            "range": "<=7.5.17"
+          },
+          {
+            "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+            "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
+            "range": "<=7.5.16"
+          },
+          {
+            "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+            "url": "https://github.com/advisories/GHSA-r292-9mhp-454m",
+            "range": "<=7.5.20"
+          }
+        ]
+      },
+      {
+        "name": "tmp",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/exceljs/node_modules/tmp",
+          "node_modules/tmp"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "tmp allows arbitrary temporary file / directory write via symbolic link `dir` parameter",
+            "url": "https://github.com/advisories/GHSA-52f5-9888-hmc6",
+            "range": "<=0.2.3"
+          },
+          {
+            "title": "tmp has Path Traversal via unsanitized prefix/postfix that enables directory escape",
+            "url": "https://github.com/advisories/GHSA-ph9p-34f9-6g65",
+            "range": "<0.2.6"
+          }
+        ]
+      },
+      {
+        "name": "uuid",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/uuid"
+        ],
+        "fix": {
+          "name": "@capacitor/cli",
+          "version": "8.4.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+            "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+            "range": "<11.1.1"
+          }
+        ]
+      },
+      {
+        "name": "xcode",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/xcode"
+        ],
+        "fix": {
+          "name": "@capacitor/cli",
+          "version": "8.4.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      }
+    ]
+  },
+  "desktop": {
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 1,
+        "moderate": 4,
+        "high": 27,
+        "critical": 1,
+        "total": 33
+      },
+      "dependencies": {
+        "prod": 160,
+        "dev": 283,
+        "optional": 35,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 444
+      }
+    },
+    "packages": [
+      {
+        "name": "@electron/get",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/@electron/get"
+        ],
+        "fix": {
+          "name": "electron",
+          "version": "44.5.1",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "@electron/universal",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@electron/universal"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "@tootallnate/once",
+        "severity": "low",
+        "direct": false,
+        "nodes": [
+          "node_modules/@tootallnate/once"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping",
+            "url": "https://github.com/advisories/GHSA-vpq2-c234-7xj6",
+            "range": "<2.0.1"
+          }
+        ]
+      },
+      {
+        "name": "@xmldom/xmldom",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/@xmldom/xmldom"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "xmldom: XML fragment injection via invalid EntityReference.nodeName during requireWellFormed serialization",
+            "url": "https://github.com/advisories/GHSA-6gmq-8vp8-gcm6",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: HTML raw-text closing-tag case mismatch causes output amplification",
+            "url": "https://github.com/advisories/GHSA-6mj3-qw4j-hgrw",
+            "range": ">=0.9.0-beta.1 <=0.9.11"
+          },
+          {
+            "title": "xmldom PI grammar regex ReDoS: quadratic backtracking on unterminated processing instructions",
+            "url": "https://github.com/advisories/GHSA-g53g-w8rj-fmg7",
+            "range": ">=0.9.0-beta.9 <=0.9.10"
+          },
+          {
+            "title": "xmldom: Element name injection via createElement() bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-w2rr-34g9-rvrj",
+            "range": ">=0.9.0 <=0.9.10"
+          },
+          {
+            "title": "xmldom: Attribute name injection via setAttribute() bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-4w3w-2rp5-g8jm",
+            "range": ">=0.9.0 <=0.9.10"
+          },
+          {
+            "title": "xmldom: Processing Instruction Target Injection Bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-c7q8-3ch8-vqpv",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: DocType `name` Injection Bypasses requireWellFormed",
+            "url": "https://github.com/advisories/GHSA-27p8-2357-5qqv",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Creation-time XML Name/QName validation is bypassable via an embedded line terminator, allowing injection on the default serialization path",
+            "url": "https://github.com/advisories/GHSA-3px3-54cx-rmw9",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: requireWellFormed DocType publicId/systemId validation is bypassable via an embedded line terminator",
+            "url": "https://github.com/advisories/GHSA-vr34-hp96-76pp",
+            "range": ">=0.9.10 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Parser silently accepts a not-well-formed end tag whose name is followed by a line break and trailing content",
+            "url": "https://github.com/advisories/GHSA-6h8r-xr42-gp59",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Quadratic-time attribute deduplication",
+            "url": "https://github.com/advisories/GHSA-8344-3jmq-59r6",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Quadratic-memory consumption",
+            "url": "https://github.com/advisories/GHSA-965w-775f-mr7g",
+            "range": ">=0.9.0 <=0.9.11"
+          },
+          {
+            "title": "xmldom: Quadratic-time parsing via the malformed-input recovery path — `parseElementStartPart` re-scan and `normalize()` adjacent-text merge",
+            "url": "https://github.com/advisories/GHSA-93r5-fhx6-vmg9",
+            "range": ">=0.9.0 <=0.9.11"
+          }
+        ]
+      },
+      {
+        "name": "app-builder-lib",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/app-builder-lib"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "electron-builder's NSIS installer - execute arbitrary code on the target machine (Windows only)",
+            "url": "https://github.com/advisories/GHSA-r4pf-3v7r-hh55",
+            "range": "<24.13.2"
+          },
+          {
+            "title": "electron-updater: Uncontrolled search path elements within `AppImage` built by `app-builder-lib`",
+            "url": "https://github.com/advisories/GHSA-7g7r-gx96-252g",
+            "range": "<26.15.0"
+          }
+        ]
+      },
+      {
+        "name": "brace-expansion",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/brace-expansion",
+          "node_modules/cacache/node_modules/brace-expansion",
+          "node_modules/cacache/node_modules/rimraf/node_modules/brace-expansion",
+          "node_modules/filelist/node_modules/brace-expansion",
+          "node_modules/rimraf/node_modules/brace-expansion"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "brace-expansion: Large numeric range defeats documented `max` DoS protection",
+            "url": "https://github.com/advisories/GHSA-jxxr-4gwj-5jf2",
+            "range": ">=5.0.0 <5.0.6"
+          },
+          {
+            "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+            "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+            "range": ">=2.0.0 <2.1.2"
+          },
+          {
+            "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+            "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+            "range": "<1.1.16"
+          },
+          {
+            "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+            "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+            "range": ">=3.0.0 <5.0.7"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+            "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+            "range": "<1.1.17"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+            "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+            "range": ">=2.0.0 <2.1.3"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+            "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+            "range": ">=4.0.0 <5.0.8"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "range": ">=4.0.0 <5.0.9"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "range": ">=2.0.0 <2.1.4"
+          },
+          {
+            "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+            "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+            "range": "<1.1.18"
+          },
+          {
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "range": "<1.1.21"
+          },
+          {
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "range": ">=2.0.0 <2.1.7"
+          },
+          {
+            "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+            "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+            "range": ">=4.0.0 <5.0.12"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "range": "<1.1.20"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "range": ">=2.0.0 <2.1.6"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+            "range": ">=4.0.0 <5.0.11"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "range": "<1.1.19"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "range": ">=2.0.0 <2.1.5"
+          },
+          {
+            "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+            "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+            "range": ">=4.0.0 <5.0.10"
+          }
+        ]
+      },
+      {
+        "name": "braces",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/braces"
+        ],
+        "fix": {
+          "name": "chokidar",
+          "version": "5.0.0",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+            "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+            "range": "<=3.0.3"
+          }
+        ]
+      },
+      {
+        "name": "builder-util",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/builder-util"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "builder-util-runtime",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/builder-util-runtime"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "electron-updater: Cross-origin redirect leaks `PRIVATE-TOKEN` and mixed-case `Authorization` credentials in `builder-util-runtime`",
+            "url": "https://github.com/advisories/GHSA-p2f4-r6v6-j797",
+            "range": "<9.7.0"
+          }
+        ]
+      },
+      {
+        "name": "cacache",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/cacache"
+        ],
+        "fix": {
+          "name": "electron-rebuild",
+          "version": "2.0.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "chokidar",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/chokidar"
+        ],
+        "fix": {
+          "name": "chokidar",
+          "version": "5.0.0",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "dir-compare",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/dir-compare"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "dmg-builder",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/dmg-builder"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "electron",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/electron"
+        ],
+        "fix": {
+          "name": "electron",
+          "version": "44.5.1",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "Electron vulnerable to Heap Buffer Overflow in NativeImage",
+            "url": "https://github.com/advisories/GHSA-6r2x-8pq8-9489",
+            "range": "<28.3.2"
+          },
+          {
+            "title": "Electron has ASAR Integrity Bypass via resource modification",
+            "url": "https://github.com/advisories/GHSA-vmqv-hx8q-j7mg",
+            "range": "<35.7.5"
+          },
+          {
+            "title": "Electron: AppleScript injection in app.moveToApplicationsFolder on macOS",
+            "url": "https://github.com/advisories/GHSA-5rqw-r77c-jp79",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Service worker can spoof executeJavaScript IPC replies",
+            "url": "https://github.com/advisories/GHSA-xj5x-m3f3-5x3h",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Incorrect origin passed to permission request handler for iframe requests",
+            "url": "https://github.com/advisories/GHSA-r5p7-gp4j-qhrx",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Out-of-bounds read in second-instance IPC on macOS and Linux",
+            "url": "https://github.com/advisories/GHSA-3c8v-cfp5-9885",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: nodeIntegrationInWorker not correctly scoped in shared renderer processes",
+            "url": "https://github.com/advisories/GHSA-xwr5-m59h-vwqr",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Use-after-free in offscreen child window paint callback",
+            "url": "https://github.com/advisories/GHSA-532v-xpq5-8h95",
+            "range": "<39.8.1"
+          },
+          {
+            "title": "Electron: Registry key path injection in app.setAsDefaultProtocolClient on Windows",
+            "url": "https://github.com/advisories/GHSA-mwmh-mq4g-g6gr",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Use-after-free in download save dialog callback",
+            "url": "https://github.com/advisories/GHSA-9w97-2464-8783",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Use-after-free in WebContents fullscreen, pointer-lock, and keyboard-lock permission callbacks",
+            "url": "https://github.com/advisories/GHSA-8337-3p73-46f4",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Use-after-free in PowerMonitor on Windows and macOS",
+            "url": "https://github.com/advisories/GHSA-jjp3-mq3x-295m",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Unquoted executable path in app.setLoginItemSettings on Windows",
+            "url": "https://github.com/advisories/GHSA-jfqx-fxh3-c62j",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: HTTP Response Header Injection in custom protocol handlers and webRequest",
+            "url": "https://github.com/advisories/GHSA-4p4r-m79c-wq3v",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: USB device selection not validated against filtered device list",
+            "url": "https://github.com/advisories/GHSA-9899-m83m-qhpj",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Crash in clipboard.readImage() on malformed clipboard image data",
+            "url": "https://github.com/advisories/GHSA-f37v-82c4-4x64",
+            "range": "<39.8.5"
+          },
+          {
+            "title": "Electron: Named window.open targets not scoped to the opener's browsing context",
+            "url": "https://github.com/advisories/GHSA-f3pv-wv63-48x8",
+            "range": "<39.8.5"
+          },
+          {
+            "title": "Electron: Renderer command-line switch injection via undocumented commandLineSwitches webPreference",
+            "url": "https://github.com/advisories/GHSA-9wfr-w7mm-pc7f",
+            "range": "<38.8.6"
+          },
+          {
+            "title": "Electron: Parent process code-sign check is spoofable",
+            "url": "https://github.com/advisories/GHSA-jm7p-cc5g-qwxx",
+            "range": "<39.8.8"
+          },
+          {
+            "title": "Electron: Custom protocol with supportFetchAPI but not corsEnabled allows cross-origin reads",
+            "url": "https://github.com/advisories/GHSA-v3j7-r9gq-3gjw",
+            "range": "<39.8.10"
+          },
+          {
+            "title": "Electron: Extension tab APIs operate across session boundaries",
+            "url": "https://github.com/advisories/GHSA-m55f-7gqj-fr98",
+            "range": "<39.8.8"
+          },
+          {
+            "title": "Electron: shell.openPath path validation bypass via embedded null byte",
+            "url": "https://github.com/advisories/GHSA-5c9j-mhmv-5xgx",
+            "range": "<39.8.6"
+          },
+          {
+            "title": "Electron: Context isolation bypass via Function.prototype.bind hijack",
+            "url": "https://github.com/advisories/GHSA-h7rp-cf8h-j98x",
+            "range": "<39.8.9"
+          },
+          {
+            "title": "Electron: Cross-origin iframe can position native autofill popup",
+            "url": "https://github.com/advisories/GHSA-x8rc-wpg4-grpf",
+            "range": "<39.8.8"
+          },
+          {
+            "title": "Electron: Permission Check Handler Receives Main Frame Origin Instead of Requesting Iframe Origin",
+            "url": "https://github.com/advisories/GHSA-9pf5-hg6p-4pwp",
+            "range": "<39.8.7"
+          },
+          {
+            "title": "Electron: Off-screen rendering trusts GPU-supplied geometry over shared-memory size",
+            "url": "https://github.com/advisories/GHSA-pfmc-3mgc-p6fp",
+            "range": "<39.8.10"
+          },
+          {
+            "title": "Electron: HTTP redirect followed into local file loader",
+            "url": "https://github.com/advisories/GHSA-v64r-4m7r-3mvq",
+            "range": "<39.8.8"
+          },
+          {
+            "title": "Electron: window.open features string controls some window options considered privileged",
+            "url": "https://github.com/advisories/GHSA-v93f-fgjr-hjrj",
+            "range": "<39.8.8"
+          },
+          {
+            "title": "Electron: Sandboxed iframe can bypass the allow-popups restriction via the OpenURL navigation path",
+            "url": "https://github.com/advisories/GHSA-9f4c-93c8-jc8g",
+            "range": "<39.8.10"
+          },
+          {
+            "title": "Electron: Sandboxed iframes can launch external protocol handlers",
+            "url": "https://github.com/advisories/GHSA-p2rr-rvmm-c5fp",
+            "range": "<39.8.8"
+          },
+          {
+            "title": "Electron: DevTools embedder handler executes arbitrary files via shell open",
+            "url": "https://github.com/advisories/GHSA-f2r8-jv7c-xqmp",
+            "range": "<39.8.9"
+          },
+          {
+            "title": "Electron: contextBridge object copy honors prototype setters",
+            "url": "https://github.com/advisories/GHSA-ff2p-hmqr-hxm4",
+            "range": "<39.8.9"
+          },
+          {
+            "title": "Electron: DevTools JavaScript Injection via Unsanitized Dock State Parameter",
+            "url": "https://github.com/advisories/GHSA-4f78-qhmw-8j8m",
+            "range": "<39.8.7"
+          },
+          {
+            "title": "Electron drops inherited HTML sandbox restrictions for popups opened through OpenURLFromTab",
+            "url": "https://github.com/advisories/GHSA-hq2x-r82h-9wj4",
+            "range": "<41.10.4"
+          },
+          {
+            "title": "Electron: Windows opened from a sandboxed top-level document do not inherit its sandbox restrictions",
+            "url": "https://github.com/advisories/GHSA-gr2m-v5gq-v685",
+            "range": "<41.10.6"
+          },
+          {
+            "title": "Electron: File and HTTP protocol handlers allow cross-origin reads without corsEnabled",
+            "url": "https://github.com/advisories/GHSA-j84w-jfhq-vhvj",
+            "range": "<41.10.6"
+          },
+          {
+            "title": "Electron: <webview> can enable Node.js integration in Web Workers despite embedder restrictions",
+            "url": "https://github.com/advisories/GHSA-9qh4-3jw8-366w",
+            "range": "<41.10.6"
+          },
+          {
+            "title": "Electron: Local race condition in Squirrel.Mac update installation on macOS",
+            "url": "https://github.com/advisories/GHSA-vv43-5jgx-7qv8",
+            "range": "<39.8.10"
+          }
+        ]
+      },
+      {
+        "name": "electron-builder",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/electron-builder"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "electron-publish",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/electron-publish"
+        ],
+        "fix": true,
+        "advisories": []
+      },
+      {
+        "name": "electron-rebuild",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/electron-rebuild"
+        ],
+        "fix": {
+          "name": "electron-rebuild",
+          "version": "2.0.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "electron-updater",
+        "severity": "high",
+        "direct": true,
+        "nodes": [
+          "node_modules/electron-updater"
+        ],
+        "fix": {
+          "name": "electron-updater",
+          "version": "6.8.9",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "electron-updater Code Signing Bypass on Windows",
+            "url": "https://github.com/advisories/GHSA-9jxc-qjr9-vjxq",
+            "range": "<=6.3.0-alpha.5"
+          }
+        ]
+      },
+      {
+        "name": "extract-zip",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/extract-zip"
+        ],
+        "fix": {
+          "name": "electron",
+          "version": "44.5.1",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "extract-zip unvalidated symlink path traversal",
+            "url": "https://github.com/advisories/GHSA-jmr9-qjv8-65gv",
+            "range": "<=2.0.1"
+          },
+          {
+            "title": "extract-zip allows arbitrary file writes through symlink archive entries",
+            "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3",
+            "range": "<=2.0.1"
+          }
+        ]
+      },
+      {
+        "name": "form-data",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/form-data"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames",
+            "url": "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx",
+            "range": ">=4.0.0 <4.0.6"
+          }
+        ]
+      },
+      {
+        "name": "global-agent",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/global-agent"
+        ],
+        "fix": {
+          "name": "electron",
+          "version": "44.5.1",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "http-cache-semantics",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/http-cache-semantics"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "http-cache-semantics max-stale handling can disclose cross-user cached responses",
+            "url": "https://github.com/advisories/GHSA-ch52-4w7c-c8xp",
+            "range": "<=4.2.0"
+          }
+        ]
+      },
+      {
+        "name": "ip-address",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/ip-address"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "ip-address: Address4 decodes leading-zero octets as decimal while resolvers decode them as octal, allowing SSRF and trust-boundary bypass",
+            "url": "https://github.com/advisories/GHSA-mwp4-54f8-5fhr",
+            "range": "<=10.3.0"
+          },
+          {
+            "title": "ip-address: a CIDR suffix on the parsed address suppresses special-use classification and can bypass SSRF and trust-boundary checks",
+            "url": "https://github.com/advisories/GHSA-4xrf-jv44-h6hh",
+            "range": ">=10.1.1 <=10.2.1"
+          },
+          {
+            "title": "ip-address: misclassification of IPv4-mapped/NAT64 IPv6 addresses can bypass SSRF and trust-boundary checks",
+            "url": "https://github.com/advisories/GHSA-22jq-vg5j-6vgg",
+            "range": ">=10.1.1 <=10.2.0"
+          },
+          {
+            "title": "ip-address: Address6.isLinkLocal() recognizes fe80::/64 rather than fe80::/10, allowing SSRF and trust-boundary bypass to on-link hosts",
+            "url": "https://github.com/advisories/GHSA-rpw4-54j3-4h4q",
+            "range": "<=10.5.0"
+          },
+          {
+            "title": "ip-address: no classifier recognizes the NAT64 local-use range 64:ff9b:1::/48, allowing SSRF and trust-boundary bypass",
+            "url": "https://github.com/advisories/GHSA-2vr4-cq9g-pvrc",
+            "range": ">=10.2.0 <=10.5.0"
+          },
+          {
+            "title": "ip-address: isInSubnet() and isHostInSubnet() compare addresses of different families as if they shared an address space, allowing an allowlist check to admit an address outside its range",
+            "url": "https://github.com/advisories/GHSA-j6r3-76f7-8jcv",
+            "range": "<=10.7.0"
+          },
+          {
+            "title": "ip-address: Address6 builds a parse diagnostic proportional to the input with no length bound, allowing a single long string to stall or crash the process",
+            "url": "https://github.com/advisories/GHSA-h3mg-xc3c-68pw",
+            "range": "<=10.7.0"
+          }
+        ]
+      },
+      {
+        "name": "js-yaml",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/js-yaml"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+            "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68",
+            "range": ">=4.0.0 <=4.1.1"
+          },
+          {
+            "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+            "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+            "range": ">=4.0.0 <4.3.0"
+          },
+          {
+            "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+            "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
+            "range": ">=4.0.0 <4.3.1"
+          },
+          {
+            "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+            "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+            "range": ">=4.0.0 <4.3.2"
+          }
+        ]
+      },
+      {
+        "name": "make-fetch-happen",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/make-fetch-happen"
+        ],
+        "fix": {
+          "name": "electron-rebuild",
+          "version": "2.0.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "minimatch",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/dir-compare/node_modules/minimatch"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "minimatch ReDoS vulnerability",
+            "url": "https://github.com/advisories/GHSA-f8q6-p94x-37v3",
+            "range": "<3.0.5"
+          },
+          {
+            "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+            "url": "https://github.com/advisories/GHSA-3ppc-4f35-3m26",
+            "range": "<3.1.3"
+          },
+          {
+            "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+            "url": "https://github.com/advisories/GHSA-7r86-cg39-jmmj",
+            "range": "<3.1.3"
+          },
+          {
+            "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+            "url": "https://github.com/advisories/GHSA-23c5-xmqv-rm74",
+            "range": "<3.1.4"
+          }
+        ]
+      },
+      {
+        "name": "node-gyp",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/node-gyp"
+        ],
+        "fix": {
+          "name": "electron-rebuild",
+          "version": "2.0.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "roarr",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/roarr"
+        ],
+        "fix": {
+          "name": "electron",
+          "version": "44.5.1",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "semver",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/simple-update-notifier/node_modules/semver"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "semver vulnerable to Regular Expression Denial of Service",
+            "url": "https://github.com/advisories/GHSA-c2qf-rxjj-qqgw",
+            "range": ">=7.0.0 <7.5.2"
+          }
+        ]
+      },
+      {
+        "name": "simple-update-notifier",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/simple-update-notifier"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": []
+      },
+      {
+        "name": "sprintf-js",
+        "severity": "moderate",
+        "direct": false,
+        "nodes": [
+          "node_modules/sprintf-js"
+        ],
+        "fix": {
+          "name": "electron",
+          "version": "44.5.1",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+            "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+            "range": "<=1.1.3"
+          }
+        ]
+      },
+      {
+        "name": "tar",
+        "severity": "critical",
+        "direct": false,
+        "nodes": [
+          "node_modules/app-builder-lib/node_modules/tar",
+          "node_modules/cacache/node_modules/tar",
+          "node_modules/electron-rebuild/node_modules/tar",
+          "node_modules/node-gyp/node_modules/tar",
+          "node_modules/tar"
+        ],
+        "fix": {
+          "name": "electron-builder",
+          "version": "26.15.3",
+          "isSemVerMajor": true
+        },
+        "advisories": [
+          {
+            "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+            "url": "https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
+            "range": "<7.5.7"
+          },
+          {
+            "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+            "url": "https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
+            "range": "<=7.5.2"
+          },
+          {
+            "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+            "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx",
+            "range": "<7.5.8"
+          },
+          {
+            "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+            "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96",
+            "range": "<=7.5.9"
+          },
+          {
+            "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+            "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256",
+            "range": "<=7.5.10"
+          },
+          {
+            "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+            "url": "https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
+            "range": "<=7.5.3"
+          },
+          {
+            "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+            "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh",
+            "range": "<=7.5.15"
+          },
+          {
+            "title": "node-tar: Process crash via PAX numeric path type confusion",
+            "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp",
+            "range": "<=7.5.17"
+          },
+          {
+            "title": "node-tar: Decompression/parse DoS via unlimited input",
+            "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
+            "range": "<=7.5.18"
+          },
+          {
+            "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+            "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
+            "range": "<=7.5.17"
+          },
+          {
+            "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+            "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
+            "range": "<=7.5.16"
+          },
+          {
+            "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+            "url": "https://github.com/advisories/GHSA-r292-9mhp-454m",
+            "range": "<=7.5.20"
+          }
+        ]
+      },
+      {
+        "name": "tmp",
+        "severity": "high",
+        "direct": false,
+        "nodes": [
+          "node_modules/tmp"
+        ],
+        "fix": true,
+        "advisories": [
+          {
+            "title": "tmp has Path Traversal via unsanitized prefix/postfix that enables directory escape",
+            "url": "https://github.com/advisories/GHSA-ph9p-34f9-6g65",
+            "range": "<0.2.6"
+          }
+        ]
+      }
+    ]
+  }
+}

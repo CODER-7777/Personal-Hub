@@ -94,15 +94,35 @@ export function ClassesTab() {
                   {dayClasses.map(c => (
                     <div key={c.id} className="bg-bg p-4 rounded-2xl border-2 border-ink relative group text-sm hover:bg-highlight transition-colors hover:shadow-[4px_4px_0px_var(--theme-ink)] -translate-x-[2px] -translate-y-[2px]">
 
-                      <div className="text-ink font-bold text-[10px] uppercase tracking-widest border-2 border-ink bg-bg px-2 py-1 inline-block mb-3 rounded-lg">
-                        {c.startTime} — {c.endTime}
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <div className="text-ink font-bold text-[10px] uppercase tracking-widest border-2 border-ink bg-bg px-2 py-1 rounded-lg">
+                          {c.startTime} — {c.endTime}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => editClass(c)}
+                            aria-label={`Edit ${c.className}`}
+                            title="Edit class"
+                            className="w-8 h-8 flex items-center justify-center border-2 border-ink rounded-lg text-ink hover:bg-highlight hover:shadow-[2px_2px_0px_var(--theme-ink)] transition-all"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Delete ${c.className} from your schedule?`)) removeClass(c.id);
+                            }}
+                            aria-label={`Delete ${c.className}`}
+                            title="Delete class"
+                            className="w-8 h-8 flex items-center justify-center border-2 border-red-200 rounded-lg text-red-600 hover:bg-red-50 hover:border-red-400 transition-all"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <h4 className="font-bold text-ink pr-4 text-lg tracking-tight leading-tight mb-2 break-words">{c.className}</h4>
+                      <h4 className="font-bold text-ink text-lg tracking-tight leading-tight mb-1 break-words">{c.className}</h4>
                       {c.room && <div className="text-[10px] font-bold uppercase text-sub group-hover:text-ink">Room: {c.room}</div>}
-                      <div className="flex gap-2 mt-3">
-                        <button type="button" onClick={() => editClass(c)} aria-label={`Edit ${c.className}`} className="min-h-11 flex-1 flex items-center justify-center gap-2 px-3 border-2 border-ink rounded-xl text-ink font-bold hover:bg-highlight"><Pencil className="w-4 h-4" /> Edit</button>
-                        <button type="button" onClick={() => { if (window.confirm(`Delete ${c.className} from your schedule?`)) removeClass(c.id); }} aria-label={`Delete ${c.className}`} className="min-h-11 min-w-11 p-3 border-2 border-red-200 rounded-xl text-red-600 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
-                      </div>
                     </div>
                   ))}
                 </div>
